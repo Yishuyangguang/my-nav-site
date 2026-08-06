@@ -2,145 +2,203 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>极客数据区块</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41'/></svg>">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>一束阳光 - 数据刻录机</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='18' fill='%23f59e0b'/%3E%3Cpath d='M32 4v8m0 40v8M4 32h8m40 0h8m-38-18l6 6m20 20l6 6m-26 0l6-6m20-20l6-6' stroke='%23f59e0b' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 :root {
-  --bg-color: #050505;
-  --glass-bg: rgba(20, 22, 26, 0.45);
-  --glass-border: rgba(212, 175, 55, 0.25);
-  --glass-hover: rgba(30, 33, 40, 0.6);
-  --gold: #d4af37;
-  --gold-glow: #fef3c7;
-  --text-main: #e2d9cc;
-  --text-muted: #8a8377;
+  --bg-ambient: #fffbeb;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(245, 158, 11, 0.25);
+  --glass-hover: rgba(255, 255, 255, 0.95);
+  --amber: #f59e0b;
+  --text-main: #1c1917;
+  --text-muted: #78716c;
   --danger: #ef4444;
-  --info: #3b82f6;
+  --info: #2563eb;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg-color); background-image: radial-gradient(circle at 50% 0%, #1a160c 0%, var(--bg-color) 70%); background-attachment: fixed; color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; line-height: 1.8; min-height: 100vh; padding-bottom: 50px; }
-a { color: var(--gold); text-decoration: none; }
+body {
+  background-color: var(--bg-ambient);
+  background-image: radial-gradient(circle at 10% 10%, #fef08a 0%, transparent 40%), radial-gradient(circle at 90% 90%, #fde68a 0%, transparent 40%);
+  background-attachment: fixed;
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.8;
+  min-height: 100vh;
+  padding: 30px 16px 60px;
+}
+a { color: #b45309; text-decoration: none; }
 button { font: inherit; cursor: pointer; border: none; background: none; }
-.glass { background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.05); border-radius: 14px; }
 
-/* 权限显隐控制 */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-radius: 18px;
+  transform: translateZ(0);
+}
+
 body:not(.admin-mode) .admin-only { display: none !important; }
 body.admin-mode .guest-only { display: none !important; }
 
-.container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
-.header { padding: 35px 0 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(212, 175, 55, 0.15); margin-bottom: 30px; }
-.logo { font-size: 22px; font-weight: 800; background: linear-gradient(135deg, var(--gold), var(--gold-glow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.header-actions { display: flex; gap: 12px; }
-.nav-link { padding: 8px 18px; border-radius: 20px; color: var(--gold); font-size: 13px; font-weight: 600; transition: all 0.2s; border: 1px solid var(--glass-border); }
-.nav-link:hover { background: var(--gold); color: #000; box-shadow: 0 0 15px rgba(212,175,55,0.3); }
+.container { max-width: 800px; margin: 0 auto; }
+.header {
+  padding: 20px 0 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+  margin-bottom: 30px;
+}
+.logo-area { display: flex; align-items: center; gap: 12px; }
 
-.module-tabs { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; align-items: center; }
+@keyframes sunRotate { 0% { transform: rotate(0deg) translateZ(0); } 100% { transform: rotate(360deg) translateZ(0); } }
+@keyframes sunPulse { 0% { transform: scale(1) translateZ(0); box-shadow: 0 0 10px rgba(245,158,11,0.4); } 50% { transform: scale(1.06) translateZ(0); box-shadow: 0 0 25px rgba(245,158,11,0.8); } 100% { transform: scale(1) translateZ(0); box-shadow: 0 0 10px rgba(245,158,11,0.4); } }
+.logo-icon {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, #fef08a, #f59e0b);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  animation: sunPulse 3.5s infinite ease-in-out;
+  transform: translateZ(0);
+}
+.logo-icon span { display: inline-block; animation: sunRotate 12s infinite linear; }
+.logo-text { font-size: 22px; font-weight: 800; color: #1c1917; letter-spacing: -0.5px; }
+
+.header-actions { display: flex; gap: 10px; }
+.nav-link {
+  padding: 8px 16px; border-radius: 20px; color: #b45309; font-size: 13px; font-weight: 600;
+  border: 1px solid rgba(245, 158, 11, 0.35); background: rgba(255, 255, 255, 0.6);
+  transition: all 0.2s; transform: translateZ(0);
+}
+.nav-link:hover { background: var(--amber); color: #fff; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); }
+
+.module-tabs { display: flex; gap: 8px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; align-items: center; }
 .module-tabs::-webkit-scrollbar { display: none; }
-.tab { padding: 8px 18px; border-radius: 20px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; white-space: nowrap; border: 1px solid transparent; }
-.tab.active, .tab:hover { color: #000; background: var(--gold); box-shadow: 0 0 15px rgba(212,175,55,0.2); }
-.btn-del-module { color: var(--danger); font-size: 12px; margin-left: 10px; opacity: 0.8; }
-.btn-del-module:hover { text-decoration: underline; opacity: 1; }
+.tab {
+  padding: 8px 16px; border-radius: 16px; font-size: 13.5px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; white-space: nowrap;
+  background: rgba(255,255,255,0.5); border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.tab.active, .tab:hover { color: #b45309; background: rgba(245, 158, 11, 0.15); border-color: var(--amber); }
 
-.post-card { padding: 22px; margin-bottom: 18px; cursor: pointer; transition: transform 0.2s, border-color 0.2s; position: relative; overflow: hidden;}
-.post-card:hover { border-color: var(--gold); transform: translateY(-3px); background: var(--glass-hover);}
-.post-title { font-size: 18px; font-weight: 700; color: var(--gold-glow); margin-bottom: 6px; padding-right: 90px;}
+.category-header { display: flex; justify-content: space-between; align-items: center; margin: 35px 0 15px; border-bottom: 1px solid rgba(245, 158, 11, 0.2); padding: 6px 10px; border-radius: 10px; transition: background 0.2s; }
+body.admin-mode .category-header { cursor: grab; }
+body.admin-mode .category-header:active { cursor: grabbing; background: rgba(245, 158, 11, 0.08); }
+.category-title { font-size: 17px; font-weight: 700; color: #1c1917; }
+
+.post-card { padding: 18px; margin-bottom: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; transform: translateZ(0);}
+.post-card:hover { border-color: var(--amber); transform: translateY(-2px) translateZ(0); box-shadow: 0 10px 30px rgba(245, 158, 11, 0.15); background: var(--glass-hover);}
+.post-title { font-size: 17px; font-weight: 700; color: #1c1917; margin-bottom: 4px; padding-right: 70px;}
 .post-date { font-size: 12px; color: var(--text-muted); }
 
-/* 3D 玻璃材质按钮组 */
-.glass-btn-group { position: absolute; top: 18px; right: 22px; display: flex; gap: 8px; z-index: 10; }
-.btn-3d { 
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); 
-  border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; 
-  padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; 
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s, box-shadow 0.2s; 
-  color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5); 
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.1); 
+/* 高性能 3D 毛玻璃图标按钮 */
+.glass-icon-btn-group { position: absolute; top: 16px; right: 18px; display: flex; gap: 6px; z-index: 10; }
+.btn-icon-3d {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08), inset 0 1px 1px rgba(255,255,255,0.9);
+  transition: transform 0.15s ease, background 0.15s ease; transform: translateZ(0);
 }
-.btn-3d-edit { background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.3); }
-.btn-3d-edit:hover { background: rgba(59, 130, 246, 0.4); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3), inset 0 1px 1px rgba(255,255,255,0.2); }
-.btn-3d-del { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.3); }
-.btn-3d-del:hover { background: rgba(239, 68, 68, 0.4); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3), inset 0 1px 1px rgba(255,255,255,0.2); }
+.btn-icon-edit { background: rgba(37, 99, 235, 0.12); color: var(--info); border-color: rgba(37, 99, 235, 0.3); }
+.btn-icon-edit:hover { background: rgba(37, 99, 235, 0.25); transform: scale(1.1); }
+.btn-icon-del { background: rgba(239, 68, 68, 0.12); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+.btn-icon-del:hover { background: rgba(239, 68, 68, 0.25); transform: scale(1.1); }
+.btn-icon-add {
+  height: 28px; padding: 0 12px; border-radius: 14px; font-size: 12px; font-weight: 700;
+  background: rgba(245, 158, 11, 0.15); color: #b45309; border-color: rgba(245, 158, 11, 0.4);
+  display: flex; align-items: center; gap: 4px;
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.15); transition: 0.15s;
+}
+.btn-icon-add:hover { background: rgba(245, 158, 11, 0.3); transform: translateY(-1px); }
 
-.markdown-body { padding: 35px; margin-top: 20px; overflow: hidden; }
-.markdown-body img { max-width: 100%; border-radius: 8px; margin: 15px 0; display: block;}
-.markdown-body h1, .markdown-body h2 { color: var(--gold-glow); margin: 25px 0 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;}
-.markdown-body p { margin-bottom: 16px; color: #d1c8ba; }
-.markdown-body pre { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); overflow-x: auto; margin-bottom: 16px; }
+.markdown-body { padding: 30px; margin-top: 20px; overflow: hidden; }
+.markdown-body img { max-width: 100%; border-radius: 12px; margin: 15px 0; display: block;}
+.markdown-body h1, .markdown-body h2 { color: #1c1917; margin: 25px 0 15px; border-bottom: 1px solid rgba(245, 158, 11, 0.2); padding-bottom: 5px;}
+.markdown-body p { margin-bottom: 16px; color: #44403c; }
+.markdown-body pre { background: #1c1917; color: #fef3c7; padding: 15px; border-radius: 12px; overflow-x: auto; margin-bottom: 16px; }
 
-.video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin: 25px 0; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+.video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 14px; margin: 25px 0; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
 .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 999; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 999; }
 .modal-overlay.active { display: flex; }
-.modal-card { width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; padding: 30px; }
-.form-group { margin-bottom: 15px; }
-.form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
-.form-control { width: 100%; padding: 12px; color: var(--text-main); outline: none; font-size: 14px; background: rgba(0,0,0,0.3); transition: 0.2s;}
-.form-control:focus { border-color: var(--gold); }
-.btn-submit { width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, #d4af37, #b38728); color: #000; font-weight: 700; margin-top: 15px; border: none; transition: 0.2s;}
-.btn-submit:hover { filter: brightness(1.1); box-shadow: 0 0 15px rgba(212,175,55,0.4); }
-.tip-text { font-size: 12px; color: var(--text-muted); line-height: 1.6; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px;}
+.modal-card { width: 90%; max-width: 650px; max-height: 90vh; overflow-y: auto; padding: 28px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
+.form-control { width: 100%; padding: 11px 14px; color: var(--text-main); outline: none; font-size: 14px; background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; transition: 0.2s;}
+.form-control:focus { border-color: var(--amber); background: rgba(255, 255, 255, 0.95); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); }
+.btn-submit { width: 100%; padding: 13px; border-radius: 14px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 700; margin-top: 12px; border: none; transition: 0.2s; transform: translateZ(0);}
+.btn-submit:hover { filter: brightness(1.05); transform: translateY(-1px) translateZ(0); }
+.login-avatar { width: 64px; height: 64px; background: linear-gradient(135deg, #fef08a, #f59e0b); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3); }
 </style>
 </head>
 <body>
 
 <div class="container">
   <header class="header">
-    <div class="logo">✦ 数据刻录机</div>
+    <div class="logo-area">
+      <div class="logo-icon"><span>☀️</span></div>
+      <div class="logo-text">一束阳光</div>
+    </div>
     <div class="header-actions">
-      <!-- 动态权限控制按钮 -->
       <button class="nav-link glass guest-only" onclick="openLoginModal()">🔒 登录</button>
       <button class="nav-link glass admin-only" onclick="logout()" style="color:var(--danger); border-color:rgba(239,68,68,0.3);">🔓 退出</button>
-      <button class="nav-link glass admin-only" onclick="openBlogModal()">✍️ 刻录区块</button>
-      <a href="index.html" class="nav-link glass" style="background:var(--gold); color:#000;">← 返回总控</a>
+      <button class="nav-link glass admin-only" onclick="quickCreateModule()">＋ 新建版块</button>
+      <a href="index.html" class="nav-link glass" style="background:var(--amber); color:#fff;">← 返回总控</a>
     </div>
   </header>
   
   <div id="moduleTabs" class="module-tabs"></div>
-  <div id="content"><p style="color:var(--text-muted)">🔄 正在同步底层链路...</p></div>
+  <div id="content"><p style="color:var(--text-muted)">🔄 正在加载阳光数据...</p></div>
 </div>
 
 <!-- 登录弹窗 -->
 <div id="loginModal" class="modal-overlay">
-  <div class="modal-card glass" style="max-width: 500px;">
-    <div style="font-size: 18px; font-weight: 700; color: var(--gold); margin-bottom: 20px;">🔒 核心鉴权</div>
-    <div class="form-group"><label>访问密钥</label><input type="password" id="loginPwd" class="form-control glass" placeholder="输入控制台密码" onkeypress="if(event.key === 'Enter') verifyLogin()"></div>
-    <button id="loginBtn" class="btn-submit" onclick="verifyLogin()">🔑 登入系统</button>
-    <button class="btn-submit" style="background:transparent;color:var(--text-muted);border:1px solid var(--glass-border);box-shadow:none;" onclick="closeLoginModal()">取消</button>
+  <div class="modal-card glass" style="max-width: 420px; text-align: center;">
+    <div class="login-avatar"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+    <div style="font-size: 18px; font-weight: 700; color: #1c1917; margin-bottom: 20px;">管理员身份验证</div>
+    <div class="form-group"><input type="password" id="loginPwd" class="form-control" placeholder="输入密钥" onkeypress="if(event.key === 'Enter') verifyLogin()" style="text-align: center; letter-spacing: 3px;"></div>
+    <button id="loginBtn" class="btn-submit" onclick="verifyLogin()">验证登入</button>
+    <button class="btn-submit" style="background:transparent; color:var(--text-muted); border:1px solid rgba(245,158,11,0.3); box-shadow:none; margin-top:8px;" onclick="closeLoginModal()">取消</button>
   </div>
 </div>
 
-<!-- 添加文章弹窗 (已移除密码框) -->
+<!-- 添加文章弹窗 -->
 <div id="blogModal" class="modal-overlay">
   <div class="modal-card glass">
-    <div style="font-size:18px;font-weight:700;color:var(--gold);margin-bottom:20px;">✍️ 写入新区块</div>
-    <div class="form-group"><label>所属模块</label><input type="text" id="postCat" class="form-control glass" placeholder="例如：技术笔记"></div>
-    <div class="form-group"><label>文章标题</label><input type="text" id="postTitle" class="form-control glass" placeholder="输入标题..."></div>
+    <div style="font-size: 18px; font-weight: 700; color: #1c1917; margin-bottom: 18px;">✍️ 写入新文章区块</div>
+    <input type="hidden" id="currentContextCat">
+    <div class="form-group"><label>文章标题 (选填：不填则自动识别)</label><input type="text" id="postTitle" class="form-control" placeholder="留空则自动生成标题"></div>
     <div class="form-group">
       <label>数据载荷 (Markdown)</label>
-      <textarea id="postContent" class="form-control glass" rows="12" placeholder="在此编写长文（支持贴图、视频自动解析）..."></textarea>
+      <textarea id="postContent" class="form-control" rows="10" placeholder="在此编写长文（支持粘贴图片、视频网址自动转换）..."></textarea>
     </div>
     <button id="pubBtn" class="btn-submit" onclick="submitPost()">🚀 发射数据</button>
-    <button class="btn-submit" style="background:transparent;color:var(--text-muted);border:1px solid var(--glass-border);box-shadow:none;" onclick="closeBlogModal()">终止</button>
+    <button class="btn-submit" style="background:transparent; color:var(--text-muted); border:1px solid rgba(245,158,11,0.3); box-shadow:none; margin-top:8px;" onclick="closeBlogModal()">取消</button>
   </div>
 </div>
 
-<!-- 编辑文章弹窗 (已移除密码框) -->
+<!-- 编辑文章弹窗 -->
 <div id="editBlogModal" class="modal-overlay">
   <div class="modal-card glass">
-    <div style="font-size:18px;font-weight:700;color:var(--gold);margin-bottom:20px;">✎ 修改数据区块</div>
+    <div style="font-size: 18px; font-weight: 700; color: #1c1917; margin-bottom: 18px;">✏️ 修改数据区块</div>
     <input type="hidden" id="editCatIdx">
     <input type="hidden" id="editPostIdx">
-    <div class="form-group"><label>所属模块</label><input type="text" id="editPostCat" class="form-control glass"></div>
-    <div class="form-group"><label>文章标题</label><input type="text" id="editPostTitle" class="form-control glass"></div>
+    <div class="form-group"><label>所属模块</label><input type="text" id="editPostCat" class="form-control"></div>
+    <div class="form-group"><label>文章标题</label><input type="text" id="editPostTitle" class="form-control"></div>
     <div class="form-group">
       <label>数据载荷 (Markdown)</label>
-      <textarea id="editPostContent" class="form-control glass" rows="12"></textarea>
+      <textarea id="editPostContent" class="form-control" rows="10"></textarea>
     </div>
     <button id="editPubBtn" class="btn-submit" onclick="submitEditPost()">💾 保存修改</button>
-    <button class="btn-submit" style="background:transparent;color:var(--text-muted);border:1px solid var(--glass-border);box-shadow:none;" onclick="closeEditBlogModal()">终止</button>
+    <button class="btn-submit" style="background:transparent; color:var(--text-muted); border:1px solid rgba(245,158,11,0.3); box-shadow:none; margin-top:8px;" onclick="closeEditBlogModal()">取消</button>
   </div>
 </div>
 
@@ -149,7 +207,6 @@ const API_URL = "https://api.shucao.cc.cd";
 let store = { nav: [], posts: [] };
 let activeModule = 'all';
 
-// 全局权限管家
 function getPwd() { return sessionStorage.getItem('adminKey'); }
 function checkAuth() { if (getPwd()) { document.body.classList.add('admin-mode'); } else { document.body.classList.remove('admin-mode'); } }
 function logout() { sessionStorage.removeItem('adminKey'); checkAuth(); renderList(); }
@@ -159,24 +216,49 @@ const fetchWithTimeout = async (resource, options = {}) => {
   const id = setTimeout(() => controller.abort(), 8000);
   const response = await fetch(resource, { ...options, signal: controller.signal });
   clearTimeout(id); 
-  // 全局拦截 401
-  if (response.status === 401) { logout(); alert("⛔ 身份验证已过期，请重新登录"); throw new Error("Auth failed"); }
+  if (response.status === 401) { logout(); alert("⛔ 身份验证过期"); throw new Error("Auth failed"); }
   return response;
 };
 
 async function verifyLogin() {
   const pwd = document.getElementById('loginPwd').value.trim();
   if(!pwd) return;
-  const btn = document.getElementById('loginBtn');
-  btn.innerText = "⏳ 验证中...";
+  const btn = document.getElementById('loginBtn'); btn.innerText = "⏳ 验证中...";
   try {
     const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd }) });
-    if (res.ok) {
-      sessionStorage.setItem('adminKey', pwd);
-      checkAuth(); closeLoginModal(); renderList();
-    } else { alert("⛔ 密钥错误"); }
-  } catch(e) { if(e.message !== "Auth failed") alert("⚠️ 网络超时"); }
-  btn.innerText = "🔑 登入系统";
+    if (res.ok) { sessionStorage.setItem('adminKey', pwd); checkAuth(); closeLoginModal(); renderList(); } else alert("⛔ 密钥错误");
+  } catch(e) {}
+  btn.innerText = "验证登入";
+}
+
+// 极简直接新建版块
+async function quickCreateModule() {
+  const name = prompt("请输入新版块名称：");
+  if (!name || !name.trim()) return;
+  let tempPosts = JSON.parse(JSON.stringify(store.posts));
+  if (tempPosts.find(c => c.category === name.trim())) return alert("该版块已存在！");
+  tempPosts.push({ category: name.trim(), items: [] });
+  try {
+    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
+    store.posts = tempPosts; renderModules(); renderList();
+  } catch(e) { alert("⚠️ 创建失败"); }
+}
+
+// 拖拽排序逻辑 (原生高性能)
+let draggedModuleIdx = null;
+function handleModuleDragStart(e, idx) { draggedModuleIdx = idx; e.dataTransfer.effectAllowed = 'move'; }
+function handleModuleDragOver(e) { e.preventDefault(); }
+async function handleModuleDrop(e, targetIdx) {
+  e.preventDefault();
+  if (draggedModuleIdx === null || draggedModuleIdx === targetIdx) return;
+  let tempPosts = JSON.parse(JSON.stringify(store.posts));
+  const moved = tempPosts.splice(draggedModuleIdx, 1)[0];
+  tempPosts.splice(targetIdx, 0, moved);
+  draggedModuleIdx = null;
+  try {
+    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
+    store.posts = tempPosts; renderModules(); renderList();
+  } catch(e) { alert("⚠️ 排序同步失败"); }
 }
 
 function parseVideos(text) {
@@ -187,7 +269,6 @@ function parseVideos(text) {
   return text;
 }
 
-// 粘贴传图支持
 const textarea = document.getElementById('postContent');
 const editTextarea = document.getElementById('editPostContent');
 [textarea, editTextarea].forEach(el => {
@@ -204,7 +285,7 @@ const editTextarea = document.getElementById('editPostContent');
 
 async function uploadImage(file, targetEl) {
   const start = targetEl.selectionStart;
-  const placeholder = '⏳ [图像正上传至云端...]\n';
+  const placeholder = '⏳ [图像正在云端同步...]\n';
   targetEl.value = targetEl.value.substring(0, start) + placeholder + targetEl.value.substring(targetEl.selectionEnd);
   
   const formData = new FormData(); formData.append('file', file);
@@ -213,8 +294,8 @@ async function uploadImage(file, targetEl) {
     const data = await res.json();
     if (data && data[0] && data[0].src) {
       targetEl.value = targetEl.value.replace(placeholder, `![图片](https://telegra.ph${data[0].src})\n`);
-    } else { targetEl.value = targetEl.value.replace(placeholder, '❌ [节点拒收]\n'); }
-  } catch(e) { targetEl.value = targetEl.value.replace(placeholder, '❌ [链路中断]\n'); }
+    } else { targetEl.value = targetEl.value.replace(placeholder, '❌ [上传失败]\n'); }
+  } catch(e) { targetEl.value = targetEl.value.replace(placeholder, '❌ [网络超时]\n'); }
 }
 
 function renderModules() {
@@ -233,37 +314,41 @@ function setModule(mod) { activeModule = mod; renderList(); renderModules(); }
 function renderList() {
   const container = document.getElementById('content');
   let html = '';
-  
-  if (activeModule !== 'all') {
-    const catIdx = store.posts.findIndex(c => c.category === activeModule);
-    html += `<div class="admin-only" style="text-align:right; margin-bottom:15px;"><button class="btn-del-module" onclick="deleteModule(${catIdx})">✕ 抹除【${activeModule}】模块及所有文章</button></div>`;
-  }
 
   let foundPosts = false;
   store.posts.forEach((cat, catIdx) => {
     if (activeModule !== 'all' && activeModule !== cat.category) return;
-    if (cat.items && cat.items.length > 0) {
+    if (cat.items && cat.items.length >= 0) {
       foundPosts = true;
       html += `<div style="margin-bottom: 25px;">
-                 ${activeModule === 'all' ? `<div style="color:var(--gold); font-size:15px; font-weight:700; margin-bottom:12px;">// ${cat.category}</div>` : ''}`;
-      cat.items.forEach((p, postIdx) => {
-        html += `
-          <div class="post-card glass" onclick="window.location.href='blog.html?cat=${catIdx}&id=${p.id}'">
-            <div class="glass-btn-group admin-only">
-              <button class="btn-3d btn-3d-edit" onclick="event.stopPropagation(); openEditPost(${catIdx}, ${postIdx})">改</button>
-              <button class="btn-3d btn-3d-del" onclick="event.stopPropagation(); deletePost(${catIdx}, ${postIdx})">删</button>
-            </div>
-            <div class="post-title">${p.title}</div>
-            <div class="post-date">时间戳: ${p.date}</div>
-          </div>`;
-      });
+                 <div class="category-header" draggable="true" ondragstart="handleModuleDragStart(event, ${catIdx})" ondragover="handleModuleDragOver(event)" ondrop="handleModuleDrop(event, ${catIdx})" title="按住可上下拖拽排序">
+                   <div class="category-title">📂 ${cat.category}</div>
+                   <div class="admin-only" style="display:flex; gap:8px; align-items:center;">
+                     <button class="btn-icon-add" onclick="openBlogModal('${cat.category}')">＋ 添加</button>
+                     <button class="btn-icon-add" style="color:var(--danger); background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.25);" onclick="deleteModule(${catIdx})">✕ 删版块</button>
+                   </div>
+                 </div>`;
+      if (cat.items.length === 0) {
+        html += `<p style="color:var(--text-muted); font-size:12.5px; padding: 10px;">该版块暂无内容，点击上方“＋ 添加”写入文章。</p>`;
+      } else {
+        cat.items.forEach((p, postIdx) => {
+          html += `
+            <div class="post-card glass" onclick="window.location.href='blog.html?cat=${catIdx}&id=${p.id}'">
+              <div class="glass-icon-btn-group admin-only">
+                <button class="btn-icon-3d btn-icon-edit" onclick="event.stopPropagation(); openEditPost(${catIdx}, ${postIdx})" title="修改">✏️</button>
+                <button class="btn-icon-3d btn-icon-del" onclick="event.stopPropagation(); deletePost(${catIdx}, ${postIdx})" title="删除">🗑️</button>
+              </div>
+              <div class="post-title">${p.title}</div>
+              <div class="post-date">时间戳: ${p.date}</div>
+            </div>`;
+        });
+      }
       html += `</div>`;
     }
   });
 
   if (!foundPosts) {
-    if (activeModule !== 'all') html += '<p style="color:var(--text-muted)">该模块下暂无数据。</p>';
-    else html = '<p style="color:var(--text-muted)">数据库为空，请登录后写入数据。</p>';
+    html = '<p style="color:var(--text-muted)">暂无文章记录，请点击上方“新建版块”。</p>';
   }
   
   container.innerHTML = html;
@@ -277,14 +362,11 @@ async function router() {
 
   try {
     const res = await fetchWithTimeout(`${API_URL}/api/data?_t=` + Date.now());
-    if (!res.ok) throw new Error("通信失败");
     store = await res.json();
     
     if (store.posts && store.posts.length > 0 && store.posts[0].title && !store.posts[0].items) {
-      store.posts = [{ category: "默认模块", items: store.posts }];
-    } else if (!store.posts) {
-      store.posts = [];
-    }
+      store.posts = [{ category: "默认版块", items: store.posts }];
+    } else if (!store.posts) { store.posts = []; }
 
     if (postId && catId !== null) {
       document.getElementById('moduleTabs').style.display = 'none';
@@ -296,22 +378,28 @@ async function router() {
           container.innerHTML = `
             <div class="markdown-body glass">
               <h1 style="margin-top:0">${post.title}</h1>
-              <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px; border-bottom:1px dashed rgba(255,255,255,0.1); padding-bottom:10px;">
-                归属模块：${cat.category} | 时间戳：${post.date}
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px; border-bottom:1px dashed rgba(245,158,11,0.2); padding-bottom:10px;">
+                归属版块：${cat.category} | 时间戳：${post.date}
               </div>
               ${marked.parse(processedContent)}
             </div>`;
-        } else { container.innerHTML = '<p style="color:var(--text-muted)">数据已损坏或擦除。</p>'; }
+        } else { container.innerHTML = '<p style="color:var(--text-muted)">数据已不存在。</p>'; }
       }
     } else {
       renderModules(); renderList();
     }
-  } catch(e) { container.innerHTML = `<div class="glass" style="padding: 20px; border-color: var(--danger);"><p style="color:var(--danger); font-weight: bold;">❌ 与核心节点失去连接。</p></div>`; }
+  } catch(e) { container.innerHTML = `<div class="glass" style="padding:20px;border-color:var(--danger);color:var(--danger);">❌ 数据连接断开</div>`; }
 }
 
 function openLoginModal() { document.getElementById('loginModal').classList.add('active'); document.getElementById('loginPwd').focus(); }
 function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); document.getElementById('loginPwd').value = ''; }
-function openBlogModal() { document.getElementById('blogModal').classList.add('active'); }
+
+function openBlogModal(contextCat = '') { 
+  document.getElementById('currentContextCat').value = contextCat;
+  document.getElementById('postTitle').value = '';
+  document.getElementById('postContent').value = '';
+  document.getElementById('blogModal').classList.add('active'); 
+}
 function closeBlogModal() { document.getElementById('blogModal').classList.remove('active'); }
 
 function openEditPost(catIdx, postIdx) {
@@ -325,12 +413,14 @@ function openEditPost(catIdx, postIdx) {
 function closeEditBlogModal() { document.getElementById('editBlogModal').classList.remove('active'); }
 
 async function submitPost() {
-  const catName = document.getElementById('postCat').value.trim();
-  const title = document.getElementById('postTitle').value.trim();
+  const catName = document.getElementById('currentContextCat').value;
+  let title = document.getElementById('postTitle').value.trim();
   const content = document.getElementById('postContent').value.trim();
-  if (!catName || !title || !content) return alert("模块、标题、内容均不可为空！");
+  
+  if (!content) return alert("文章内容不可为空！");
+  if (!title) title = "日志_" + new Date().toISOString().split('T')[0];
 
-  document.getElementById('pubBtn').innerText = "⏳ 正在压入堆栈...";
+  document.getElementById('pubBtn').innerText = "⏳ 正在同步...";
   let tempPosts = JSON.parse(JSON.stringify(store.posts));
   let targetCat = tempPosts.find(c => c.category === catName);
   if (!targetCat) { targetCat = { category: catName, items: [] }; tempPosts.push(targetCat); }
@@ -339,7 +429,6 @@ async function submitPost() {
   try {
     await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
     store.posts = tempPosts; closeBlogModal();
-    document.getElementById('postCat').value = ''; document.getElementById('postTitle').value = ''; document.getElementById('postContent').value = ''; 
     activeModule = catName; window.location.href = 'blog.html';
   } catch(e) {} finally { document.getElementById('pubBtn').innerText = "🚀 发射数据"; }
 }
@@ -348,12 +437,12 @@ async function submitEditPost() {
   const catIdx = parseInt(document.getElementById('editCatIdx').value);
   const postIdx = parseInt(document.getElementById('editPostIdx').value);
   const newCat = document.getElementById('editPostCat').value.trim();
-  const newTitle = document.getElementById('editPostTitle').value.trim();
+  let newTitle = document.getElementById('editPostTitle').value.trim();
   const newContent = document.getElementById('editPostContent').value.trim();
-  if (!newCat || !newTitle || !newContent) return alert("所有字段不可为空！");
+  if (!newCat || !newContent) return alert("模块与内容不可为空！");
+  if (!newTitle) newTitle = "无题";
 
   const btn = document.getElementById('editPubBtn'); btn.innerText = "⏳ 保存中..."; btn.disabled = true;
-
   try {
     let tempPosts = JSON.parse(JSON.stringify(store.posts));
     const oldPost = tempPosts[catIdx].items[postIdx];
@@ -370,7 +459,7 @@ async function submitEditPost() {
 }
 
 async function deletePost(catIdx, postIdx) {
-  if (!confirm("警告：确定要彻底销毁该区块吗？")) return;
+  if (!confirm("确定要删除该文章吗？")) return;
   let tempPosts = JSON.parse(JSON.stringify(store.posts)); tempPosts[catIdx].items.splice(postIdx, 1);
   if (tempPosts[catIdx].items.length === 0) tempPosts.splice(catIdx, 1);
   try {
@@ -381,7 +470,7 @@ async function deletePost(catIdx, postIdx) {
 
 async function deleteModule(catIdx) {
   const catName = store.posts[catIdx].category;
-  if (!confirm(`极度危险：即将彻底抹除【${catName}】及其中所有文章，无法恢复！是否继续？`)) return;
+  if (!confirm(`警告：确定要删除版块【${catName}】及其中所有文章吗？`)) return;
   let tempPosts = JSON.parse(JSON.stringify(store.posts)); tempPosts.splice(catIdx, 1);
   try {
     await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
