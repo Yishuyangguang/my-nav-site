@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>我的私人导航 & 博客</title>
-<!-- 网址标题栏替换为可爱的金色太阳图标 -->
+<title>我的私人导航</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41'/></svg>">
 <style>
 :root {
@@ -117,17 +116,17 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
     <div id="filterChips" class="filter-chips"></div>
   </div>
 
-  <div id="navContainer"></div>
+  <div id="navContainer"><p style="color:var(--muted)">🔄 正在安全连接云端节点...</p></div>
 </div>
 
-<!-- 管理后台弹窗 -->
+<!-- 安全管理后台弹窗 -->
 <div id="adminModal" class="modal-overlay">
   <div class="modal-card">
     <div class="modal-title">⚙️ 可视化内容管理</div>
     
     <div class="form-group">
-      <label>管理员密码</label>
-      <input type="password" id="adminPwd" class="form-control" placeholder="请输入密码 5214">
+      <label>安全层：验证凭证</label>
+      <input type="password" id="adminPwd" class="form-control" placeholder="请输入操作密钥">
     </div>
 
     <hr style="border-color:var(--border);margin:15px 0;">
@@ -135,7 +134,7 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
     <div class="modal-title" style="font-size:15px;">添加新导航链接</div>
     <div class="form-group">
       <label>所属分类（版块）</label>
-      <input type="text" id="newCat" class="form-control" placeholder="例如：AI 工具 / 常用推荐">
+      <input type="text" id="newCat" class="form-control" placeholder="例如：AI 工具">
     </div>
     <div class="form-group">
       <label>网站名称</label>
@@ -147,39 +146,65 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
     </div>
     <div class="form-group">
       <label>图标 Emoji</label>
-      <input type="text" id="newIcon" class="form-control" placeholder="例如：🐙 或 🚀">
+      <input type="text" id="newIcon" class="form-control" placeholder="例如：🐙">
     </div>
     <div class="form-group">
       <label>简短描述</label>
-      <input type="text" id="newDesc" class="form-control" placeholder="例如：全球最大开源代码托管平台">
+      <input type="text" id="newDesc" class="form-control" placeholder="全球最大开源代码托管平台">
     </div>
 
-    <button class="btn-submit" onclick="submitNewBookmark()">💾 保存并推送至云端</button>
-    <button class="btn-submit" style="background:transparent;color:var(--muted);border:1px solid var(--border);margin-top:8px;" onclick="closeAdminModal()">取消</button>
+    <button class="btn-submit" onclick="submitNewBookmark()">💾 安全推送至云端</button>
+    <button class="btn-submit" style="background:transparent;color:var(--muted);border:1px solid var(--border);margin-top:8px;" onclick="closeAdminModal()">取消操作</button>
   </div>
 </div>
 
 <script>
-// 【重要】替换为你自己 Cloudflare Worker 部署后的真实 URL 地址
-const API_URL = "https://nav-api.xxxx.workers.dev"; 
+// 使用你最新的 API 地址
+const API_URL = "https://mydh.obadiah-shu.workers.dev"; 
 
 let store = { nav: [], posts: [] };
 let activeCategory = 'all';
 let isAdmin = false;
 
+// 弱网优化：带超时控制的安全请求包装
+const fetchWithTimeout = async (resource, options = {}) => {
+  const { timeout = 8000 } = options;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  const response = await fetch(resource, { ...options, signal: controller.signal });
+  clearTimeout(id);
+  return response;
+};
+
 async function fetchData() {
+  const container = document.getElementById('navContainer');
   try {
-    const res = await fetch(`${API_URL}/api/data?_t=` + Date.now());
+    const res = await fetchWithTimeout(`${API_URL}/api/data?_t=` + Date.now());
+    if (!res.ok) throw new Error("HTTP 状态码异常");
+    
     store = await res.json();
+    if (!store.nav) store.nav = [];
+    
     renderFilters();
     renderNav();
   } catch(e) {
-    document.getElementById('navContainer').innerHTML = '<p style="color:var(--muted)">云端数据拉取失败，请检查 API_URL 地址配置。</p>';
+    console.error("安全隧道建立失败:", e);
+    container.innerHTML = 
+      `<div style="padding: 20px; border: 1px solid var(--danger); border-radius: 8px; background: rgba(239, 68, 68, 0.1);">
+        <p style="color:var(--danger); font-weight: bold;">❌ 无法从安全节点拉取数据。</p>
+        <p style="color:var(--muted); font-size: 13px; margin-top: 10px;">
+          可能原因：<br>
+          1. 您的网络波动较大导致请求超时。<br>
+          2. API 服务不可用，请稍后刷新重试。
+        </p>
+      </div>`;
   }
 }
 
 function renderFilters() {
   const chips = document.getElementById('filterChips');
+  if(!store.nav || store.nav.length === 0) return chips.innerHTML = '';
+  
   let html = `<button class="chip ${activeCategory === 'all' ? 'active' : ''}" onclick="setCategory('all')">全部</button>`;
   store.nav.forEach(cat => {
     html += `<button class="chip ${activeCategory === cat.category ? 'active' : ''}" onclick="setCategory('${cat.category}')">${cat.category}</button>`;
@@ -197,6 +222,10 @@ function renderNav() {
   const query = document.getElementById('searchInput').value.toLowerCase().trim();
   const container = document.getElementById('navContainer');
   let html = '';
+
+  if (!store.nav || store.nav.length === 0) {
+    return container.innerHTML = '<p style="color:var(--muted);margin-top:20px;">云端数据库为空，请点击“管理网站”初始化数据。</p>';
+  }
 
   store.nav.forEach((cat, catIdx) => {
     if (activeCategory !== 'all' && activeCategory !== cat.category) return;
@@ -224,15 +253,11 @@ function renderNav() {
     }
   });
 
-  container.innerHTML = html || '<p style="color:var(--muted);margin-top:20px;">暂无匹配的网址</p>';
+  container.innerHTML = html || '<p style="color:var(--muted);margin-top:20px;">未检索到相关内容</p>';
 }
 
-function openAdminModal() {
-  document.getElementById('adminModal').classList.add('active');
-}
-function closeAdminModal() {
-  document.getElementById('adminModal').classList.remove('active');
-}
+function openAdminModal() { document.getElementById('adminModal').classList.add('active'); }
+function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); document.getElementById('adminPwd').value = ''; }
 
 async function submitNewBookmark() {
   const pwd = document.getElementById('adminPwd').value.trim();
@@ -242,64 +267,70 @@ async function submitNewBookmark() {
   const icon = document.getElementById('newIcon').value.trim() || '🌐';
   const desc = document.getElementById('newDesc').value.trim();
 
-  if (!pwd) return alert("请输入管理员密码！");
-  if (!catName || !title || !url) return alert("版块分类、网站名称、URL 为必填项！");
+  if (!pwd) return alert("操作拒绝：缺失鉴权凭证。");
+  if (!catName || !title || !url) return alert("系统提示：分类、名称、URL 是必要参数。");
 
-  // 查重或建新分类
-  let targetCat = store.nav.find(c => c.category === catName);
+  let tempNav = JSON.parse(JSON.stringify(store.nav)); 
+  let targetCat = tempNav.find(c => c.category === catName);
   if (!targetCat) {
     targetCat = { category: catName, items: [] };
-    store.nav.push(targetCat);
+    tempNav.push(targetCat);
   }
-
   targetCat.items.push({ title, url, icon, desc });
 
   try {
-    const res = await fetch(`${API_URL}/api/save`, {
+    const res = await fetchWithTimeout(`${API_URL}/api/save`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pwd, nav: store.nav })
+      body: JSON.stringify({ pwd, nav: tempNav })
     });
     const result = await res.json();
+    
     if (result.success) {
-      alert("🎉 成功添加并保存到云端！");
+      alert("✅ 数据库同步完毕！");
+      store.nav = tempNav; 
       isAdmin = true;
       closeAdminModal();
+      document.getElementById('newTitle').value = '';
+      document.getElementById('newUrl').value = '';
+      document.getElementById('newDesc').value = '';
       renderFilters();
       renderNav();
     } else {
-      alert("❌ 保存失败：" + (result.error || "密码错误"));
+      alert("⛔ " + (result.error || "鉴权失败"));
     }
   } catch(e) {
-    alert("❌ 网络保存异常");
+    alert("⚠️ 通信中断，请检查网络状态。");
   }
 }
 
 async function deleteBookmark(catIdx, itemIdx) {
-  const pwd = prompt("请输入管理员密码确认删除：");
+  const pwd = prompt("高危操作：请输入管理员验证密钥以永久删除此条目：");
   if (!pwd) return;
 
-  store.nav[catIdx].items.splice(itemIdx, 1);
-  if (store.nav[catIdx].items.length === 0) {
-    store.nav.splice(catIdx, 1);
+  let tempNav = JSON.parse(JSON.stringify(store.nav));
+  tempNav[catIdx].items.splice(itemIdx, 1);
+  if (tempNav[catIdx].items.length === 0) {
+    tempNav.splice(catIdx, 1);
   }
 
   try {
-    const res = await fetch(`${API_URL}/api/save`, {
+    const res = await fetchWithTimeout(`${API_URL}/api/save`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pwd, nav: store.nav })
+      body: JSON.stringify({ pwd, nav: tempNav })
     });
     const result = await res.json();
+    
     if (result.success) {
+      store.nav = tempNav;
       renderFilters();
       renderNav();
     } else {
-      alert("❌ 删除失败：" + (result.error || "密码错误"));
-      fetchData(); // 恢复本地视图
+      alert("⛔ 拒绝：" + (result.error || "凭证不匹配"));
     }
   } catch(e) {
-    alert("❌ 删除网络异常");
+    alert("⚠️ 网络超时");
   }
 }
 
