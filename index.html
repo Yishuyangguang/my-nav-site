@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>我的私人导航</title>
+<title>私人极客导航</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41'/></svg>">
+<!-- 网络连接加速优化 -->
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <style>
 :root {
   --bg: #07090e; --bg-gradient: radial-gradient(circle at 50% 0%, #1a150c 0%, #07090e 70%);
@@ -34,8 +36,8 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
 .card { padding: 16px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); backdrop-filter: blur(10px); transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; position: relative; }
 .card:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--surface-hover); }
 .card-header { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #fff; }
-.card-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 20px; border-radius: 4px; overflow: hidden; flex-shrink: 0;}
-.card-icon img { width: 100%; height: 100%; object-fit: cover; }
+.card-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 18px; border-radius: 4px; overflow: hidden; flex-shrink: 0;}
+.card-icon img { width: 100%; height: 100%; object-fit: contain; }
 .card-desc { font-size: 12px; color: var(--muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 999; }
 .modal-overlay.active { display: flex; }
@@ -45,7 +47,7 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
 .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
 .form-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--fg); outline: none; font-size: 13px; }
 .btn-submit { width: 100%; padding: 12px; border-radius: 8px; background: var(--accent); color: #000; font-weight: 700; margin-top: 10px; cursor: pointer; }
-.btn-del { color: var(--danger); font-size: 11px; cursor: pointer; position: absolute; top: 8px; right: 8px; display: none; }
+.btn-del { color: var(--danger); font-size: 11px; cursor: pointer; position: absolute; top: 8px; right: 8px; display: none; z-index: 2;}
 .admin-mode .btn-del { display: block; }
 </style>
 </head>
@@ -60,37 +62,34 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
     </div>
   </header>
   <div class="toolbar">
-    <div class="search-box"><input type="text" id="searchInput" placeholder="搜索书签标题或描述..." autocomplete="off"></div>
+    <div class="search-box"><input type="text" id="searchInput" placeholder="搜索书签标题或备注..." autocomplete="off"></div>
     <div id="filterChips" class="filter-chips"></div>
   </div>
-  <div id="navContainer"><p style="color:var(--muted)">🔄 正在安全连接云端节点...</p></div>
+  <div id="navContainer"><p style="color:var(--muted)">🔄 正在安全连接全球骨干节点...</p></div>
 </div>
 
 <div id="adminModal" class="modal-overlay">
   <div class="modal-card">
-    <div class="modal-title">⚙️ 可视化内容管理</div>
+    <div class="modal-title">⚙️ 极简内容管理</div>
     <div class="form-group">
-      <label>安全层：验证凭证</label>
-      <input type="password" id="adminPwd" class="form-control" placeholder="请输入管理员密钥">
+      <label>安全凭证</label>
+      <input type="password" id="adminPwd" class="form-control" placeholder="验证操作权限">
     </div>
     <hr style="border-color:var(--border);margin:15px 0;">
-    <div class="modal-title" style="font-size:15px;">添加新导航链接</div>
-    <div class="form-group"><label>所属分类</label><input type="text" id="newCat" class="form-control" placeholder="例如：开发工具"></div>
-    <div class="form-group"><label>网站名称</label><input type="text" id="newTitle" class="form-control" placeholder="例如：GitHub"></div>
-    <div class="form-group"><label>网站 URL</label><input type="text" id="newUrl" class="form-control" placeholder="例如：https://github.com"></div>
-    <div class="form-group">
-      <label>图标 (留空将自动抓取网站原生 Logo)</label>
-      <input type="text" id="newIcon" class="form-control" placeholder="直接留空，或输入 Emoji 🐙">
-    </div>
-    <div class="form-group"><label>简短描述</label><input type="text" id="newDesc" class="form-control" placeholder="全球最大开源代码托管平台"></div>
-    <button class="btn-submit" onclick="submitNewBookmark()">💾 安全推送至云端</button>
+    <div class="modal-title" style="font-size:15px;">添加新网址（自动提取名字和图标）</div>
+    <div class="form-group"><label>所属分类</label><input type="text" id="newCat" class="form-control" placeholder="例如：实用工具"></div>
+    <div class="form-group"><label>网站 URL (粘贴后自动解析一切)</label><input type="text" id="newUrl" class="form-control" placeholder="例如：https://github.com"></div>
+    <div class="form-group"><label>备注/简短描述 (选填)</label><input type="text" id="newDesc" class="form-control" placeholder="给自己写点备忘..."></div>
+    
+    <button id="submitBtn" class="btn-submit" onclick="submitNewBookmark()">🚀 智能解析并推送云端</button>
     <button class="btn-submit" style="background:transparent;color:var(--muted);border:1px solid var(--border);margin-top:8px;" onclick="closeAdminModal()">取消操作</button>
   </div>
 </div>
 
 <script>
-// 【已配置】你真实的 Worker API 地址
-const API_URL = "https://mydh.obadiah-shu.workers.dev"; 
+// 【重要】！！！这里一定要填写你绑定在 CF 上的那个免费自定义域名，不要用 workers.dev！
+// 比如：const API_URL = "https://api.your-free-domain.com";
+const API_URL = "https://mydh.obadiah-shu.workers.dev"; // 目前暂用此地址演示
 
 let store = { nav: [], posts: [] };
 let activeCategory = 'all';
@@ -104,24 +103,11 @@ const fetchWithTimeout = async (resource, options = {}) => {
   clearTimeout(id); return response;
 };
 
-// 【核心魔改】智能提取网站 Icon。如果是 Emoji 直接显示，留空则去抓原生图标
-function getIconHtml(iconData, url) {
-  if (iconData && iconData.trim().length > 0 && iconData.trim().length < 5) {
-    return `<span class="card-icon">${iconData}</span>`;
-  }
-  try {
-    const domain = new URL(url).hostname;
-    return `<span class="card-icon"><img src="https://api.iowen.cn/favicon/${domain}.png" onerror="this.outerHTML='🌐'"></span>`;
-  } catch(e) {
-    return `<span class="card-icon">🌐</span>`;
-  }
-}
-
 async function fetchData() {
   const container = document.getElementById('navContainer');
   try {
     const res = await fetchWithTimeout(`${API_URL}/api/data?_t=` + Date.now());
-    if (!res.ok) throw new Error("HTTP 状态码异常");
+    if (!res.ok) throw new Error("Status Error");
     store = await res.json();
     if (!store.nav) store.nav = [];
     renderFilters(); renderNav();
@@ -144,7 +130,7 @@ function renderNav() {
   const query = document.getElementById('searchInput').value.toLowerCase().trim();
   const container = document.getElementById('navContainer');
   let html = '';
-  if (!store.nav || store.nav.length === 0) return container.innerHTML = '<p style="color:var(--muted);margin-top:20px;">云端数据库为空，请点击“管理网站”初始化数据。</p>';
+  if (!store.nav || store.nav.length === 0) return container.innerHTML = '<p style="color:var(--muted);margin-top:20px;">云端数据库为空，请点击“管理网站”快速添加。</p>';
 
   store.nav.forEach((cat, catIdx) => {
     if (activeCategory !== 'all' && activeCategory !== cat.category) return;
@@ -152,12 +138,17 @@ function renderNav() {
     if (filteredItems.length > 0) {
       html += `<div class="category-title"><span>${cat.category}</span></div><div class="grid">`;
       filteredItems.forEach((item, itemIdx) => {
+        // 新图标渲染逻辑：统一走代理通道，完美显示
+        const iconHtml = item.icon && item.icon.startsWith('http') 
+          ? `<img src="${item.icon}" loading="lazy" onerror="this.outerHTML='🌐'">` 
+          : (item.icon || '🌐');
+          
         html += `
           <div class="card ${isAdmin ? 'admin-mode' : ''}">
-            <button class="btn-del" onclick="deleteBookmark(${catIdx}, ${itemIdx})">✕ 删除</button>
+            <button class="btn-del" onclick="deleteBookmark(${catIdx}, ${itemIdx})">✕</button>
             <a href="${item.url}" target="_blank" rel="noopener" style="display:flex;flex-direction:column;gap:6px;">
               <div class="card-header">
-                ${getIconHtml(item.icon, item.url)}
+                <span class="card-icon">${iconHtml}</span>
                 <span>${item.title}</span>
               </div>
               <div class="card-desc">${item.desc}</div>
@@ -176,32 +167,51 @@ function closeAdminModal() { document.getElementById('adminModal').classList.rem
 async function submitNewBookmark() {
   const pwd = document.getElementById('adminPwd').value.trim();
   const catName = document.getElementById('newCat').value.trim();
-  const title = document.getElementById('newTitle').value.trim();
-  const url = document.getElementById('newUrl').value.trim();
-  const icon = document.getElementById('newIcon').value.trim(); // 允许留空
+  const targetUrl = document.getElementById('newUrl').value.trim();
   const desc = document.getElementById('newDesc').value.trim();
 
-  if (!pwd) return alert("操作拒绝：缺失鉴权凭证。");
-  if (!catName || !title || !url) return alert("系统提示：分类、名称、URL 是必要参数。");
+  if (!pwd) return alert("凭证不能为空！");
+  if (!catName || !targetUrl) return alert("分类和 URL 必须填写！");
 
-  let tempNav = JSON.parse(JSON.stringify(store.nav)); 
-  let targetCat = tempNav.find(c => c.category === catName);
-  if (!targetCat) { targetCat = { category: catName, items: [] }; tempNav.push(targetCat); }
-  targetCat.items.push({ title, url, icon, desc });
+  const btn = document.getElementById('submitBtn');
+  btn.innerText = "⏳ 正在爬取网站信息并突破封锁...";
+  btn.disabled = true;
 
   try {
+    // 1. 请求后端代理去自动爬取网页名字和构建图标代理
+    const parseRes = await fetchWithTimeout(`${API_URL}/api/parse_url`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetUrl })
+    });
+    const { title, icon } = await parseRes.json();
+
+    // 2. 将补全的数据存入本地数组
+    let tempNav = JSON.parse(JSON.stringify(store.nav)); 
+    let targetCat = tempNav.find(c => c.category === catName);
+    if (!targetCat) { targetCat = { category: catName, items: [] }; tempNav.push(targetCat); }
+    targetCat.items.push({ title: title, url: targetUrl, icon: icon, desc: desc });
+
+    // 3. 推送到 KV 数据库
+    btn.innerText = "💾 正在写入数据库...";
     const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, nav: tempNav }) });
     const result = await res.json();
+    
     if (result.success) {
-      alert("✅ 数据库同步完毕！"); store.nav = tempNav; isAdmin = true; closeAdminModal();
-      document.getElementById('newTitle').value = ''; document.getElementById('newUrl').value = ''; document.getElementById('newIcon').value = ''; document.getElementById('newDesc').value = '';
+      alert("✅ 添加成功！名字和图标已自动提取完毕。"); 
+      store.nav = tempNav; isAdmin = true; closeAdminModal();
+      document.getElementById('newUrl').value = ''; document.getElementById('newDesc').value = '';
       renderFilters(); renderNav();
     } else { alert("⛔ " + (result.error || "鉴权失败")); }
-  } catch(e) { alert("⚠️ 通信中断，请检查网络状态。"); }
+  } catch(e) { 
+    alert("⚠️ 网络中断或解析超时，请重试。"); 
+  } finally {
+    btn.innerText = "🚀 智能解析并推送云端";
+    btn.disabled = false;
+  }
 }
 
 async function deleteBookmark(catIdx, itemIdx) {
-  const pwd = prompt("高危操作：请输入管理员验证密钥以永久删除此条目：");
+  const pwd = prompt("高危操作：验证密钥以永久删除此条目：");
   if (!pwd) return;
   let tempNav = JSON.parse(JSON.stringify(store.nav)); tempNav[catIdx].items.splice(itemIdx, 1);
   if (tempNav[catIdx].items.length === 0) tempNav.splice(catIdx, 1);
