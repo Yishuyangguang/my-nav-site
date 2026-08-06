@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人博客</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+:root {
+  --bg: #07090e;
+  --bg-gradient: radial-gradient(circle at 50% 0%, #1a150c 0%, #07090e 70%);
+  --surface: rgba(26, 22, 15, 0.65);
+  --fg: #f3f0ea;
+  --muted: #948a78;
+  --border: rgba(212, 175, 55, 0.2);
+  --accent: #d4af37;
+  --radius: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); background-image: var(--bg-gradient); background-attachment: fixed;
+  color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+  line-height: 1.8; min-height: 100vh; padding-bottom: 50px;
+}
+a { color: var(--accent); text-decoration: none; }
+
+.container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+
+.header {
+  padding: 30px 0 20px; display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--border); margin-bottom: 30px;
+}
+.logo { font-size: 20px; font-weight: 700; color: #fef3c7; }
+.back-link { font-size: 13px; font-weight: 600; }
+
+/* 博客列表样式 */
+.post-card {
+  padding: 20px; border-radius: var(--radius); background: var(--surface);
+  border: 1px solid var(--border); margin-bottom: 15px; cursor: pointer; transition: all 0.2s;
+}
+.post-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.post-title { font-size: 18px; font-weight: 700; color: #fef3c7; margin-bottom: 6px; }
+.post-date { font-size: 12px; color: var(--muted); }
+
+/* Markdown 文章详情排版 */
+.markdown-body {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 30px; margin-top: 20px;
+}
+.markdown-body h1, .markdown-body h2, .markdown-body h3 { color: #fef3c7; margin: 20px 0 10px; }
+.markdown-body p { margin-bottom: 16px; color: #e2d9cc; }
+.markdown-body code { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+.markdown-body pre { background: #000; padding: 15px; border-radius: 8px; overflow-x: auto; margin-bottom: 16px; }
+.markdown-body pre code { background: transparent; padding: 0; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header class="header">
+    <div class="logo">📖 个人博客</div>
+    <a href="index.html" class="back-link">← 返回网址导航</a>
+  </header>
+
+  <div id="content"></div>
+</div>
+
+<script>
+async function router() {
+  const params = new URLSearchParams(window.location.search);
+  const postId = params.get('id');
+  const container = document.getElementById('content');
+
+  if (postId) {
+    // 渲染文章正文页
+    try {
+      const res = await fetch(`posts/${postId}.md?_t=` + Date.now());
+      if (!res.ok) throw new Error();
+      const text = await res.text();
+      container.innerHTML = `<div class="markdown-body">${marked.parse(text)}</div>`;
+    } catch(e) {
+      container.innerHTML = '<p style="color:var(--muted)">文章不存在或读取失败</p>';
+    }
+  } else {
+    // 渲染博客列表页
+    try {
+      const res = await fetch('posts/posts.json?_t=' + Date.now());
+      const posts = await res.json();
+      let html = '';
+      posts.forEach(p => {
+        html += `
+          <div class="post-card" onclick="window.location.href='blog.html?id=${p.id}'">
+            <div class="post-title">${p.title}</div>
+            <div class="post-date">发布于 ${p.date} · ${p.summary || ''}</div>
+          </div>`;
+      });
+      container.innerHTML = html || '<p style="color:var(--muted)">暂无博客文章</p>';
+    } catch(e) {
+      container.innerHTML = '<p style="color:var(--muted)">加载文章列表失败</p>';
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', router);
+</script>
+</body>
+</html>

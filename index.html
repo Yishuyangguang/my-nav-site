@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的私人导航 & 博客</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41'/></svg>">
+<style>
+:root {
+  --bg: #07090e;
+  --bg-gradient: radial-gradient(circle at 50% 0%, #1a150c 0%, #07090e 70%);
+  --surface: rgba(26, 22, 15, 0.65);
+  --surface-hover: rgba(38, 32, 20, 0.85);
+  --fg: #f3f0ea;
+  --muted: #948a78;
+  --border: rgba(212, 175, 55, 0.2);
+  --accent: #d4af37;
+  --accent-soft: rgba(212,175,55,0.12);
+  --radius: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); background-image: var(--bg-gradient); background-attachment: fixed;
+  color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+  min-height: 100vh; padding-bottom: 40px;
+}
+a { color: inherit; text-decoration: none; }
+
+.container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+
+/* Header */
+.header {
+  padding: 30px 0 20px; display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--border); margin-bottom: 25px;
+}
+.logo { font-size: 20px; font-weight: 700; color: #fef3c7; display: flex; align-items: center; gap: 8px; }
+.nav-link {
+  padding: 8px 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border);
+  color: var(--accent); font-size: 13px; font-weight: 600; transition: all 0.2s;
+}
+.nav-link:hover { background: var(--accent); color: #000; }
+
+/* Search & Filter */
+.toolbar { display: flex; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; }
+.search-box { flex: 1; min-width: 200px; }
+.search-box input {
+  width: 100%; padding: 12px 18px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface); color: var(--fg); outline: none; font-size: 14px;
+}
+.search-box input:focus { border-color: var(--accent); }
+
+.filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  padding: 6px 14px; border-radius: 18px; font-size: 12px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--muted); cursor: pointer; transition: all 0.15s;
+}
+.chip.active, .chip:hover { color: #fef08a; border-color: var(--accent); background: var(--accent-soft); }
+
+/* Nav Section */
+.category-title { font-size: 16px; font-weight: 600; color: var(--accent); margin: 25px 0 15px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+.card {
+  padding: 16px; border-radius: var(--radius); background: var(--surface);
+  border: 1px solid var(--border); backdrop-filter: blur(10px); transition: all 0.2s;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.card:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--surface-hover); }
+.card-header { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #fff; }
+.card-icon { font-size: 20px; }
+.card-desc { font-size: 12px; color: var(--muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header class="header">
+    <div class="logo">🌞 私人极客导航</div>
+    <a href="blog.html" class="nav-link">📖 浏览个人博客 →</a>
+  </header>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="搜索书签标题或描述..." autocomplete="off">
+    </div>
+    <div id="filterChips" class="filter-chips"></div>
+  </div>
+
+  <div id="navContainer"></div>
+</div>
+
+<script>
+let navData = [];
+let activeCategory = 'all';
+
+async function loadNavData() {
+  try {
+    const res = await fetch('data/nav.json?_t=' + Date.now());
+    navData = await res.json();
+    renderFilters();
+    renderNav();
+  } catch(e) {
+    document.getElementById('navContainer').innerHTML = '<p style="color:var(--muted)">加载网址库失败，请检查 data/nav.json</p>';
+  }
+}
+
+function renderFilters() {
+  const chips = document.getElementById('filterChips');
+  let html = `<button class="chip ${activeCategory === 'all' ? 'active' : ''}" onclick="setCategory('all')">全部</button>`;
+  navData.forEach(cat => {
+    html += `<button class="chip ${activeCategory === cat.category ? 'active' : ''}" onclick="setCategory('${cat.category}')">${cat.category}</button>`;
+  });
+  chips.innerHTML = html;
+}
+
+function setCategory(cat) {
+  activeCategory = cat;
+  renderFilters();
+  renderNav();
+}
+
+function renderNav() {
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
+  const container = document.getElementById('navContainer');
+  let html = '';
+
+  navData.forEach(cat => {
+    if (activeCategory !== 'all' && activeCategory !== cat.category) return;
+
+    const filteredItems = cat.items.filter(item => 
+      item.title.toLowerCase().includes(query) || item.desc.toLowerCase().includes(query)
+    );
+
+    if (filteredItems.length > 0) {
+      html += `<div class="category-title">${cat.category}</div><div class="grid">`;
+      filteredItems.forEach(item => {
+        html += `
+          <a href="${item.url}" target="_blank" rel="noopener" class="card">
+            <div class="card-header">
+              <span class="card-icon">${item.icon || '🌐'}</span>
+              <span>${item.title}</span>
+            </div>
+            <div class="card-desc">${item.desc}</div>
+          </a>`;
+      });
+      html += `</div>`;
+    }
+  });
+
+  container.innerHTML = html || '<p style="color:var(--muted);margin-top:20px;">未找到匹配的网址</p>';
+}
+
+document.getElementById('searchInput').addEventListener('input', renderNav);
+document.addEventListener('DOMContentLoaded', loadNavData);
+</script>
+</body>
+</html>

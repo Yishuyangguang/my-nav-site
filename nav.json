@@ -1,0 +1,16 @@
+[
+  {
+    "category": "常用推荐",
+    "items": [
+      { "title": "GitHub", "url": "https://github.com", "desc": "全球最大开源代码托管平台", "icon": "🐙" },
+      { "title": "Cloudflare", "url": "https://dash.cloudflare.com", "desc": "免费 CDN 加速与域名托管", "icon": "⚡" }
+    ]
+  },
+  {
+    "category": "AI 探索",
+    "items": [
+      { "title": "ChatGPT", "url": "https://chatgpt.com", "desc": "OpenAI 智能聊天机器人", "icon": "🤖" },
+      { "title": "Claude", "url": "https://claude.ai", "desc": "Anthropic 高能 AI 助手", "icon": "🧠" }
+    ]
+  }
+]
