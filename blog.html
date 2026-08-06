@@ -34,11 +34,9 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
 .markdown-body p { margin-bottom: 16px; color: #e2d9cc; }
 .markdown-body pre { background: #000; padding: 15px; border-radius: 8px; overflow-x: auto; margin-bottom: 16px; }
 
-/* 视频容器 */
+/* 标准响应式视频盒子 */
 .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin: 20px 0; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
-.video-container iframe, .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; object-fit: contain; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.spinner { width: 24px; height: 24px; border: 2px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+.video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 999; }
 .modal-overlay.active { display: flex; }
@@ -72,10 +70,10 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
     <div class="form-group">
       <label>核心数据 (支持 Markdown)</label>
       <div class="tip-text">
-        📺 <b>外网视频免翻墙</b>：直接另起一行，粘贴 YouTube 或 B站 网址即可。<br>
-        🖼️ <b>图片秒传</b>：直接在此框内 <code>Ctrl+V</code> 粘贴截图，系统自动走全球 CDN！
+        📺 <b>视频嵌入</b>：直接另起一行粘贴 YouTube 或 B站 网址。<br>
+        🖼️ <b>图片秒传</b>：在输入框内直接 <code>Ctrl+V</code> 粘贴截图，自动秒传！
       </div>
-      <textarea id="postContent" class="form-control" rows="12" placeholder="在此编写长文。试试直接粘贴一张图片进来..."></textarea>
+      <textarea id="postContent" class="form-control" rows="12" placeholder="在此编写长文..."></textarea>
     </div>
     <button id="pubBtn" class="btn-submit" onclick="submitPost()">🚀 发射指令</button>
     <button class="btn-submit" style="background:transparent;color:var(--muted);border:1px solid var(--border);margin-top:8px;" onclick="closeBlogModal()">终止操作</button>
@@ -83,7 +81,6 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
 </div>
 
 <script>
-// ✅ 已经彻底修改为你绑定的 API 自定义域
 const API_URL = "https://api.shucao.cc.cd"; 
 let store = { nav: [], posts: [] };
 
@@ -94,41 +91,17 @@ const fetchWithTimeout = async (resource, options = {}) => {
   clearTimeout(id); return response;
 };
 
-// 预处理占位符
+// 标准原生视频解析引擎
 function parseVideos(text) {
   text = text.replace(/^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S+)?$/gm, 
-    '<div class="yt-placeholder video-container" data-vid="$1"><div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); display:flex; flex-direction:column; align-items:center; gap:10px;"><div class="spinner"></div><span style="color:var(--muted); font-size:13px;">正在由境外节点建立加密传输通道...</span></div></div>');
+    '<div class="video-container"><iframe src="https://www.youtube.com/embed/$1" allowfullscreen></iframe></div>');
   
   text = text.replace(/^(?:https?:\/\/)?(?:www\.)?bilibili\.com\/video\/(BV[a-zA-Z0-9]+)(?:\S+)?$/gm, 
     '<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=$1&high_quality=1&danmaku=0" allowfullscreen></iframe></div>');
   return text;
 }
 
-// 📺 终极代理渲染
-async function hydrateYouTubeVideos() {
-  const placeholders = document.querySelectorAll('.yt-placeholder');
-  if (placeholders.length === 0) return;
-
-  for (let el of placeholders) {
-    const vid = el.getAttribute('data-vid');
-    try {
-      // 通过你的 api.shucao.cc.cd 穿墙拉取视频流
-      const res = await fetchWithTimeout(`${API_URL}/api/yt?vid=${vid}`, { timeout: 15000 });
-      if (!res.ok) throw new Error("Backend failed");
-      const data = await res.json();
-      
-      if (data.url) {
-        el.innerHTML = `<video controls playsinline preload="metadata" src="${data.url}"></video>`;
-      } else {
-        throw new Error("No URL returned");
-      }
-    } catch (e) {
-      el.innerHTML = '<div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;"><span style="font-size:24px;">⚠️</span><br><span style="color:var(--danger); font-size:13px; margin-top:8px; display:block;">代理节点加载超时，请刷新重试</span></div>';
-    }
-  }
-}
-
-// 🖼️ 贴图秒传逻辑
+// 图片截图粘贴、拖拽秒传
 const textarea = document.getElementById('postContent');
 textarea.addEventListener('paste', async (e) => {
   const items = e.clipboardData.items;
@@ -141,7 +114,7 @@ textarea.addEventListener('drop', async (e) => {
 
 async function uploadImage(file) {
   const start = textarea.selectionStart;
-  const placeholder = '⏳ [图片正经由边缘节点上传中...]\n';
+  const placeholder = '⏳ [图片正在上传中...]\n';
   textarea.value = textarea.value.substring(0, start) + placeholder + textarea.value.substring(textarea.selectionEnd);
   
   const formData = new FormData(); formData.append('file', file);
@@ -150,8 +123,8 @@ async function uploadImage(file) {
     const data = await res.json();
     if (data && data[0] && data[0].src) {
       textarea.value = textarea.value.replace(placeholder, `![图片](https://telegra.ph${data[0].src})\n`);
-    } else { textarea.value = textarea.value.replace(placeholder, '❌ [图床节点拦截，上传失败]\n'); }
-  } catch(e) { textarea.value = textarea.value.replace(placeholder, '❌ [网络封锁，上传中断]\n'); }
+    } else { textarea.value = textarea.value.replace(placeholder, '❌ [上传失败]\n'); }
+  } catch(e) { textarea.value = textarea.value.replace(placeholder, '❌ [网络中断]\n'); }
 }
 
 async function router() {
@@ -175,8 +148,6 @@ async function router() {
             <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">刻录时间 ${post.date}</div>
             ${marked.parse(processedContent)}
           </div>`;
-        
-        hydrateYouTubeVideos();
       } else { container.innerHTML = '<p style="color:var(--muted)">区块不存在。</p>'; }
     } else {
       let html = '';
@@ -223,8 +194,8 @@ async function deletePost(idx) {
   let tempPosts = JSON.parse(JSON.stringify(store.posts)); tempPosts.splice(idx, 1);
   try {
     const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, posts: tempPosts }) });
-    const result = await res.json();
-    if (result.success) { store.posts = tempPosts; router(); } 
+    postResult = await res.json();
+    if (res.ok) { store.posts = tempPosts; router(); } 
     else { alert("⛔ 授权失败"); }
   } catch(e) { alert("⚠️ 服务未响应"); }
 }
