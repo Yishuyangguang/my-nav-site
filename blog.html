@@ -3,200 +3,371 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>个人极客博客</title>
+<title>极客数据区块</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41'/></svg>">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 :root {
-  --bg: #07090e; --bg-gradient: radial-gradient(circle at 50% 0%, #1a150c 0%, #07090e 70%);
-  --surface: rgba(26, 22, 15, 0.65); --fg: #f3f0ea; --muted: #948a78;
-  --border: rgba(212, 175, 55, 0.2); --accent: #d4af37; --danger: #ef4444; --radius: 12px;
+  --bg-color: #050505;
+  --glass-bg: rgba(20, 22, 26, 0.45);
+  --glass-border: rgba(212, 175, 55, 0.25);
+  --glass-hover: rgba(30, 33, 40, 0.6);
+  --gold: #d4af37;
+  --gold-glow: #fef3c7;
+  --text-main: #e2d9cc;
+  --text-muted: #8a8377;
+  --danger: #ef4444;
+  --info: #3b82f6;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); background-image: var(--bg-gradient); background-attachment: fixed; color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; line-height: 1.8; min-height: 100vh; padding-bottom: 50px; }
-a { color: var(--accent); text-decoration: none; }
+body { background: var(--bg-color); background-image: radial-gradient(circle at 50% 0%, #1a160c 0%, var(--bg-color) 70%); background-attachment: fixed; color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; line-height: 1.8; min-height: 100vh; padding-bottom: 50px; }
+a { color: var(--gold); text-decoration: none; }
 button { font: inherit; cursor: pointer; border: none; background: none; }
+.glass { background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.05); border-radius: 14px; }
+
 .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
-.header { padding: 30px 0 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
-.logo { font-size: 20px; font-weight: 700; color: #fef3c7; }
-.header-actions { display: flex; gap: 10px; }
-.nav-link { padding: 8px 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border); color: var(--accent); font-size: 13px; font-weight: 600; transition: all 0.2s; }
-.nav-link:hover { background: var(--accent); color: #000; }
-.post-card { padding: 20px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); margin-bottom: 15px; cursor: pointer; transition: all 0.2s; position: relative; }
-.post-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-.post-title { font-size: 18px; font-weight: 700; color: #fef3c7; margin-bottom: 6px; padding-right: 60px;}
-.post-date { font-size: 12px; color: var(--muted); }
-.btn-del-post { position: absolute; top: 20px; right: 20px; color: var(--danger); font-size: 12px; z-index: 2;}
+.header { padding: 35px 0 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(212, 175, 55, 0.15); margin-bottom: 30px; }
+.logo { font-size: 22px; font-weight: 800; background: linear-gradient(135deg, var(--gold), var(--gold-glow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.header-actions { display: flex; gap: 12px; }
+.nav-link { padding: 8px 18px; border-radius: 20px; color: var(--gold); font-size: 13px; font-weight: 600; transition: all 0.2s; border: 1px solid var(--glass-border); }
+.nav-link:hover { background: var(--gold); color: #000; box-shadow: 0 0 15px rgba(212,175,55,0.3); }
 
-.markdown-body { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 30px; margin-top: 20px; overflow: hidden; }
-.markdown-body img { max-width: 100%; border-radius: 8px; margin: 10px 0; display: block;}
-.markdown-body h1, .markdown-body h2 { color: #fef3c7; margin: 20px 0 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;}
-.markdown-body p { margin-bottom: 16px; color: #e2d9cc; }
-.markdown-body pre { background: #000; padding: 15px; border-radius: 8px; overflow-x: auto; margin-bottom: 16px; }
+.module-tabs { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; align-items: center; }
+.module-tabs::-webkit-scrollbar { display: none; }
+.tab { padding: 8px 18px; border-radius: 20px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; white-space: nowrap; border: 1px solid transparent; }
+.tab.active, .tab:hover { color: #000; background: var(--gold); box-shadow: 0 0 15px rgba(212,175,55,0.2); }
+.btn-del-module { color: var(--danger); font-size: 12px; margin-left: 10px; opacity: 0.8; }
+.btn-del-module:hover { text-decoration: underline; opacity: 1; }
 
-/* 标准响应式视频盒子 */
-.video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin: 20px 0; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+.post-card { padding: 22px; margin-bottom: 18px; cursor: pointer; transition: transform 0.2s, border-color 0.2s; position: relative; }
+.post-card:hover { border-color: var(--gold); transform: translateY(-3px); background: var(--glass-hover);}
+.post-title { font-size: 18px; font-weight: 700; color: var(--gold-glow); margin-bottom: 6px; padding-right: 90px;}
+.post-date { font-size: 12px; color: var(--text-muted); }
+
+/* 文章卡片按钮组 */
+.post-actions { position: absolute; top: 22px; right: 22px; display: flex; gap: 6px; z-index: 2; }
+.btn-post-action { font-size: 11px; cursor: pointer; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+.btn-edit-post { color: var(--info); background: rgba(59, 130, 246, 0.15); }
+.btn-edit-post:hover { background: rgba(59, 130, 246, 0.3); }
+.btn-del-post { color: var(--danger); background: rgba(239, 68, 68, 0.15); }
+.btn-del-post:hover { background: rgba(239, 68, 68, 0.3); }
+
+.markdown-body { padding: 35px; margin-top: 20px; overflow: hidden; }
+.markdown-body img { max-width: 100%; border-radius: 8px; margin: 15px 0; display: block;}
+.markdown-body h1, .markdown-body h2 { color: var(--gold-glow); margin: 25px 0 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;}
+.markdown-body p { margin-bottom: 16px; color: #d1c8ba; }
+.markdown-body pre { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); overflow-x: auto; margin-bottom: 16px; }
+
+.video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin: 25px 0; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
 .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 999; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 999; }
 .modal-overlay.active { display: flex; }
-.modal-card { background: #12100a; border: 1px solid var(--border); border-radius: 16px; padding: 25px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; }
+.modal-card { width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; padding: 30px; }
 .form-group { margin-bottom: 15px; }
-.form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-.form-control { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--fg); outline: none; font-size: 14px; transition: border 0.2s;}
-.form-control:focus { border-color: var(--accent); }
-.btn-submit { width: 100%; padding: 14px; border-radius: 8px; background: var(--accent); color: #000; font-weight: 700; margin-top: 10px; cursor: pointer; }
-.tip-text { font-size: 12px; color: var(--muted); line-height: 1.6; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 6px;}
+.form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.form-control { width: 100%; padding: 12px; color: var(--text-main); outline: none; font-size: 14px; background: rgba(0,0,0,0.3); transition: 0.2s;}
+.form-control:focus { border-color: var(--gold); }
+.btn-submit { width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, #d4af37, #b38728); color: #000; font-weight: 700; margin-top: 15px; border: none; transition: 0.2s;}
+.btn-submit:hover { filter: brightness(1.1); box-shadow: 0 0 15px rgba(212,175,55,0.4); }
+.tip-text { font-size: 12px; color: var(--text-muted); line-height: 1.6; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px;}
 </style>
 </head>
 <body>
 
 <div class="container">
   <header class="header">
-    <div class="logo">📖 个人极客博客</div>
+    <div class="logo">✦ 数据刻录机</div>
     <div class="header-actions">
-      <button class="nav-link" onclick="openBlogModal()">✍️ 发布内容</button>
-      <a href="index.html" class="nav-link">← 返回导航</a>
+      <button class="nav-link glass" onclick="openBlogModal()">✍️ 刻录区块</button>
+      <a href="index.html" class="nav-link glass" style="background:var(--gold); color:#000;">← 返回总控</a>
     </div>
   </header>
-  <div id="content"><p style="color:var(--muted)">🔄 正在连接云端...</p></div>
+  
+  <div id="moduleTabs" class="module-tabs"></div>
+  <div id="content"><p style="color:var(--text-muted)">🔄 正在同步底层链路...</p></div>
 </div>
 
+<!-- 添加文章弹窗 -->
 <div id="blogModal" class="modal-overlay">
-  <div class="modal-card">
-    <div style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:15px;">✍️ 部署新区块</div>
-    <div class="form-group"><label>系统验证</label><input type="password" id="blogPwd" class="form-control" placeholder="验证身份凭证"></div>
-    <div class="form-group"><label>内容标题</label><input type="text" id="postTitle" class="form-control" placeholder="在此键入标题..."></div>
+  <div class="modal-card glass">
+    <div style="font-size:18px;font-weight:700;color:var(--gold);margin-bottom:20px;">✍️ 写入新区块</div>
+    <div class="form-group"><label>系统鉴权</label><input type="password" id="blogPwd" class="form-control glass" placeholder="输入核心凭证"></div>
+    <div class="form-group"><label>所属模块</label><input type="text" id="postCat" class="form-control glass" placeholder="例如：技术笔记"></div>
+    <div class="form-group"><label>文章标题</label><input type="text" id="postTitle" class="form-control glass" placeholder="输入标题..."></div>
     <div class="form-group">
-      <label>核心数据 (支持 Markdown)</label>
-      <div class="tip-text">
-        📺 <b>视频嵌入</b>：直接另起一行粘贴 YouTube 或 B站 网址。<br>
-        🖼️ <b>图片秒传</b>：在输入框内直接 <code>Ctrl+V</code> 粘贴截图，自动秒传！
-      </div>
-      <textarea id="postContent" class="form-control" rows="12" placeholder="在此编写长文..."></textarea>
+      <label>数据载荷 (Markdown)</label>
+      <textarea id="postContent" class="form-control glass" rows="12" placeholder="在此编写长文（支持贴图、视频自动解析）..."></textarea>
     </div>
-    <button id="pubBtn" class="btn-submit" onclick="submitPost()">🚀 发射指令</button>
-    <button class="btn-submit" style="background:transparent;color:var(--muted);border:1px solid var(--border);margin-top:8px;" onclick="closeBlogModal()">终止操作</button>
+    <button id="pubBtn" class="btn-submit" onclick="submitPost()">🚀 发射数据</button>
+    <button class="btn-submit" style="background:transparent;color:var(--text-muted);border:1px solid var(--glass-border);box-shadow:none;" onclick="closeBlogModal()">终止</button>
+  </div>
+</div>
+
+<!-- 编辑文章弹窗 -->
+<div id="editBlogModal" class="modal-overlay">
+  <div class="modal-card glass">
+    <div style="font-size:18px;font-weight:700;color:var(--gold);margin-bottom:20px;">✎ 修改数据区块</div>
+    <input type="hidden" id="editCatIdx">
+    <input type="hidden" id="editPostIdx">
+    <div class="form-group"><label>系统鉴权</label><input type="password" id="editBlogPwd" class="form-control glass" placeholder="输入核心凭证"></div>
+    <div class="form-group"><label>所属模块</label><input type="text" id="editPostCat" class="form-control glass"></div>
+    <div class="form-group"><label>文章标题</label><input type="text" id="editPostTitle" class="form-control glass"></div>
+    <div class="form-group">
+      <label>数据载荷 (Markdown)</label>
+      <textarea id="editPostContent" class="form-control glass" rows="12"></textarea>
+    </div>
+    <button id="editPubBtn" class="btn-submit" onclick="submitEditPost()">💾 保存修改</button>
+    <button class="btn-submit" style="background:transparent;color:var(--text-muted);border:1px solid var(--glass-border);box-shadow:none;" onclick="closeEditBlogModal()">终止</button>
   </div>
 </div>
 
 <script>
 const API_URL = "https://api.shucao.cc.cd"; 
 let store = { nav: [], posts: [] };
+let activeModule = 'all';
 
 const fetchWithTimeout = async (resource, options = {}) => {
-  const { timeout = 8000 } = options; const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), 8000);
   const response = await fetch(resource, { ...options, signal: controller.signal });
   clearTimeout(id); return response;
 };
 
-// 标准原生视频解析引擎
 function parseVideos(text) {
   text = text.replace(/^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S+)?$/gm, 
     '<div class="video-container"><iframe src="https://www.youtube.com/embed/$1" allowfullscreen></iframe></div>');
-  
   text = text.replace(/^(?:https?:\/\/)?(?:www\.)?bilibili\.com\/video\/(BV[a-zA-Z0-9]+)(?:\S+)?$/gm, 
     '<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=$1&high_quality=1&danmaku=0" allowfullscreen></iframe></div>');
   return text;
 }
 
-// 图片截图粘贴、拖拽秒传
+// 粘贴传图支持
 const textarea = document.getElementById('postContent');
-textarea.addEventListener('paste', async (e) => {
-  const items = e.clipboardData.items;
-  for (let item of items) { if (item.type.indexOf('image') !== -1) { e.preventDefault(); await uploadImage(item.getAsFile()); } }
-});
-textarea.addEventListener('drop', async (e) => {
-  e.preventDefault();
-  for (let file of e.dataTransfer.files) { if (file.type.startsWith('image/')) { await uploadImage(file); } }
+const editTextarea = document.getElementById('editPostContent');
+[textarea, editTextarea].forEach(el => {
+  el.addEventListener('paste', async (e) => {
+    const items = e.clipboardData.items;
+    for (let item of items) { 
+      if (item.type.indexOf('image') !== -1) { 
+        e.preventDefault(); 
+        await uploadImage(item.getAsFile(), el); 
+      } 
+    }
+  });
 });
 
-async function uploadImage(file) {
-  const start = textarea.selectionStart;
-  const placeholder = '⏳ [图片正在上传中...]\n';
-  textarea.value = textarea.value.substring(0, start) + placeholder + textarea.value.substring(textarea.selectionEnd);
+async function uploadImage(file, targetEl) {
+  const start = targetEl.selectionStart;
+  const placeholder = '⏳ [图像正上传至量子网络...]\n';
+  targetEl.value = targetEl.value.substring(0, start) + placeholder + targetEl.value.substring(targetEl.selectionEnd);
   
   const formData = new FormData(); formData.append('file', file);
   try {
     const res = await fetch('https://telegra.ph/upload', { method: 'POST', body: formData });
     const data = await res.json();
     if (data && data[0] && data[0].src) {
-      textarea.value = textarea.value.replace(placeholder, `![图片](https://telegra.ph${data[0].src})\n`);
-    } else { textarea.value = textarea.value.replace(placeholder, '❌ [上传失败]\n'); }
-  } catch(e) { textarea.value = textarea.value.replace(placeholder, '❌ [网络中断]\n'); }
+      targetEl.value = targetEl.value.replace(placeholder, `![图片](https://telegra.ph${data[0].src})\n`);
+    } else { targetEl.value = targetEl.value.replace(placeholder, '❌ [节点拒收]\n'); }
+  } catch(e) { targetEl.value = targetEl.value.replace(placeholder, '❌ [链路中断]\n'); }
+}
+
+function renderModules() {
+  const tabs = document.getElementById('moduleTabs');
+  if (!store.posts || store.posts.length === 0) return tabs.innerHTML = '';
+  
+  let html = `<div class="tab glass ${activeModule === 'all' ? 'active' : ''}" onclick="setModule('all')">全部记录</div>`;
+  store.posts.forEach((cat) => {
+    html += `<div class="tab glass ${activeModule === cat.category ? 'active' : ''}" onclick="setModule('${cat.category}')">${cat.category}</div>`;
+  });
+  tabs.innerHTML = html;
+}
+
+function setModule(mod) { activeModule = mod; renderList(); renderModules(); }
+
+function renderList() {
+  const container = document.getElementById('content');
+  let html = '';
+  
+  if (activeModule !== 'all') {
+    const catIdx = store.posts.findIndex(c => c.category === activeModule);
+    html += `<div style="text-align:right; margin-bottom:15px;"><button class="btn-del-module" onclick="deleteModule(${catIdx})">✕ 抹除【${activeModule}】模块及所有文章</button></div>`;
+  }
+
+  let foundPosts = false;
+  store.posts.forEach((cat, catIdx) => {
+    if (activeModule !== 'all' && activeModule !== cat.category) return;
+    if (cat.items && cat.items.length > 0) {
+      foundPosts = true;
+      html += `<div style="margin-bottom: 25px;">
+                 ${activeModule === 'all' ? `<div style="color:var(--gold); font-size:15px; font-weight:700; margin-bottom:12px;">// ${cat.category}</div>` : ''}`;
+      cat.items.forEach((p, postIdx) => {
+        html += `
+          <div class="post-card glass" onclick="window.location.href='blog.html?cat=${catIdx}&id=${p.id}'">
+            <div class="post-actions">
+              <button class="btn-post-action btn-edit-post" onclick="event.stopPropagation(); openEditPost(${catIdx}, ${postIdx})">改</button>
+              <button class="btn-post-action btn-del-post" onclick="event.stopPropagation(); deletePost(${catIdx}, ${postIdx})">删</button>
+            </div>
+            <div class="post-title">${p.title}</div>
+            <div class="post-date">时间戳: ${p.date}</div>
+          </div>`;
+      });
+      html += `</div>`;
+    }
+  });
+
+  if (!foundPosts) {
+    if (activeModule !== 'all') html += '<p style="color:var(--text-muted)">该模块下暂无数据。</p>';
+    else html = '<p style="color:var(--text-muted)">区块链为空，请写入第一块数据。</p>';
+  }
+  
+  container.innerHTML = html;
 }
 
 async function router() {
   const params = new URLSearchParams(window.location.search);
   const postId = params.get('id');
+  const catId = params.get('cat');
   const container = document.getElementById('content');
 
   try {
     const res = await fetchWithTimeout(`${API_URL}/api/data?_t=` + Date.now());
     if (!res.ok) throw new Error("通信失败");
     store = await res.json();
-    if (!store.posts) store.posts = [];
-
-    if (postId) {
-      const post = store.posts.find(p => p.id === postId);
-      if (post) {
-        const processedContent = parseVideos(post.content);
-        container.innerHTML = `
-          <div class="markdown-body">
-            <h1 style="margin-top:0">${post.title}</h1>
-            <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">刻录时间 ${post.date}</div>
-            ${marked.parse(processedContent)}
-          </div>`;
-      } else { container.innerHTML = '<p style="color:var(--muted)">区块不存在。</p>'; }
-    } else {
-      let html = '';
-      store.posts.forEach((p, idx) => {
-        html += `
-          <div class="post-card" onclick="window.location.href='blog.html?id=${p.id}'">
-            <button class="btn-del-post" onclick="event.stopPropagation(); deletePost(${idx})">销毁</button>
-            <div class="post-title">${p.title}</div>
-            <div class="post-date">记录于 ${p.date}</div>
-          </div>`;
-      });
-      container.innerHTML = html || '<p style="color:var(--muted)">暂无博客数据。</p>';
+    
+    if (store.posts && store.posts.length > 0 && store.posts[0].title && !store.posts[0].items) {
+      store.posts = [{ category: "默认模块", items: store.posts }];
+    } else if (!store.posts) {
+      store.posts = [];
     }
-  } catch(e) { container.innerHTML = `<div style="padding: 20px; border: 1px solid var(--danger); border-radius: 8px; background: rgba(239, 68, 68, 0.1);"><p style="color:var(--danger); font-weight: bold;">❌ 无法从安全节点拉取数据。</p></div>`; }
+
+    if (postId && catId !== null) {
+      document.getElementById('moduleTabs').style.display = 'none';
+      const cat = store.posts[catId];
+      if (cat) {
+        const post = cat.items.find(p => p.id === postId);
+        if (post) {
+          const processedContent = parseVideos(post.content);
+          container.innerHTML = `
+            <div class="markdown-body glass">
+              <h1 style="margin-top:0">${post.title}</h1>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px; border-bottom:1px dashed rgba(255,255,255,0.1); padding-bottom:10px;">
+                归属模块：${cat.category} | 时间戳：${post.date}
+              </div>
+              ${marked.parse(processedContent)}
+            </div>`;
+        } else { container.innerHTML = '<p style="color:var(--text-muted)">数据已损坏或擦除。</p>'; }
+      }
+    } else {
+      renderModules();
+      renderList();
+    }
+  } catch(e) { container.innerHTML = `<div class="glass" style="padding: 20px; border-color: var(--danger);"><p style="color:var(--danger); font-weight: bold;">❌ 与核心节点失去连接。</p></div>`; }
 }
 
 function openBlogModal() { document.getElementById('blogModal').classList.add('active'); }
 function closeBlogModal() { document.getElementById('blogModal').classList.remove('active'); document.getElementById('blogPwd').value = ''; }
 
+function openEditPost(catIdx, postIdx) {
+  const cat = store.posts[catIdx];
+  const post = cat.items[postIdx];
+  document.getElementById('editCatIdx').value = catIdx;
+  document.getElementById('editPostIdx').value = postIdx;
+  document.getElementById('editPostCat').value = cat.category;
+  document.getElementById('editPostTitle').value = post.title;
+  document.getElementById('editPostContent').value = post.content;
+  document.getElementById('editBlogModal').classList.add('active');
+}
+function closeEditBlogModal() { document.getElementById('editBlogModal').classList.remove('active'); document.getElementById('editBlogPwd').value = ''; }
+
 async function submitPost() {
   const pwd = document.getElementById('blogPwd').value.trim();
+  const catName = document.getElementById('postCat').value.trim();
   const title = document.getElementById('postTitle').value.trim();
   const content = document.getElementById('postContent').value.trim();
-  if (!pwd) return alert("鉴权被拒！");
-  if (!title || !content) return alert("有效载荷不能为空！");
+  
+  if (!pwd) return alert("核心鉴权失败！");
+  if (!catName || !title || !content) return alert("模块、标题、内容均不可为空！");
 
-  document.getElementById('pubBtn').innerText = "⏳ 正在同步至云端存储...";
+  document.getElementById('pubBtn').innerText = "⏳ 正在压入堆栈...";
   let tempPosts = JSON.parse(JSON.stringify(store.posts));
-  tempPosts.unshift({ id: 'post_' + Date.now(), title, date: new Date().toISOString().split('T')[0], content });
+  
+  let targetCat = tempPosts.find(c => c.category === catName);
+  if (!targetCat) { targetCat = { category: catName, items: [] }; tempPosts.push(targetCat); }
+  
+  targetCat.items.unshift({ id: 'post_' + Date.now(), title, date: new Date().toISOString().split('T')[0], content });
 
   try {
     const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, posts: tempPosts }) });
-    const result = await res.json();
-    if (result.success) {
+    if (res.ok) {
       store.posts = tempPosts; closeBlogModal();
-      document.getElementById('postTitle').value = ''; document.getElementById('postContent').value = ''; router();
-    } else { alert("⛔ " + (result.error || "凭证无效")); }
-  } catch(e) { alert("⚠️ 部署超时"); } finally { document.getElementById('pubBtn').innerText = "🚀 发射指令"; }
+      document.getElementById('postCat').value = ''; document.getElementById('postTitle').value = ''; document.getElementById('postContent').value = ''; 
+      activeModule = catName;
+      window.location.href = 'blog.html';
+    } else { alert("⛔ 凭证无效"); }
+  } catch(e) { alert("⚠️ 传输中断"); } finally { document.getElementById('pubBtn').innerText = "🚀 发射数据"; }
 }
 
-async function deletePost(idx) {
-  const pwd = prompt("极度危险：验证密钥以抹除记录：");
+async function submitEditPost() {
+  const pwd = document.getElementById('editBlogPwd').value.trim();
+  const catIdx = parseInt(document.getElementById('editCatIdx').value);
+  const postIdx = parseInt(document.getElementById('editPostIdx').value);
+  const newCat = document.getElementById('editPostCat').value.trim();
+  const newTitle = document.getElementById('editPostTitle').value.trim();
+  const newContent = document.getElementById('editPostContent').value.trim();
+
+  if (!pwd) return alert("鉴权失败！");
+  if (!newCat || !newTitle || !newContent) return alert("所有字段不可为空！");
+
+  const btn = document.getElementById('editPubBtn');
+  btn.innerText = "⏳ 保存中..."; btn.disabled = true;
+
+  try {
+    let tempPosts = JSON.parse(JSON.stringify(store.posts));
+    const oldPost = tempPosts[catIdx].items[postIdx];
+
+    // 从原分类移除
+    tempPosts[catIdx].items.splice(postIdx, 1);
+    if (tempPosts[catIdx].items.length === 0) tempPosts.splice(catIdx, 1);
+
+    // 放入新分类（保持原 id 与日期或刷新日期均可，这里保留原id与日期）
+    let targetCat = tempPosts.find(c => c.category === newCat);
+    if (!targetCat) { targetCat = { category: newCat, items: [] }; tempPosts.push(targetCat); }
+    
+    targetCat.items.unshift({ id: oldPost.id, title: newTitle, date: oldPost.date, content: newContent });
+
+    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, posts: tempPosts }) });
+    if (res.ok) {
+      store.posts = tempPosts; closeEditBlogModal();
+      renderModules(); renderList();
+    } else { alert("⛔ 鉴权失败"); }
+  } catch(e) { alert("⚠️ 传输超时"); } finally { btn.innerText = "💾 保存修改"; btn.disabled = false; }
+}
+
+async function deletePost(catIdx, postIdx) {
+  const pwd = prompt("高危：输入密钥彻底销毁该区块：");
   if (!pwd) return;
-  let tempPosts = JSON.parse(JSON.stringify(store.posts)); tempPosts.splice(idx, 1);
+  let tempPosts = JSON.parse(JSON.stringify(store.posts)); 
+  tempPosts[catIdx].items.splice(postIdx, 1);
+  if (tempPosts[catIdx].items.length === 0) tempPosts.splice(catIdx, 1);
   try {
     const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, posts: tempPosts }) });
-    postResult = await res.json();
-    if (res.ok) { store.posts = tempPosts; router(); } 
-    else { alert("⛔ 授权失败"); }
+    if (res.ok) { store.posts = tempPosts; renderList(); renderModules(); } else alert("⛔ 授权失败");
+  } catch(e) { alert("⚠️ 服务未响应"); }
+}
+
+async function deleteModule(catIdx) {
+  const pwd = prompt("极度危险：输入密钥销毁整个模块及其内含所有文章：");
+  if (!pwd) return;
+  let tempPosts = JSON.parse(JSON.stringify(store.posts)); 
+  tempPosts.splice(catIdx, 1);
+  try {
+    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, posts: tempPosts }) });
+    if (res.ok) { 
+      store.posts = tempPosts; 
+      activeModule = 'all'; 
+      renderModules(); renderList(); 
+    } else alert("⛔ 授权失败");
   } catch(e) { alert("⚠️ 服务未响应"); }
 }
 

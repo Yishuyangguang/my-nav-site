@@ -8,85 +8,123 @@
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <style>
 :root {
-  --bg: #07090e; --bg-gradient: radial-gradient(circle at 50% 0%, #1a150c 0%, #07090e 70%);
-  --surface: rgba(26, 22, 15, 0.65); --surface-hover: rgba(38, 32, 20, 0.85);
-  --fg: #f3f0ea; --muted: #948a78; --border: rgba(212, 175, 55, 0.2);
-  --accent: #d4af37; --accent-soft: rgba(212,175,55,0.12); --danger: #ef4444; --radius: 12px;
+  --bg-color: #050505;
+  --glass-bg: rgba(20, 22, 26, 0.45);
+  --glass-border: rgba(212, 175, 55, 0.25);
+  --glass-hover: rgba(30, 33, 40, 0.6);
+  --gold: #d4af37;
+  --gold-glow: #fef3c7;
+  --text-main: #e2d9cc;
+  --text-muted: #8a8377;
+  --danger: #ef4444;
+  --info: #3b82f6;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); background-image: var(--bg-gradient); background-attachment: fixed; color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; min-height: 100vh; padding-bottom: 40px; }
+body { background: var(--bg-color); background-image: radial-gradient(circle at 50% -20%, #1a160c 0%, var(--bg-color) 60%); background-attachment: fixed; color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; min-height: 100vh; padding-bottom: 50px; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; cursor: pointer; border: none; background: none; }
+
+.glass { background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.05); border-radius: 14px; }
+
 .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-.header { padding: 30px 0 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); margin-bottom: 25px; }
-.logo { font-size: 20px; font-weight: 700; color: #fef3c7; display: flex; align-items: center; gap: 8px; }
-.header-actions { display: flex; gap: 10px; }
-.nav-link { padding: 8px 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border); color: var(--accent); font-size: 13px; font-weight: 600; transition: all 0.2s; }
-.nav-link:hover { background: var(--accent); color: #000; }
-.toolbar { display: flex; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; }
+.header { padding: 35px 0 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(212, 175, 55, 0.15); margin-bottom: 30px; }
+.logo { font-size: 22px; font-weight: 800; background: linear-gradient(135deg, var(--gold), var(--gold-glow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 8px; }
+.header-actions { display: flex; gap: 12px; }
+.nav-link { padding: 8px 18px; border-radius: 20px; color: var(--gold); font-size: 13px; font-weight: 600; transition: all 0.2s ease; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); }
+.nav-link:hover { background: var(--gold); color: #000; box-shadow: 0 0 15px rgba(212,175,55,0.3); transform: translateY(-1px);}
+
+.toolbar { display: flex; gap: 12px; margin-bottom: 30px; flex-wrap: wrap; }
 .search-box { flex: 1; min-width: 200px; }
-.search-box input { width: 100%; padding: 12px 18px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--fg); outline: none; font-size: 14px; }
-.search-box input:focus { border-color: var(--accent); }
-.filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
-.chip { padding: 6px 14px; border-radius: 18px; font-size: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: all 0.15s; }
-.chip.active, .chip:hover { color: #fef08a; border-color: var(--accent); background: var(--accent-soft); }
-.category-title { font-size: 16px; font-weight: 600; color: var(--accent); margin: 25px 0 15px; display: flex; justify-content: space-between; align-items: center; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-.card { padding: 16px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); backdrop-filter: blur(10px); transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; position: relative; }
-.card:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--surface-hover); }
-.card-header { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #fff; }
-.card-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 18px; border-radius: 4px; overflow: hidden; flex-shrink: 0;}
+.search-box input { width: 100%; padding: 14px 20px; color: var(--text-main); outline: none; font-size: 14px; transition: border 0.3s; }
+.search-box input:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(212,175,55,0.1); }
+.filter-chips { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.chip { padding: 8px 16px; border-radius: 20px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.03); border: 1px solid transparent; }
+.chip.active, .chip:hover { color: var(--gold-glow); border-color: var(--glass-border); background: rgba(212,175,55,0.08); }
+
+.category-header { display: flex; justify-content: space-between; align-items: center; margin: 35px 0 15px; }
+.category-title { font-size: 17px; font-weight: 700; color: var(--gold); position: relative; padding-left: 12px; }
+.category-title::before { content: ''; position: absolute; left: 0; top: 10%; height: 80%; width: 4px; background: var(--gold); border-radius: 4px; }
+.btn-del-cat { font-size: 12px; color: var(--danger); opacity: 0.7; transition: 0.2s; }
+.btn-del-cat:hover { opacity: 1; text-decoration: underline; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+.card { padding: 18px; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s; position: relative; overflow: hidden; }
+.card:hover { transform: translateY(-4px); border-color: var(--gold); background: var(--glass-hover); }
+.card-header { display: flex; align-items: center; gap: 12px; font-weight: 600; color: #fff; margin-bottom: 8px; padding-right: 50px;}
+.card-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 20px; border-radius: 6px; flex-shrink: 0; background: rgba(255,255,255,0.1); padding: 2px;}
 .card-icon img { width: 100%; height: 100%; object-fit: contain; }
-.card-desc { font-size: 12px; color: var(--muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 999; }
+.card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* 管理员按钮组 */
+.admin-actions { position: absolute; top: 10px; right: 10px; display: none; gap: 4px; z-index: 2; }
+.admin-mode .admin-actions { display: flex; }
+.btn-action { font-size: 11px; cursor: pointer; padding: 3px 6px; border-radius: 4px; font-weight: 600; }
+.btn-edit { color: var(--info); background: rgba(59, 130, 246, 0.15); }
+.btn-edit:hover { background: rgba(59, 130, 246, 0.3); }
+.btn-del { color: var(--danger); background: rgba(239, 68, 68, 0.15); }
+.btn-del:hover { background: rgba(239, 68, 68, 0.3); }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 999; }
 .modal-overlay.active { display: flex; }
-.modal-card { background: #12100a; border: 1px solid var(--border); border-radius: 16px; padding: 25px; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; }
-.modal-title { font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 15px; }
-.form-group { margin-bottom: 12px; }
-.form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
-.form-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--fg); outline: none; font-size: 13px; }
-.btn-submit { width: 100%; padding: 12px; border-radius: 8px; background: var(--accent); color: #000; font-weight: 700; margin-top: 10px; cursor: pointer; }
-.btn-del { color: var(--danger); font-size: 11px; cursor: pointer; position: absolute; top: 8px; right: 8px; display: none; z-index: 2;}
-.admin-mode .btn-del { display: block; }
+.modal-card { width: 90%; max-width: 500px; padding: 30px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+.form-control { width: 100%; padding: 12px; color: var(--text-main); outline: none; font-size: 14px; background: rgba(0,0,0,0.3); transition: 0.2s;}
+.form-control:focus { border-color: var(--gold); }
+.btn-submit { width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, #d4af37, #b38728); color: #000; font-weight: 700; margin-top: 15px; border: none; transition: 0.2s;}
+.btn-submit:hover { filter: brightness(1.1); box-shadow: 0 0 15px rgba(212,175,55,0.4); }
 </style>
 </head>
 <body>
 
 <div class="container">
   <header class="header">
-    <div class="logo">🌞 私人极客导航</div>
+    <div class="logo">✦ 极客终端</div>
     <div class="header-actions">
-      <button class="nav-link" onclick="openAdminModal()">⚙️ 管理网站</button>
-      <a href="blog.html" class="nav-link">📖 个人博客 →</a>
+      <button class="nav-link glass" onclick="toggleAdmin()">⚙️ 管理模式</button>
+      <button class="nav-link glass" onclick="openAdminModal()">＋ 添加站点</button>
+      <a href="blog.html" class="nav-link glass" style="background:var(--gold); color:#000;">📖 博客中枢 →</a>
     </div>
   </header>
   <div class="toolbar">
-    <div class="search-box"><input type="text" id="searchInput" placeholder="搜索书签标题或备注..." autocomplete="off"></div>
+    <div class="search-box"><input type="text" id="searchInput" class="glass" placeholder="搜索链路或备注..." autocomplete="off"></div>
     <div id="filterChips" class="filter-chips"></div>
   </div>
-  <div id="navContainer"><p style="color:var(--muted)">🔄 正在安全连接全球骨干节点...</p></div>
+  <div id="navContainer"><p style="color:var(--text-muted)">🔄 正在安全连接骨干节点...</p></div>
 </div>
 
+<!-- 添加弹窗 -->
 <div id="adminModal" class="modal-overlay">
-  <div class="modal-card">
-    <div class="modal-title">⚙️ 极简内容管理</div>
-    <div class="form-group">
-      <label>安全凭证</label>
-      <input type="password" id="adminPwd" class="form-control" placeholder="验证操作权限">
-    </div>
-    <hr style="border-color:var(--border);margin:15px 0;">
-    <div class="modal-title" style="font-size:15px;">添加新网址（自动提取名字和图标）</div>
-    <div class="form-group"><label>所属分类</label><input type="text" id="newCat" class="form-control" placeholder="例如：实用工具"></div>
-    <div class="form-group"><label>网站 URL (粘贴后自动解析一切)</label><input type="text" id="newUrl" class="form-control" placeholder="例如：https://github.com"></div>
-    <div class="form-group"><label>备注/简短描述 (选填)</label><input type="text" id="newDesc" class="form-control" placeholder="给自己写点备忘..."></div>
+  <div class="modal-card glass">
+    <div style="font-size: 18px; font-weight: 700; color: var(--gold); margin-bottom: 20px;">＋ 建立新链接</div>
+    <div class="form-group"><label>鉴权密钥</label><input type="password" id="adminPwd" class="form-control glass" placeholder="输入核心凭证"></div>
+    <div class="form-group"><label>所属分类</label><input type="text" id="newCat" class="form-control glass" placeholder="例如：开发工具"></div>
+    <div class="form-group"><label>目标 URL</label><input type="text" id="newUrl" class="form-control glass" placeholder="例如：https://github.com"></div>
+    <div class="form-group"><label>备注说明 (选填)</label><input type="text" id="newDesc" class="form-control glass" placeholder="简短描述..."></div>
     
-    <button id="submitBtn" class="btn-submit" onclick="submitNewBookmark()">🚀 智能解析并推送云端</button>
-    <button class="btn-submit" style="background:transparent;color:var(--muted);border:1px solid var(--border);margin-top:8px;" onclick="closeAdminModal()">取消操作</button>
+    <button id="submitBtn" class="btn-submit" onclick="submitNewBookmark()">🚀 部署至云端</button>
+    <button class="btn-submit" style="background:transparent;color:var(--text-muted);border:1px solid var(--glass-border);box-shadow:none;" onclick="closeAdminModal()">取消</button>
+  </div>
+</div>
+
+<!-- 编辑弹窗 -->
+<div id="editModal" class="modal-overlay">
+  <div class="modal-card glass">
+    <div style="font-size: 18px; font-weight: 700; color: var(--gold); margin-bottom: 20px;">✎ 修改导航节点</div>
+    <input type="hidden" id="editCatIdx">
+    <input type="hidden" id="editItemIdx">
+    <div class="form-group"><label>鉴权密钥</label><input type="password" id="editPwd" class="form-control glass" placeholder="输入核心凭证"></div>
+    <div class="form-group"><label>所属分类</label><input type="text" id="editCat" class="form-control glass"></div>
+    <div class="form-group"><label>网站标题 (留空则根据URL自动解析)</label><input type="text" id="editTitle" class="form-control glass" placeholder="选填，不填自动抓取"></div>
+    <div class="form-group"><label>目标 URL</label><input type="text" id="editUrl" class="form-control glass"></div>
+    <div class="form-group"><label>备注说明</label><input type="text" id="editDesc" class="form-control glass"></div>
+    
+    <button id="editSubmitBtn" class="btn-submit" onclick="submitEditBookmark()">💾 保存修改</button>
+    <button class="btn-submit" style="background:transparent;color:var(--text-muted);border:1px solid var(--glass-border);box-shadow:none;" onclick="closeEditModal()">取消</button>
   </div>
 </div>
 
 <script>
-// ✅ 已经彻底修改为你绑定的 API 自定义域，解决无法拉取数据问题
 const API_URL = "https://api.shucao.cc.cd"; 
 
 let store = { nav: [], posts: [] };
@@ -94,24 +132,13 @@ let activeCategory = 'all';
 let isAdmin = false;
 
 const fetchWithTimeout = async (resource, options = {}) => {
-  const { timeout = 8000 } = options;
   const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
+  const id = setTimeout(() => controller.abort(), 8000);
   const response = await fetch(resource, { ...options, signal: controller.signal });
   clearTimeout(id); return response;
 };
 
-function getIconHtml(iconData, url) {
-  if (iconData && iconData.trim().length > 0 && iconData.trim().length < 5) {
-    return `<span class="card-icon">${iconData}</span>`;
-  }
-  try {
-    const domain = new URL(url).hostname;
-    return `<span class="card-icon"><img src="https://api.iowen.cn/favicon/${domain}.png" onerror="this.outerHTML='🌐'"></span>`;
-  } catch(e) {
-    return `<span class="card-icon">🌐</span>`;
-  }
-}
+function toggleAdmin() { isAdmin = !isAdmin; renderNav(); }
 
 async function fetchData() {
   const container = document.getElementById('navContainer');
@@ -122,15 +149,15 @@ async function fetchData() {
     if (!store.nav) store.nav = [];
     renderFilters(); renderNav();
   } catch(e) {
-    container.innerHTML = `<div style="padding: 20px; border: 1px solid var(--danger); border-radius: 8px; background: rgba(239, 68, 68, 0.1);"><p style="color:var(--danger); font-weight: bold;">❌ 无法从安全节点拉取数据。</p></div>`;
+    container.innerHTML = `<div class="glass" style="padding: 20px; border-color: var(--danger);"><p style="color:var(--danger); font-weight: bold;">❌ 节点连接断开。</p></div>`;
   }
 }
 
 function renderFilters() {
   const chips = document.getElementById('filterChips');
   if(!store.nav || store.nav.length === 0) return chips.innerHTML = '';
-  let html = `<button class="chip ${activeCategory === 'all' ? 'active' : ''}" onclick="setCategory('all')">全部</button>`;
-  store.nav.forEach(cat => { html += `<button class="chip ${activeCategory === cat.category ? 'active' : ''}" onclick="setCategory('${cat.category}')">${cat.category}</button>`; });
+  let html = `<button class="chip glass ${activeCategory === 'all' ? 'active' : ''}" onclick="setCategory('all')">全部</button>`;
+  store.nav.forEach(cat => { html += `<button class="chip glass ${activeCategory === cat.category ? 'active' : ''}" onclick="setCategory('${cat.category}')">${cat.category}</button>`; });
   chips.innerHTML = html;
 }
 
@@ -140,26 +167,30 @@ function renderNav() {
   const query = document.getElementById('searchInput').value.toLowerCase().trim();
   const container = document.getElementById('navContainer');
   let html = '';
-  if (!store.nav || store.nav.length === 0) return container.innerHTML = '<p style="color:var(--muted);margin-top:20px;">云端数据库为空，请点击“管理网站”快速添加。</p>';
+  if (!store.nav || store.nav.length === 0) return container.innerHTML = '<p style="color:var(--text-muted);">数据库为空，请添加站点。</p>';
 
   store.nav.forEach((cat, catIdx) => {
     if (activeCategory !== 'all' && activeCategory !== cat.category) return;
     const filteredItems = cat.items.filter(item => item.title.toLowerCase().includes(query) || item.desc.toLowerCase().includes(query));
-    if (filteredItems.length > 0) {
-      html += `<div class="category-title"><span>${cat.category}</span></div><div class="grid">`;
+    
+    if (filteredItems.length > 0 || (isAdmin && query === '')) {
+      html += `<div class="category-header">
+                 <div class="category-title">${cat.category}</div>
+                 ${isAdmin ? `<button class="btn-del-cat" onclick="deleteCategory(${catIdx})">✕ 销毁此分类模块</button>` : ''}
+               </div><div class="grid">`;
+               
       filteredItems.forEach((item, itemIdx) => {
         const iconHtml = item.icon && item.icon.startsWith('http') 
-          ? `<img src="${item.icon}" loading="lazy" onerror="this.outerHTML='🌐'">` 
-          : (item.icon || '🌐');
+          ? `<img src="${item.icon}" loading="lazy" onerror="this.outerHTML='🌐'">` : (item.icon || '🌐');
           
         html += `
-          <div class="card ${isAdmin ? 'admin-mode' : ''}">
-            <button class="btn-del" onclick="deleteBookmark(${catIdx}, ${itemIdx})">✕</button>
-            <a href="${item.url}" target="_blank" rel="noopener" style="display:flex;flex-direction:column;gap:6px;">
-              <div class="card-header">
-                <span class="card-icon">${iconHtml}</span>
-                <span>${item.title}</span>
-              </div>
+          <div class="card glass ${isAdmin ? 'admin-mode' : ''}">
+            <div class="admin-actions">
+              <button class="btn-action btn-edit" onclick="openEditBookmark(${catIdx}, ${itemIdx})">改</button>
+              <button class="btn-action btn-del" onclick="deleteBookmark(${catIdx}, ${itemIdx})">删</button>
+            </div>
+            <a href="${item.url}" target="_blank" rel="noopener" style="display:flex;flex-direction:column;height:100%;">
+              <div class="card-header"><span class="card-icon">${iconHtml}</span><span>${item.title}</span></div>
               <div class="card-desc">${item.desc}</div>
             </a>
           </div>`;
@@ -167,11 +198,24 @@ function renderNav() {
       html += `</div>`;
     }
   });
-  container.innerHTML = html || '<p style="color:var(--muted);margin-top:20px;">未检索到相关内容</p>';
+  container.innerHTML = html || '<p style="color:var(--text-muted);margin-top:20px;">未找到匹配记录</p>';
 }
 
 function openAdminModal() { document.getElementById('adminModal').classList.add('active'); }
 function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); document.getElementById('adminPwd').value = ''; }
+
+function openEditBookmark(catIdx, itemIdx) {
+  const item = store.nav[catIdx].items[itemIdx];
+  const cat = store.nav[catIdx].category;
+  document.getElementById('editCatIdx').value = catIdx;
+  document.getElementById('editItemIdx').value = itemIdx;
+  document.getElementById('editCat').value = cat;
+  document.getElementById('editTitle').value = item.title;
+  document.getElementById('editUrl').value = item.url;
+  document.getElementById('editDesc').value = item.desc || '';
+  document.getElementById('editModal').classList.add('active');
+}
+function closeEditModal() { document.getElementById('editModal').classList.remove('active'); document.getElementById('editPwd').value = ''; }
 
 async function submitNewBookmark() {
   const pwd = document.getElementById('adminPwd').value.trim();
@@ -183,13 +227,11 @@ async function submitNewBookmark() {
   if (!catName || !targetUrl) return alert("分类和 URL 必须填写！");
 
   const btn = document.getElementById('submitBtn');
-  btn.innerText = "⏳ 正在爬取网站信息并突破封锁...";
-  btn.disabled = true;
+  btn.innerText = "⏳ 解析突破中..."; btn.disabled = true;
 
   try {
     const parseRes = await fetchWithTimeout(`${API_URL}/api/parse_url`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ targetUrl })
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ targetUrl })
     });
     const { title, icon } = await parseRes.json();
 
@@ -198,34 +240,101 @@ async function submitNewBookmark() {
     if (!targetCat) { targetCat = { category: catName, items: [] }; tempNav.push(targetCat); }
     targetCat.items.push({ title: title, url: targetUrl, icon: icon, desc: desc });
 
-    btn.innerText = "💾 正在写入数据库...";
     const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, nav: tempNav }) });
     const result = await res.json();
     
     if (result.success) {
-      alert("✅ 添加成功！名字和图标已自动提取完毕。"); 
-      store.nav = tempNav; isAdmin = true; closeAdminModal();
+      store.nav = tempNav; closeAdminModal();
       document.getElementById('newUrl').value = ''; document.getElementById('newDesc').value = '';
       renderFilters(); renderNav();
     } else { alert("⛔ " + (result.error || "鉴权失败")); }
-  } catch(e) { 
-    alert("⚠️ 网络中断或解析超时，请重试。"); 
-  } finally {
-    btn.innerText = "🚀 智能解析并推送云端";
-    btn.disabled = false;
-  }
+  } catch(e) { alert("⚠️ 网络超时"); } finally { btn.innerText = "🚀 部署至云端"; btn.disabled = false; }
+}
+
+async function submitEditBookmark() {
+  const pwd = document.getElementById('editPwd').value.trim();
+  const catIdx = parseInt(document.getElementById('editCatIdx').value);
+  const itemIdx = parseInt(document.getElementById('editItemIdx').value);
+  const newCat = document.getElementById('editCat').value.trim();
+  let newTitle = document.getElementById('editTitle').value.trim();
+  const newUrl = document.getElementById('editUrl').value.trim();
+  const newDesc = document.getElementById('editDesc').value.trim();
+
+  if (!pwd) return alert("凭证不能为空！");
+  if (!newCat || !newUrl) return alert("分类和 URL 不可为空！");
+
+  const btn = document.getElementById('editSubmitBtn');
+  btn.innerText = "⏳ 保存中..."; btn.disabled = true;
+
+  try {
+    let tempNav = JSON.parse(JSON.stringify(store.nav));
+    const oldItem = tempNav[catIdx].items[itemIdx];
+    
+    let icon = oldItem.icon;
+    // 如果标题为空，或者 URL 改变了，自动通过后端接口重新解析
+    if (!newTitle || newUrl !== oldItem.url) {
+      try {
+        const parseRes = await fetchWithTimeout(`${API_URL}/api/parse_url`, {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ targetUrl: newUrl })
+        });
+        const parsed = await parseRes.json();
+        if (!newTitle && parsed.title) {
+          newTitle = parsed.title;
+        }
+        if (newUrl !== oldItem.url && parsed.icon) {
+          icon = parsed.icon;
+        }
+      } catch(e) {}
+    }
+
+    // 兜底：如果解析后标题依然为空，用域名代替
+    if (!newTitle) {
+      try {
+        newTitle = new URL(newUrl).hostname;
+      } catch(e) {
+        newTitle = "未知网站";
+      }
+    }
+
+    // 从原分类移除
+    tempNav[catIdx].items.splice(itemIdx, 1);
+    if (tempNav[catIdx].items.length === 0) tempNav.splice(catIdx, 1);
+
+    // 放入新分类（或原分类）
+    let targetCat = tempNav.find(c => c.category === newCat);
+    if (!targetCat) { targetCat = { category: newCat, items: [] }; tempNav.push(targetCat); }
+    targetCat.items.push({ title: newTitle, url: newUrl, icon: icon, desc: newDesc });
+
+    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, nav: tempNav }) });
+    const result = await res.json();
+
+    if (result.success) {
+      store.nav = tempNav; closeEditModal();
+      renderFilters(); renderNav();
+    } else { alert("⛔ " + (result.error || "鉴权失败")); }
+  } catch(e) { alert("⚠️ 传输超时"); } finally { btn.innerText = "💾 保存修改"; btn.disabled = false; }
 }
 
 async function deleteBookmark(catIdx, itemIdx) {
-  const pwd = prompt("高危操作：验证密钥以永久删除此条目：");
+  const pwd = prompt("极客指令：输入密钥永久抹除该节点：");
   if (!pwd) return;
   let tempNav = JSON.parse(JSON.stringify(store.nav)); tempNav[catIdx].items.splice(itemIdx, 1);
   if (tempNav[catIdx].items.length === 0) tempNav.splice(catIdx, 1);
   try {
     const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, nav: tempNav }) });
-    const result = await res.json();
-    if (result.success) { store.nav = tempNav; renderFilters(); renderNav(); } 
-    else { alert("⛔ 拒绝：" + (result.error || "凭证不匹配")); }
+    if (res.ok) { store.nav = tempNav; renderFilters(); renderNav(); } else alert("⛔ 鉴权失败");
+  } catch(e) { alert("⚠️ 网络超时"); }
+}
+
+async function deleteCategory(catIdx) {
+  const catName = store.nav[catIdx].category;
+  const pwd = prompt(`警告：此操作将抹除【${catName}】模块及其中所有站点！\n请输入核心密钥：`);
+  if (!pwd) return;
+  let tempNav = JSON.parse(JSON.stringify(store.nav)); 
+  tempNav.splice(catIdx, 1);
+  try {
+    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, nav: tempNav }) });
+    if (res.ok) { store.nav = tempNav; activeCategory = 'all'; renderFilters(); renderNav(); } else alert("⛔ 鉴权失败");
   } catch(e) { alert("⚠️ 网络超时"); }
 }
 
