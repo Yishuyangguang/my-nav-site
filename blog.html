@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>个人博客</title>
+<!-- 网址标题栏替换为可爱的金色太阳图标 -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41'/></svg>">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 :root {
@@ -24,6 +26,7 @@ body {
   line-height: 1.8; min-height: 100vh; padding-bottom: 50px;
 }
 a { color: var(--accent); text-decoration: none; }
+button { font: inherit; cursor: pointer; border: none; background: none; }
 
 .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
 
@@ -32,9 +35,13 @@ a { color: var(--accent); text-decoration: none; }
   border-bottom: 1px solid var(--border); margin-bottom: 30px;
 }
 .logo { font-size: 20px; font-weight: 700; color: #fef3c7; }
-.back-link { font-size: 13px; font-weight: 600; }
+.header-actions { display: flex; gap: 10px; }
+.nav-link {
+  padding: 8px 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border);
+  color: var(--accent); font-size: 13px; font-weight: 600; transition: all 0.2s;
+}
+.nav-link:hover { background: var(--accent); color: #000; }
 
-/* 博客列表样式 */
 .post-card {
   padding: 20px; border-radius: var(--radius); background: var(--surface);
   border: 1px solid var(--border); margin-bottom: 15px; cursor: pointer; transition: all 0.2s;
@@ -43,16 +50,34 @@ a { color: var(--accent); text-decoration: none; }
 .post-title { font-size: 18px; font-weight: 700; color: #fef3c7; margin-bottom: 6px; }
 .post-date { font-size: 12px; color: var(--muted); }
 
-/* Markdown 文章详情排版 */
 .markdown-body {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 30px; margin-top: 20px;
 }
-.markdown-body h1, .markdown-body h2, .markdown-body h3 { color: #fef3c7; margin: 20px 0 10px; }
+.markdown-body h1, .markdown-body h2 { color: #fef3c7; margin: 20px 0 10px; }
 .markdown-body p { margin-bottom: 16px; color: #e2d9cc; }
-.markdown-body code { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; }
 .markdown-body pre { background: #000; padding: 15px; border-radius: 8px; overflow-x: auto; margin-bottom: 16px; }
-.markdown-body pre code { background: transparent; padding: 0; }
+
+/* Modal Admin */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+  display: none; justify-content: center; align-items: center; z-index: 999;
+}
+.modal-overlay.active { display: flex; }
+.modal-card {
+  background: #12100a; border: 1px solid var(--border); border-radius: 16px;
+  padding: 25px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto;
+}
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.form-control {
+  width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border);
+  background: rgba(255,255,255,0.05); color: var(--fg); outline: none; font-size: 13px;
+}
+.btn-submit {
+  width: 100%; padding: 12px; border-radius: 8px; background: var(--accent);
+  color: #000; font-weight: 700; margin-top: 10px; cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -60,45 +85,117 @@ a { color: var(--accent); text-decoration: none; }
 <div class="container">
   <header class="header">
     <div class="logo">📖 个人博客</div>
-    <a href="index.html" class="back-link">← 返回网址导航</a>
+    <div class="header-actions">
+      <button class="nav-link" onclick="openBlogModal()">✍️ 发布博客</button>
+      <a href="index.html" class="nav-link">← 返回网址导航</a>
+    </div>
   </header>
 
   <div id="content"></div>
 </div>
 
+<!-- 发布博客弹窗 -->
+<div id="blogModal" class="modal-overlay">
+  <div class="modal-card">
+    <div style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:15px;">✍️ 发布新博客长文</div>
+    
+    <div class="form-group">
+      <label>管理员密码</label>
+      <input type="password" id="blogPwd" class="form-control" placeholder="请输入密码 5214">
+    </div>
+    <div class="form-group">
+      <label>文章标题</label>
+      <input type="text" id="postTitle" class="form-control" placeholder="文章标题">
+    </div>
+    <div class="form-group">
+      <label>Markdown 文章内容</label>
+      <textarea id="postContent" class="form-control" rows="10" placeholder="在此输入 Markdown 格式的长文..."></textarea>
+    </div>
+
+    <button class="btn-submit" onclick="submitPost()">🚀 发布并在云端保存</button>
+    <button class="btn-submit" style="background:transparent;color:var(--muted);border:1px solid var(--border);margin-top:8px;" onclick="closeBlogModal()">取消</button>
+  </div>
+</div>
+
 <script>
+// 【重要】替换为你自己 Cloudflare Worker 部署后的真实 URL 地址
+const API_URL = "https://nav-api.xxxx.workers.dev"; 
+
+let store = { nav: [], posts: [] };
+
 async function router() {
   const params = new URLSearchParams(window.location.search);
   const postId = params.get('id');
   const container = document.getElementById('content');
 
-  if (postId) {
-    // 渲染文章正文页
-    try {
-      const res = await fetch(`posts/${postId}.md?_t=` + Date.now());
-      if (!res.ok) throw new Error();
-      const text = await res.text();
-      container.innerHTML = `<div class="markdown-body">${marked.parse(text)}</div>`;
-    } catch(e) {
-      container.innerHTML = '<p style="color:var(--muted)">文章不存在或读取失败</p>';
-    }
-  } else {
-    // 渲染博客列表页
-    try {
-      const res = await fetch('posts/posts.json?_t=' + Date.now());
-      const posts = await res.json();
+  try {
+    const res = await fetch(`${API_URL}/api/data?_t=` + Date.now());
+    store = await res.json();
+
+    if (postId) {
+      const post = store.posts.find(p => p.id === postId);
+      if (post) {
+        container.innerHTML = `
+          <div class="markdown-body">
+            <h1 style="margin-top:0">${post.title}</h1>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">发布于 ${post.date}</div>
+            ${marked.parse(post.content)}
+          </div>`;
+      } else {
+        container.innerHTML = '<p style="color:var(--muted)">文章不存在</p>';
+      }
+    } else {
       let html = '';
-      posts.forEach(p => {
+      store.posts.forEach(p => {
         html += `
           <div class="post-card" onclick="window.location.href='blog.html?id=${p.id}'">
             <div class="post-title">${p.title}</div>
-            <div class="post-date">发布于 ${p.date} · ${p.summary || ''}</div>
+            <div class="post-date">发布于 ${p.date}</div>
           </div>`;
       });
       container.innerHTML = html || '<p style="color:var(--muted)">暂无博客文章</p>';
-    } catch(e) {
-      container.innerHTML = '<p style="color:var(--muted)">加载文章列表失败</p>';
     }
+  } catch(e) {
+    container.innerHTML = '<p style="color:var(--muted)">获取博客云端数据失败</p>';
+  }
+}
+
+function openBlogModal() { document.getElementById('blogModal').classList.add('active'); }
+function closeBlogModal() { document.getElementById('blogModal').classList.remove('active'); }
+
+async function submitPost() {
+  const pwd = document.getElementById('blogPwd').value.trim();
+  const title = document.getElementById('postTitle').value.trim();
+  const content = document.getElementById('postContent').value.trim();
+
+  if (!pwd) return alert("请输入密码！");
+  if (!title || !content) return alert("标题和文章内容不能为空！");
+
+  const newPost = {
+    id: 'post_' + Date.now(),
+    title,
+    date: new Date().toISOString().split('T')[0],
+    content
+  };
+
+  store.posts.unshift(newPost);
+
+  try {
+    const res = await fetch(`${API_URL}/api/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pwd, posts: store.posts })
+    });
+    const result = await res.json();
+    if (result.success) {
+      alert("🎉 博客发布成功！");
+      closeBlogModal();
+      router();
+    } else {
+      alert("❌ 发布失败：" + (result.error || "密码错误"));
+    }
+  } catch(e) {
+    alert("❌ 网络保存异常");
   }
 }
 

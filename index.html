@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>我的私人导航 & 博客</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41'/></svg>">
+<!-- 网址标题栏替换为可爱的金色太阳图标 -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41'/></svg>">
 <style>
 :root {
   --bg: #07090e;
@@ -16,6 +17,7 @@
   --border: rgba(212, 175, 55, 0.2);
   --accent: #d4af37;
   --accent-soft: rgba(212,175,55,0.12);
+  --danger: #ef4444;
   --radius: 12px;
 }
 
@@ -26,6 +28,7 @@ body {
   min-height: 100vh; padding-bottom: 40px;
 }
 a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; border: none; background: none; }
 
 .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
 
@@ -35,6 +38,7 @@ a { color: inherit; text-decoration: none; }
   border-bottom: 1px solid var(--border); margin-bottom: 25px;
 }
 .logo { font-size: 20px; font-weight: 700; color: #fef3c7; display: flex; align-items: center; gap: 8px; }
+.header-actions { display: flex; gap: 10px; }
 .nav-link {
   padding: 8px 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border);
   color: var(--accent); font-size: 13px; font-weight: 600; transition: all 0.2s;
@@ -57,18 +61,42 @@ a { color: inherit; text-decoration: none; }
 }
 .chip.active, .chip:hover { color: #fef08a; border-color: var(--accent); background: var(--accent-soft); }
 
-/* Nav Section */
-.category-title { font-size: 16px; font-weight: 600; color: var(--accent); margin: 25px 0 15px; }
+/* Nav Grid */
+.category-title { font-size: 16px; font-weight: 600; color: var(--accent); margin: 25px 0 15px; display: flex; justify-content: space-between; align-items: center; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
 .card {
   padding: 16px; border-radius: var(--radius); background: var(--surface);
   border: 1px solid var(--border); backdrop-filter: blur(10px); transition: all 0.2s;
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex; flex-direction: column; gap: 6px; position: relative;
 }
 .card:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--surface-hover); }
 .card-header { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #fff; }
 .card-icon { font-size: 20px; }
 .card-desc { font-size: 12px; color: var(--muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Modal Admin */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+  display: none; justify-content: center; align-items: center; z-index: 999;
+}
+.modal-overlay.active { display: flex; }
+.modal-card {
+  background: #12100a; border: 1px solid var(--border); border-radius: 16px;
+  padding: 25px; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto;
+}
+.modal-title { font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 15px; }
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.form-control {
+  width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border);
+  background: rgba(255,255,255,0.05); color: var(--fg); outline: none; font-size: 13px;
+}
+.btn-submit {
+  width: 100%; padding: 12px; border-radius: 8px; background: var(--accent);
+  color: #000; font-weight: 700; margin-top: 10px; cursor: pointer;
+}
+.btn-del { color: var(--danger); font-size: 11px; cursor: pointer; position: absolute; top: 8px; right: 8px; display: none; }
+.admin-mode .btn-del { display: block; }
 </style>
 </head>
 <body>
@@ -76,7 +104,10 @@ a { color: inherit; text-decoration: none; }
 <div class="container">
   <header class="header">
     <div class="logo">🌞 私人极客导航</div>
-    <a href="blog.html" class="nav-link">📖 浏览个人博客 →</a>
+    <div class="header-actions">
+      <button class="nav-link" onclick="openAdminModal()">⚙️ 管理网站</button>
+      <a href="blog.html" class="nav-link">📖 个人博客 →</a>
+    </div>
   </header>
 
   <div class="toolbar">
@@ -89,25 +120,68 @@ a { color: inherit; text-decoration: none; }
   <div id="navContainer"></div>
 </div>
 
-<script>
-let navData = [];
-let activeCategory = 'all';
+<!-- 管理后台弹窗 -->
+<div id="adminModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-title">⚙️ 可视化内容管理</div>
+    
+    <div class="form-group">
+      <label>管理员密码</label>
+      <input type="password" id="adminPwd" class="form-control" placeholder="请输入密码 5214">
+    </div>
 
-async function loadNavData() {
+    <hr style="border-color:var(--border);margin:15px 0;">
+
+    <div class="modal-title" style="font-size:15px;">添加新导航链接</div>
+    <div class="form-group">
+      <label>所属分类（版块）</label>
+      <input type="text" id="newCat" class="form-control" placeholder="例如：AI 工具 / 常用推荐">
+    </div>
+    <div class="form-group">
+      <label>网站名称</label>
+      <input type="text" id="newTitle" class="form-control" placeholder="例如：GitHub">
+    </div>
+    <div class="form-group">
+      <label>网站 URL</label>
+      <input type="text" id="newUrl" class="form-control" placeholder="例如：https://github.com">
+    </div>
+    <div class="form-group">
+      <label>图标 Emoji</label>
+      <input type="text" id="newIcon" class="form-control" placeholder="例如：🐙 或 🚀">
+    </div>
+    <div class="form-group">
+      <label>简短描述</label>
+      <input type="text" id="newDesc" class="form-control" placeholder="例如：全球最大开源代码托管平台">
+    </div>
+
+    <button class="btn-submit" onclick="submitNewBookmark()">💾 保存并推送至云端</button>
+    <button class="btn-submit" style="background:transparent;color:var(--muted);border:1px solid var(--border);margin-top:8px;" onclick="closeAdminModal()">取消</button>
+  </div>
+</div>
+
+<script>
+// 【重要】替换为你自己 Cloudflare Worker 部署后的真实 URL 地址
+const API_URL = "https://nav-api.xxxx.workers.dev"; 
+
+let store = { nav: [], posts: [] };
+let activeCategory = 'all';
+let isAdmin = false;
+
+async function fetchData() {
   try {
-    const res = await fetch('data/nav.json?_t=' + Date.now());
-    navData = await res.json();
+    const res = await fetch(`${API_URL}/api/data?_t=` + Date.now());
+    store = await res.json();
     renderFilters();
     renderNav();
   } catch(e) {
-    document.getElementById('navContainer').innerHTML = '<p style="color:var(--muted)">加载网址库失败，请检查 data/nav.json</p>';
+    document.getElementById('navContainer').innerHTML = '<p style="color:var(--muted)">云端数据拉取失败，请检查 API_URL 地址配置。</p>';
   }
 }
 
 function renderFilters() {
   const chips = document.getElementById('filterChips');
   let html = `<button class="chip ${activeCategory === 'all' ? 'active' : ''}" onclick="setCategory('all')">全部</button>`;
-  navData.forEach(cat => {
+  store.nav.forEach(cat => {
     html += `<button class="chip ${activeCategory === cat.category ? 'active' : ''}" onclick="setCategory('${cat.category}')">${cat.category}</button>`;
   });
   chips.innerHTML = html;
@@ -124,7 +198,7 @@ function renderNav() {
   const container = document.getElementById('navContainer');
   let html = '';
 
-  navData.forEach(cat => {
+  store.nav.forEach((cat, catIdx) => {
     if (activeCategory !== 'all' && activeCategory !== cat.category) return;
 
     const filteredItems = cat.items.filter(item => 
@@ -132,26 +206,105 @@ function renderNav() {
     );
 
     if (filteredItems.length > 0) {
-      html += `<div class="category-title">${cat.category}</div><div class="grid">`;
-      filteredItems.forEach(item => {
+      html += `<div class="category-title"><span>${cat.category}</span></div><div class="grid">`;
+      filteredItems.forEach((item, itemIdx) => {
         html += `
-          <a href="${item.url}" target="_blank" rel="noopener" class="card">
-            <div class="card-header">
-              <span class="card-icon">${item.icon || '🌐'}</span>
-              <span>${item.title}</span>
-            </div>
-            <div class="card-desc">${item.desc}</div>
-          </a>`;
+          <div class="card ${isAdmin ? 'admin-mode' : ''}">
+            <button class="btn-del" onclick="deleteBookmark(${catIdx}, ${itemIdx})">✕ 删除</button>
+            <a href="${item.url}" target="_blank" rel="noopener" style="display:flex;flex-direction:column;gap:6px;">
+              <div class="card-header">
+                <span class="card-icon">${item.icon || '🌐'}</span>
+                <span>${item.title}</span>
+              </div>
+              <div class="card-desc">${item.desc}</div>
+            </a>
+          </div>`;
       });
       html += `</div>`;
     }
   });
 
-  container.innerHTML = html || '<p style="color:var(--muted);margin-top:20px;">未找到匹配的网址</p>';
+  container.innerHTML = html || '<p style="color:var(--muted);margin-top:20px;">暂无匹配的网址</p>';
+}
+
+function openAdminModal() {
+  document.getElementById('adminModal').classList.add('active');
+}
+function closeAdminModal() {
+  document.getElementById('adminModal').classList.remove('active');
+}
+
+async function submitNewBookmark() {
+  const pwd = document.getElementById('adminPwd').value.trim();
+  const catName = document.getElementById('newCat').value.trim();
+  const title = document.getElementById('newTitle').value.trim();
+  const url = document.getElementById('newUrl').value.trim();
+  const icon = document.getElementById('newIcon').value.trim() || '🌐';
+  const desc = document.getElementById('newDesc').value.trim();
+
+  if (!pwd) return alert("请输入管理员密码！");
+  if (!catName || !title || !url) return alert("版块分类、网站名称、URL 为必填项！");
+
+  // 查重或建新分类
+  let targetCat = store.nav.find(c => c.category === catName);
+  if (!targetCat) {
+    targetCat = { category: catName, items: [] };
+    store.nav.push(targetCat);
+  }
+
+  targetCat.items.push({ title, url, icon, desc });
+
+  try {
+    const res = await fetch(`${API_URL}/api/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pwd, nav: store.nav })
+    });
+    const result = await res.json();
+    if (result.success) {
+      alert("🎉 成功添加并保存到云端！");
+      isAdmin = true;
+      closeAdminModal();
+      renderFilters();
+      renderNav();
+    } else {
+      alert("❌ 保存失败：" + (result.error || "密码错误"));
+    }
+  } catch(e) {
+    alert("❌ 网络保存异常");
+  }
+}
+
+async function deleteBookmark(catIdx, itemIdx) {
+  const pwd = prompt("请输入管理员密码确认删除：");
+  if (!pwd) return;
+
+  store.nav[catIdx].items.splice(itemIdx, 1);
+  if (store.nav[catIdx].items.length === 0) {
+    store.nav.splice(catIdx, 1);
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/api/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pwd, nav: store.nav })
+    });
+    const result = await res.json();
+    if (result.success) {
+      renderFilters();
+      renderNav();
+    } else {
+      alert("❌ 删除失败：" + (result.error || "密码错误"));
+      fetchData(); // 恢复本地视图
+    }
+  } catch(e) {
+    alert("❌ 删除网络异常");
+  }
 }
 
 document.getElementById('searchInput').addEventListener('input', renderNav);
-document.addEventListener('DOMContentLoaded', loadNavData);
+document.addEventListener('DOMContentLoaded', fetchData);
 </script>
 </body>
 </html>
