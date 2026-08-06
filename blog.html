@@ -34,7 +34,7 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
 .markdown-body p { margin-bottom: 16px; color: #e2d9cc; }
 .markdown-body pre { background: #000; padding: 15px; border-radius: 8px; overflow-x: auto; margin-bottom: 16px; }
 
-/* 视频骨架屏与播放器容器 */
+/* 视频容器 */
 .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin: 20px 0; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
 .video-container iframe, .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; object-fit: contain; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -72,8 +72,8 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
     <div class="form-group">
       <label>核心数据 (支持 Markdown)</label>
       <div class="tip-text">
-        📺 <b>外网视频免翻墙</b>：直接另起一行，粘贴 YouTube 网址即可。<br>
-        🖼️ <b>图片秒传</b>：直接在此框内 <code>Ctrl+V</code> 粘贴截图，系统自动走全球 CDN 零耗流图床！
+        📺 <b>外网视频免翻墙</b>：直接另起一行，粘贴 YouTube 或 B站 网址即可。<br>
+        🖼️ <b>图片秒传</b>：直接在此框内 <code>Ctrl+V</code> 粘贴截图，系统自动走全球 CDN！
       </div>
       <textarea id="postContent" class="form-control" rows="12" placeholder="在此编写长文。试试直接粘贴一张图片进来..."></textarea>
     </div>
@@ -83,8 +83,8 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
 </div>
 
 <script>
-// 【重要】依然填写你的 API 地址
-const API_URL = "https://mydh.obadiah-shu.workers.dev"; 
+// 【重要】填入你刚刚成功绑定的接口域名
+const API_URL = "https://api.shucao.cc.cd"; 
 let store = { nav: [], posts: [] };
 
 const fetchWithTimeout = async (resource, options = {}) => {
@@ -94,61 +94,44 @@ const fetchWithTimeout = async (resource, options = {}) => {
   clearTimeout(id); return response;
 };
 
-// 📺 资深引擎 1：预处理占位符（骨架屏机制）
+// 预处理占位符
 function parseVideos(text) {
-  // YouTube：生成带有 data-vid 属性的骨架屏占位符，不使用 iframe！
+  // YouTube 生成骨架屏
   text = text.replace(/^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S+)?$/gm, 
-    '<div class="yt-placeholder video-container" data-vid="$1"><div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); display:flex; flex-direction:column; align-items:center; gap:10px;"><div class="spinner"></div><span style="color:var(--muted); font-size:13px;">正在通过全球节点提取底层流媒体...</span></div></div>');
+    '<div class="yt-placeholder video-container" data-vid="$1"><div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); display:flex; flex-direction:column; align-items:center; gap:10px;"><div class="spinner"></div><span style="color:var(--muted); font-size:13px;">正在由境外节点建立加密传输通道...</span></div></div>');
   
-  // B站：大陆网络直连，B站不封锁 iframe，故保持直接渲染 iframe
+  // B站直接渲染
   text = text.replace(/^(?:https?:\/\/)?(?:www\.)?bilibili\.com\/video\/(BV[a-zA-Z0-9]+)(?:\S+)?$/gm, 
     '<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=$1&high_quality=1&danmaku=0" allowfullscreen></iframe></div>');
   return text;
 }
 
-// 📺 资深引擎 2：后端底层流媒体穿透 (API 轮询负载均衡)
+// 📺 终极代理渲染：向我们自己的 api.shucao.cc.cd 发起视频流请求
 async function hydrateYouTubeVideos() {
   const placeholders = document.querySelectorAll('.yt-placeholder');
   if (placeholders.length === 0) return;
 
-  // 使用分布式 Piped 节点矩阵，确保国内解析高可用性
-  const PIPED_APIS = [
-    'https://pipedapi.kavin.rocks',
-    'https://pipedapi.tokhmi.xyz',
-    'https://pipedapi.syncpundit.io'
-  ];
-
   for (let el of placeholders) {
     const vid = el.getAttribute('data-vid');
-    let success = false;
-
-    // 自动切换可用节点
-    for (let api of PIPED_APIS) {
-      try {
-        const res = await fetch(`${api}/streams/${vid}`);
-        if (!res.ok) continue;
-        const data = await res.json();
-        
-        // 解析最高质量且自带音轨的 mp4 底层流
-        const stream = data.videoStreams.find(s => s.videoOnly === false && s.format === "MPEG-4");
-        if (stream && stream.url) {
-          // 将骨架屏直接替换为原生视频播放器，完全绕过 Cloudflare 验证！
-          el.innerHTML = `<video controls playsinline preload="metadata" src="${stream.url}"></video>`;
-          success = true;
-          break; // 成功解析则跳出节点轮询
-        }
-      } catch(e) {
-        console.warn(`节点 ${api} 被墙或超时，自动切换备用节点...`);
+    try {
+      // 访问我们自己搭建的安全后端 API
+      const res = await fetchWithTimeout(`${API_URL}/api/yt?vid=${vid}`, { timeout: 15000 });
+      if (!res.ok) throw new Error("Backend failed");
+      const data = await res.json();
+      
+      if (data.url) {
+        // 成功获取到代理后的视频直链，直接用原生 video 标签播放！完全跨越 GFW！
+        el.innerHTML = `<video controls playsinline preload="metadata" src="${data.url}"></video>`;
+      } else {
+        throw new Error("No URL returned");
       }
-    }
-
-    if (!success) {
-      el.innerHTML = '<div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;"><span style="font-size:24px;">❌</span><br><span style="color:var(--danger); font-size:13px; margin-top:8px; display:block;">视频底层流解析失败，所有节点已被防火墙阻断</span></div>';
+    } catch (e) {
+      el.innerHTML = '<div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;"><span style="font-size:24px;">⚠️</span><br><span style="color:var(--danger); font-size:13px; margin-top:8px; display:block;">代理节点加载超时，请刷新重试</span></div>';
     }
   }
 }
 
-// 🖼️ 贴图秒传逻辑保持不变
+// 🖼️ 贴图秒传逻辑
 const textarea = document.getElementById('postContent');
 textarea.addEventListener('paste', async (e) => {
   const items = e.clipboardData.items;
@@ -188,7 +171,6 @@ async function router() {
     if (postId) {
       const post = store.posts.find(p => p.id === postId);
       if (post) {
-        // 第一步：将 YouTube 链接替换为等待动画（骨架屏）
         const processedContent = parseVideos(post.content);
         container.innerHTML = `
           <div class="markdown-body">
@@ -197,7 +179,7 @@ async function router() {
             ${marked.parse(processedContent)}
           </div>`;
         
-        // 第二步：触发底层流媒体解析引擎，后台异步获取 MP4 直链
+        // 渲染完成后，触发流媒体代理机制
         hydrateYouTubeVideos();
       } else { container.innerHTML = '<p style="color:var(--muted)">区块不存在。</p>'; }
     } else {
