@@ -83,7 +83,7 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
 </div>
 
 <script>
-// 【重要】填入你刚刚成功绑定的接口域名
+// ✅ 已经彻底修改为你绑定的 API 自定义域
 const API_URL = "https://api.shucao.cc.cd"; 
 let store = { nav: [], posts: [] };
 
@@ -96,17 +96,15 @@ const fetchWithTimeout = async (resource, options = {}) => {
 
 // 预处理占位符
 function parseVideos(text) {
-  // YouTube 生成骨架屏
   text = text.replace(/^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S+)?$/gm, 
     '<div class="yt-placeholder video-container" data-vid="$1"><div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); display:flex; flex-direction:column; align-items:center; gap:10px;"><div class="spinner"></div><span style="color:var(--muted); font-size:13px;">正在由境外节点建立加密传输通道...</span></div></div>');
   
-  // B站直接渲染
   text = text.replace(/^(?:https?:\/\/)?(?:www\.)?bilibili\.com\/video\/(BV[a-zA-Z0-9]+)(?:\S+)?$/gm, 
     '<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=$1&high_quality=1&danmaku=0" allowfullscreen></iframe></div>');
   return text;
 }
 
-// 📺 终极代理渲染：向我们自己的 api.shucao.cc.cd 发起视频流请求
+// 📺 终极代理渲染
 async function hydrateYouTubeVideos() {
   const placeholders = document.querySelectorAll('.yt-placeholder');
   if (placeholders.length === 0) return;
@@ -114,13 +112,12 @@ async function hydrateYouTubeVideos() {
   for (let el of placeholders) {
     const vid = el.getAttribute('data-vid');
     try {
-      // 访问我们自己搭建的安全后端 API
+      // 通过你的 api.shucao.cc.cd 穿墙拉取视频流
       const res = await fetchWithTimeout(`${API_URL}/api/yt?vid=${vid}`, { timeout: 15000 });
       if (!res.ok) throw new Error("Backend failed");
       const data = await res.json();
       
       if (data.url) {
-        // 成功获取到代理后的视频直链，直接用原生 video 标签播放！完全跨越 GFW！
         el.innerHTML = `<video controls playsinline preload="metadata" src="${data.url}"></video>`;
       } else {
         throw new Error("No URL returned");
@@ -179,7 +176,6 @@ async function router() {
             ${marked.parse(processedContent)}
           </div>`;
         
-        // 渲染完成后，触发流媒体代理机制
         hydrateYouTubeVideos();
       } else { container.innerHTML = '<p style="color:var(--muted)">区块不存在。</p>'; }
     } else {

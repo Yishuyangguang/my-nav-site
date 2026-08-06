@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>私人极客导航</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41'/></svg>">
-<!-- 网络连接加速优化 -->
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <style>
 :root {
@@ -87,9 +86,8 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
 </div>
 
 <script>
-// 【重要】！！！这里一定要填写你绑定在 CF 上的那个免费自定义域名，不要用 workers.dev！
-// 比如：const API_URL = "https://api.your-free-domain.com";
-const API_URL = "https://mydh.obadiah-shu.workers.dev"; // 目前暂用此地址演示
+// ✅ 已经彻底修改为你绑定的 API 自定义域，解决无法拉取数据问题
+const API_URL = "https://api.shucao.cc.cd"; 
 
 let store = { nav: [], posts: [] };
 let activeCategory = 'all';
@@ -102,6 +100,18 @@ const fetchWithTimeout = async (resource, options = {}) => {
   const response = await fetch(resource, { ...options, signal: controller.signal });
   clearTimeout(id); return response;
 };
+
+function getIconHtml(iconData, url) {
+  if (iconData && iconData.trim().length > 0 && iconData.trim().length < 5) {
+    return `<span class="card-icon">${iconData}</span>`;
+  }
+  try {
+    const domain = new URL(url).hostname;
+    return `<span class="card-icon"><img src="https://api.iowen.cn/favicon/${domain}.png" onerror="this.outerHTML='🌐'"></span>`;
+  } catch(e) {
+    return `<span class="card-icon">🌐</span>`;
+  }
+}
 
 async function fetchData() {
   const container = document.getElementById('navContainer');
@@ -138,7 +148,6 @@ function renderNav() {
     if (filteredItems.length > 0) {
       html += `<div class="category-title"><span>${cat.category}</span></div><div class="grid">`;
       filteredItems.forEach((item, itemIdx) => {
-        // 新图标渲染逻辑：统一走代理通道，完美显示
         const iconHtml = item.icon && item.icon.startsWith('http') 
           ? `<img src="${item.icon}" loading="lazy" onerror="this.outerHTML='🌐'">` 
           : (item.icon || '🌐');
@@ -178,20 +187,17 @@ async function submitNewBookmark() {
   btn.disabled = true;
 
   try {
-    // 1. 请求后端代理去自动爬取网页名字和构建图标代理
     const parseRes = await fetchWithTimeout(`${API_URL}/api/parse_url`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ targetUrl })
     });
     const { title, icon } = await parseRes.json();
 
-    // 2. 将补全的数据存入本地数组
     let tempNav = JSON.parse(JSON.stringify(store.nav)); 
     let targetCat = tempNav.find(c => c.category === catName);
     if (!targetCat) { targetCat = { category: catName, items: [] }; tempNav.push(targetCat); }
     targetCat.items.push({ title: title, url: targetUrl, icon: icon, desc: desc });
 
-    // 3. 推送到 KV 数据库
     btn.innerText = "💾 正在写入数据库...";
     const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, nav: tempNav }) });
     const result = await res.json();
