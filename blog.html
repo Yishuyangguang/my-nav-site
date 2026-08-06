@@ -25,6 +25,10 @@ a { color: var(--gold); text-decoration: none; }
 button { font: inherit; cursor: pointer; border: none; background: none; }
 .glass { background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.05); border-radius: 14px; }
 
+/* 权限显隐控制 */
+body:not(.admin-mode) .admin-only { display: none !important; }
+body.admin-mode .guest-only { display: none !important; }
+
 .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
 .header { padding: 35px 0 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(212, 175, 55, 0.15); margin-bottom: 30px; }
 .logo { font-size: 22px; font-weight: 800; background: linear-gradient(135deg, var(--gold), var(--gold-glow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -39,18 +43,25 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
 .btn-del-module { color: var(--danger); font-size: 12px; margin-left: 10px; opacity: 0.8; }
 .btn-del-module:hover { text-decoration: underline; opacity: 1; }
 
-.post-card { padding: 22px; margin-bottom: 18px; cursor: pointer; transition: transform 0.2s, border-color 0.2s; position: relative; }
+.post-card { padding: 22px; margin-bottom: 18px; cursor: pointer; transition: transform 0.2s, border-color 0.2s; position: relative; overflow: hidden;}
 .post-card:hover { border-color: var(--gold); transform: translateY(-3px); background: var(--glass-hover);}
 .post-title { font-size: 18px; font-weight: 700; color: var(--gold-glow); margin-bottom: 6px; padding-right: 90px;}
 .post-date { font-size: 12px; color: var(--text-muted); }
 
-/* 文章卡片按钮组 */
-.post-actions { position: absolute; top: 22px; right: 22px; display: flex; gap: 6px; z-index: 2; }
-.btn-post-action { font-size: 11px; cursor: pointer; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
-.btn-edit-post { color: var(--info); background: rgba(59, 130, 246, 0.15); }
-.btn-edit-post:hover { background: rgba(59, 130, 246, 0.3); }
-.btn-del-post { color: var(--danger); background: rgba(239, 68, 68, 0.15); }
-.btn-del-post:hover { background: rgba(239, 68, 68, 0.3); }
+/* 3D 玻璃材质按钮组 */
+.glass-btn-group { position: absolute; top: 18px; right: 22px; display: flex; gap: 8px; z-index: 10; }
+.btn-3d { 
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); 
+  border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; 
+  padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; 
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s, box-shadow 0.2s; 
+  color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5); 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.1); 
+}
+.btn-3d-edit { background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.3); }
+.btn-3d-edit:hover { background: rgba(59, 130, 246, 0.4); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3), inset 0 1px 1px rgba(255,255,255,0.2); }
+.btn-3d-del { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.3); }
+.btn-3d-del:hover { background: rgba(239, 68, 68, 0.4); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3), inset 0 1px 1px rgba(255,255,255,0.2); }
 
 .markdown-body { padding: 35px; margin-top: 20px; overflow: hidden; }
 .markdown-body img { max-width: 100%; border-radius: 8px; margin: 15px 0; display: block;}
@@ -79,7 +90,10 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
   <header class="header">
     <div class="logo">✦ 数据刻录机</div>
     <div class="header-actions">
-      <button class="nav-link glass" onclick="openBlogModal()">✍️ 刻录区块</button>
+      <!-- 动态权限控制按钮 -->
+      <button class="nav-link glass guest-only" onclick="openLoginModal()">🔒 登录</button>
+      <button class="nav-link glass admin-only" onclick="logout()" style="color:var(--danger); border-color:rgba(239,68,68,0.3);">🔓 退出</button>
+      <button class="nav-link glass admin-only" onclick="openBlogModal()">✍️ 刻录区块</button>
       <a href="index.html" class="nav-link glass" style="background:var(--gold); color:#000;">← 返回总控</a>
     </div>
   </header>
@@ -88,11 +102,20 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
   <div id="content"><p style="color:var(--text-muted)">🔄 正在同步底层链路...</p></div>
 </div>
 
-<!-- 添加文章弹窗 -->
+<!-- 登录弹窗 -->
+<div id="loginModal" class="modal-overlay">
+  <div class="modal-card glass" style="max-width: 500px;">
+    <div style="font-size: 18px; font-weight: 700; color: var(--gold); margin-bottom: 20px;">🔒 核心鉴权</div>
+    <div class="form-group"><label>访问密钥</label><input type="password" id="loginPwd" class="form-control glass" placeholder="输入控制台密码" onkeypress="if(event.key === 'Enter') verifyLogin()"></div>
+    <button id="loginBtn" class="btn-submit" onclick="verifyLogin()">🔑 登入系统</button>
+    <button class="btn-submit" style="background:transparent;color:var(--text-muted);border:1px solid var(--glass-border);box-shadow:none;" onclick="closeLoginModal()">取消</button>
+  </div>
+</div>
+
+<!-- 添加文章弹窗 (已移除密码框) -->
 <div id="blogModal" class="modal-overlay">
   <div class="modal-card glass">
     <div style="font-size:18px;font-weight:700;color:var(--gold);margin-bottom:20px;">✍️ 写入新区块</div>
-    <div class="form-group"><label>系统鉴权</label><input type="password" id="blogPwd" class="form-control glass" placeholder="输入核心凭证"></div>
     <div class="form-group"><label>所属模块</label><input type="text" id="postCat" class="form-control glass" placeholder="例如：技术笔记"></div>
     <div class="form-group"><label>文章标题</label><input type="text" id="postTitle" class="form-control glass" placeholder="输入标题..."></div>
     <div class="form-group">
@@ -104,13 +127,12 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
   </div>
 </div>
 
-<!-- 编辑文章弹窗 -->
+<!-- 编辑文章弹窗 (已移除密码框) -->
 <div id="editBlogModal" class="modal-overlay">
   <div class="modal-card glass">
     <div style="font-size:18px;font-weight:700;color:var(--gold);margin-bottom:20px;">✎ 修改数据区块</div>
     <input type="hidden" id="editCatIdx">
     <input type="hidden" id="editPostIdx">
-    <div class="form-group"><label>系统鉴权</label><input type="password" id="editBlogPwd" class="form-control glass" placeholder="输入核心凭证"></div>
     <div class="form-group"><label>所属模块</label><input type="text" id="editPostCat" class="form-control glass"></div>
     <div class="form-group"><label>文章标题</label><input type="text" id="editPostTitle" class="form-control glass"></div>
     <div class="form-group">
@@ -127,12 +149,35 @@ const API_URL = "https://api.shucao.cc.cd";
 let store = { nav: [], posts: [] };
 let activeModule = 'all';
 
+// 全局权限管家
+function getPwd() { return sessionStorage.getItem('adminKey'); }
+function checkAuth() { if (getPwd()) { document.body.classList.add('admin-mode'); } else { document.body.classList.remove('admin-mode'); } }
+function logout() { sessionStorage.removeItem('adminKey'); checkAuth(); renderList(); }
+
 const fetchWithTimeout = async (resource, options = {}) => {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), 8000);
   const response = await fetch(resource, { ...options, signal: controller.signal });
-  clearTimeout(id); return response;
+  clearTimeout(id); 
+  // 全局拦截 401
+  if (response.status === 401) { logout(); alert("⛔ 身份验证已过期，请重新登录"); throw new Error("Auth failed"); }
+  return response;
 };
+
+async function verifyLogin() {
+  const pwd = document.getElementById('loginPwd').value.trim();
+  if(!pwd) return;
+  const btn = document.getElementById('loginBtn');
+  btn.innerText = "⏳ 验证中...";
+  try {
+    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd }) });
+    if (res.ok) {
+      sessionStorage.setItem('adminKey', pwd);
+      checkAuth(); closeLoginModal(); renderList();
+    } else { alert("⛔ 密钥错误"); }
+  } catch(e) { if(e.message !== "Auth failed") alert("⚠️ 网络超时"); }
+  btn.innerText = "🔑 登入系统";
+}
 
 function parseVideos(text) {
   text = text.replace(/^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S+)?$/gm, 
@@ -159,7 +204,7 @@ const editTextarea = document.getElementById('editPostContent');
 
 async function uploadImage(file, targetEl) {
   const start = targetEl.selectionStart;
-  const placeholder = '⏳ [图像正上传至量子网络...]\n';
+  const placeholder = '⏳ [图像正上传至云端...]\n';
   targetEl.value = targetEl.value.substring(0, start) + placeholder + targetEl.value.substring(targetEl.selectionEnd);
   
   const formData = new FormData(); formData.append('file', file);
@@ -191,7 +236,7 @@ function renderList() {
   
   if (activeModule !== 'all') {
     const catIdx = store.posts.findIndex(c => c.category === activeModule);
-    html += `<div style="text-align:right; margin-bottom:15px;"><button class="btn-del-module" onclick="deleteModule(${catIdx})">✕ 抹除【${activeModule}】模块及所有文章</button></div>`;
+    html += `<div class="admin-only" style="text-align:right; margin-bottom:15px;"><button class="btn-del-module" onclick="deleteModule(${catIdx})">✕ 抹除【${activeModule}】模块及所有文章</button></div>`;
   }
 
   let foundPosts = false;
@@ -204,9 +249,9 @@ function renderList() {
       cat.items.forEach((p, postIdx) => {
         html += `
           <div class="post-card glass" onclick="window.location.href='blog.html?cat=${catIdx}&id=${p.id}'">
-            <div class="post-actions">
-              <button class="btn-post-action btn-edit-post" onclick="event.stopPropagation(); openEditPost(${catIdx}, ${postIdx})">改</button>
-              <button class="btn-post-action btn-del-post" onclick="event.stopPropagation(); deletePost(${catIdx}, ${postIdx})">删</button>
+            <div class="glass-btn-group admin-only">
+              <button class="btn-3d btn-3d-edit" onclick="event.stopPropagation(); openEditPost(${catIdx}, ${postIdx})">改</button>
+              <button class="btn-3d btn-3d-del" onclick="event.stopPropagation(); deletePost(${catIdx}, ${postIdx})">删</button>
             </div>
             <div class="post-title">${p.title}</div>
             <div class="post-date">时间戳: ${p.date}</div>
@@ -218,7 +263,7 @@ function renderList() {
 
   if (!foundPosts) {
     if (activeModule !== 'all') html += '<p style="color:var(--text-muted)">该模块下暂无数据。</p>';
-    else html = '<p style="color:var(--text-muted)">区块链为空，请写入第一块数据。</p>';
+    else html = '<p style="color:var(--text-muted)">数据库为空，请登录后写入数据。</p>';
   }
   
   container.innerHTML = html;
@@ -259,119 +304,92 @@ async function router() {
         } else { container.innerHTML = '<p style="color:var(--text-muted)">数据已损坏或擦除。</p>'; }
       }
     } else {
-      renderModules();
-      renderList();
+      renderModules(); renderList();
     }
   } catch(e) { container.innerHTML = `<div class="glass" style="padding: 20px; border-color: var(--danger);"><p style="color:var(--danger); font-weight: bold;">❌ 与核心节点失去连接。</p></div>`; }
 }
 
+function openLoginModal() { document.getElementById('loginModal').classList.add('active'); document.getElementById('loginPwd').focus(); }
+function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); document.getElementById('loginPwd').value = ''; }
 function openBlogModal() { document.getElementById('blogModal').classList.add('active'); }
-function closeBlogModal() { document.getElementById('blogModal').classList.remove('active'); document.getElementById('blogPwd').value = ''; }
+function closeBlogModal() { document.getElementById('blogModal').classList.remove('active'); }
 
 function openEditPost(catIdx, postIdx) {
   const cat = store.posts[catIdx];
   const post = cat.items[postIdx];
-  document.getElementById('editCatIdx').value = catIdx;
-  document.getElementById('editPostIdx').value = postIdx;
-  document.getElementById('editPostCat').value = cat.category;
-  document.getElementById('editPostTitle').value = post.title;
+  document.getElementById('editCatIdx').value = catIdx; document.getElementById('editPostIdx').value = postIdx;
+  document.getElementById('editPostCat').value = cat.category; document.getElementById('editPostTitle').value = post.title;
   document.getElementById('editPostContent').value = post.content;
   document.getElementById('editBlogModal').classList.add('active');
 }
-function closeEditBlogModal() { document.getElementById('editBlogModal').classList.remove('active'); document.getElementById('editBlogPwd').value = ''; }
+function closeEditBlogModal() { document.getElementById('editBlogModal').classList.remove('active'); }
 
 async function submitPost() {
-  const pwd = document.getElementById('blogPwd').value.trim();
   const catName = document.getElementById('postCat').value.trim();
   const title = document.getElementById('postTitle').value.trim();
   const content = document.getElementById('postContent').value.trim();
-  
-  if (!pwd) return alert("核心鉴权失败！");
   if (!catName || !title || !content) return alert("模块、标题、内容均不可为空！");
 
   document.getElementById('pubBtn').innerText = "⏳ 正在压入堆栈...";
   let tempPosts = JSON.parse(JSON.stringify(store.posts));
-  
   let targetCat = tempPosts.find(c => c.category === catName);
   if (!targetCat) { targetCat = { category: catName, items: [] }; tempPosts.push(targetCat); }
-  
   targetCat.items.unshift({ id: 'post_' + Date.now(), title, date: new Date().toISOString().split('T')[0], content });
 
   try {
-    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, posts: tempPosts }) });
-    if (res.ok) {
-      store.posts = tempPosts; closeBlogModal();
-      document.getElementById('postCat').value = ''; document.getElementById('postTitle').value = ''; document.getElementById('postContent').value = ''; 
-      activeModule = catName;
-      window.location.href = 'blog.html';
-    } else { alert("⛔ 凭证无效"); }
-  } catch(e) { alert("⚠️ 传输中断"); } finally { document.getElementById('pubBtn').innerText = "🚀 发射数据"; }
+    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
+    store.posts = tempPosts; closeBlogModal();
+    document.getElementById('postCat').value = ''; document.getElementById('postTitle').value = ''; document.getElementById('postContent').value = ''; 
+    activeModule = catName; window.location.href = 'blog.html';
+  } catch(e) {} finally { document.getElementById('pubBtn').innerText = "🚀 发射数据"; }
 }
 
 async function submitEditPost() {
-  const pwd = document.getElementById('editBlogPwd').value.trim();
   const catIdx = parseInt(document.getElementById('editCatIdx').value);
   const postIdx = parseInt(document.getElementById('editPostIdx').value);
   const newCat = document.getElementById('editPostCat').value.trim();
   const newTitle = document.getElementById('editPostTitle').value.trim();
   const newContent = document.getElementById('editPostContent').value.trim();
-
-  if (!pwd) return alert("鉴权失败！");
   if (!newCat || !newTitle || !newContent) return alert("所有字段不可为空！");
 
-  const btn = document.getElementById('editPubBtn');
-  btn.innerText = "⏳ 保存中..."; btn.disabled = true;
+  const btn = document.getElementById('editPubBtn'); btn.innerText = "⏳ 保存中..."; btn.disabled = true;
 
   try {
     let tempPosts = JSON.parse(JSON.stringify(store.posts));
     const oldPost = tempPosts[catIdx].items[postIdx];
-
-    // 从原分类移除
     tempPosts[catIdx].items.splice(postIdx, 1);
     if (tempPosts[catIdx].items.length === 0) tempPosts.splice(catIdx, 1);
-
-    // 放入新分类（保持原 id 与日期或刷新日期均可，这里保留原id与日期）
+    
     let targetCat = tempPosts.find(c => c.category === newCat);
     if (!targetCat) { targetCat = { category: newCat, items: [] }; tempPosts.push(targetCat); }
-    
     targetCat.items.unshift({ id: oldPost.id, title: newTitle, date: oldPost.date, content: newContent });
 
-    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, posts: tempPosts }) });
-    if (res.ok) {
-      store.posts = tempPosts; closeEditBlogModal();
-      renderModules(); renderList();
-    } else { alert("⛔ 鉴权失败"); }
-  } catch(e) { alert("⚠️ 传输超时"); } finally { btn.innerText = "💾 保存修改"; btn.disabled = false; }
+    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
+    store.posts = tempPosts; closeEditBlogModal(); renderModules(); renderList();
+  } catch(e) {} finally { btn.innerText = "💾 保存修改"; btn.disabled = false; }
 }
 
 async function deletePost(catIdx, postIdx) {
-  const pwd = prompt("高危：输入密钥彻底销毁该区块：");
-  if (!pwd) return;
-  let tempPosts = JSON.parse(JSON.stringify(store.posts)); 
-  tempPosts[catIdx].items.splice(postIdx, 1);
+  if (!confirm("警告：确定要彻底销毁该区块吗？")) return;
+  let tempPosts = JSON.parse(JSON.stringify(store.posts)); tempPosts[catIdx].items.splice(postIdx, 1);
   if (tempPosts[catIdx].items.length === 0) tempPosts.splice(catIdx, 1);
   try {
-    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, posts: tempPosts }) });
-    if (res.ok) { store.posts = tempPosts; renderList(); renderModules(); } else alert("⛔ 授权失败");
-  } catch(e) { alert("⚠️ 服务未响应"); }
+    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
+    store.posts = tempPosts; renderList(); renderModules();
+  } catch(e) {}
 }
 
 async function deleteModule(catIdx) {
-  const pwd = prompt("极度危险：输入密钥销毁整个模块及其内含所有文章：");
-  if (!pwd) return;
-  let tempPosts = JSON.parse(JSON.stringify(store.posts)); 
-  tempPosts.splice(catIdx, 1);
+  const catName = store.posts[catIdx].category;
+  if (!confirm(`极度危险：即将彻底抹除【${catName}】及其中所有文章，无法恢复！是否继续？`)) return;
+  let tempPosts = JSON.parse(JSON.stringify(store.posts)); tempPosts.splice(catIdx, 1);
   try {
-    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, posts: tempPosts }) });
-    if (res.ok) { 
-      store.posts = tempPosts; 
-      activeModule = 'all'; 
-      renderModules(); renderList(); 
-    } else alert("⛔ 授权失败");
-  } catch(e) { alert("⚠️ 服务未响应"); }
+    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
+    store.posts = tempPosts; activeModule = 'all'; renderModules(); renderList(); 
+  } catch(e) {}
 }
 
-document.addEventListener('DOMContentLoaded', router);
+document.addEventListener('DOMContentLoaded', () => { checkAuth(); router(); });
 </script>
 </body>
 </html>

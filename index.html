@@ -26,6 +26,10 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
 
 .glass { background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.05); border-radius: 14px; }
 
+/* 权限显隐控制 */
+body:not(.admin-mode) .admin-only { display: none !important; }
+body.admin-mode .guest-only { display: none !important; }
+
 .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
 .header { padding: 35px 0 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(212, 175, 55, 0.15); margin-bottom: 30px; }
 .logo { font-size: 22px; font-weight: 800; background: linear-gradient(135deg, var(--gold), var(--gold-glow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 8px; }
@@ -50,19 +54,25 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
 .card { padding: 18px; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s; position: relative; overflow: hidden; }
 .card:hover { transform: translateY(-4px); border-color: var(--gold); background: var(--glass-hover); }
-.card-header { display: flex; align-items: center; gap: 12px; font-weight: 600; color: #fff; margin-bottom: 8px; padding-right: 50px;}
+.card-header { display: flex; align-items: center; gap: 12px; font-weight: 600; color: #fff; margin-bottom: 8px; padding-right: 70px;}
 .card-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 20px; border-radius: 6px; flex-shrink: 0; background: rgba(255,255,255,0.1); padding: 2px;}
 .card-icon img { width: 100%; height: 100%; object-fit: contain; }
 .card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-/* 管理员按钮组 */
-.admin-actions { position: absolute; top: 10px; right: 10px; display: none; gap: 4px; z-index: 2; }
-.admin-mode .admin-actions { display: flex; }
-.btn-action { font-size: 11px; cursor: pointer; padding: 3px 6px; border-radius: 4px; font-weight: 600; }
-.btn-edit { color: var(--info); background: rgba(59, 130, 246, 0.15); }
-.btn-edit:hover { background: rgba(59, 130, 246, 0.3); }
-.btn-del { color: var(--danger); background: rgba(239, 68, 68, 0.15); }
-.btn-del:hover { background: rgba(239, 68, 68, 0.3); }
+/* 3D 玻璃材质按钮组 (硬件加速，低消耗) */
+.glass-btn-group { position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 10; }
+.btn-3d { 
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); 
+  border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; 
+  padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; 
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s, box-shadow 0.2s; 
+  color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5); 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.1); 
+}
+.btn-3d-edit { background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.3); }
+.btn-3d-edit:hover { background: rgba(59, 130, 246, 0.4); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3), inset 0 1px 1px rgba(255,255,255,0.2); }
+.btn-3d-del { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.3); }
+.btn-3d-del:hover { background: rgba(239, 68, 68, 0.4); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3), inset 0 1px 1px rgba(255,255,255,0.2); }
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 999; }
 .modal-overlay.active { display: flex; }
@@ -81,8 +91,10 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
   <header class="header">
     <div class="logo">✦ 极客终端</div>
     <div class="header-actions">
-      <button class="nav-link glass" onclick="toggleAdmin()">⚙️ 管理模式</button>
-      <button class="nav-link glass" onclick="openAdminModal()">＋ 添加站点</button>
+      <!-- 动态权限控制按钮 -->
+      <button class="nav-link glass guest-only" onclick="openLoginModal()">🔒 登录</button>
+      <button class="nav-link glass admin-only" onclick="logout()" style="color:var(--danger); border-color:rgba(239,68,68,0.3);">🔓 退出</button>
+      <button class="nav-link glass admin-only" onclick="openAdminModal()">＋ 添加站点</button>
       <a href="blog.html" class="nav-link glass" style="background:var(--gold); color:#000;">📖 博客中枢 →</a>
     </div>
   </header>
@@ -93,32 +105,38 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
   <div id="navContainer"><p style="color:var(--text-muted)">🔄 正在安全连接骨干节点...</p></div>
 </div>
 
-<!-- 添加弹窗 -->
+<!-- 登录弹窗 -->
+<div id="loginModal" class="modal-overlay">
+  <div class="modal-card glass">
+    <div style="font-size: 18px; font-weight: 700; color: var(--gold); margin-bottom: 20px;">🔒 核心鉴权</div>
+    <div class="form-group"><label>访问密钥</label><input type="password" id="loginPwd" class="form-control glass" placeholder="输入控制台密码" onkeypress="if(event.key === 'Enter') verifyLogin()"></div>
+    <button id="loginBtn" class="btn-submit" onclick="verifyLogin()">🔑 登入终端</button>
+    <button class="btn-submit" style="background:transparent;color:var(--text-muted);border:1px solid var(--glass-border);box-shadow:none;" onclick="closeLoginModal()">取消</button>
+  </div>
+</div>
+
+<!-- 添加站点弹窗 (已移除密码框) -->
 <div id="adminModal" class="modal-overlay">
   <div class="modal-card glass">
     <div style="font-size: 18px; font-weight: 700; color: var(--gold); margin-bottom: 20px;">＋ 建立新链接</div>
-    <div class="form-group"><label>鉴权密钥</label><input type="password" id="adminPwd" class="form-control glass" placeholder="输入核心凭证"></div>
     <div class="form-group"><label>所属分类</label><input type="text" id="newCat" class="form-control glass" placeholder="例如：开发工具"></div>
     <div class="form-group"><label>目标 URL</label><input type="text" id="newUrl" class="form-control glass" placeholder="例如：https://github.com"></div>
     <div class="form-group"><label>备注说明 (选填)</label><input type="text" id="newDesc" class="form-control glass" placeholder="简短描述..."></div>
-    
     <button id="submitBtn" class="btn-submit" onclick="submitNewBookmark()">🚀 部署至云端</button>
     <button class="btn-submit" style="background:transparent;color:var(--text-muted);border:1px solid var(--glass-border);box-shadow:none;" onclick="closeAdminModal()">取消</button>
   </div>
 </div>
 
-<!-- 编辑弹窗 -->
+<!-- 编辑弹窗 (已移除密码框) -->
 <div id="editModal" class="modal-overlay">
   <div class="modal-card glass">
     <div style="font-size: 18px; font-weight: 700; color: var(--gold); margin-bottom: 20px;">✎ 修改导航节点</div>
     <input type="hidden" id="editCatIdx">
     <input type="hidden" id="editItemIdx">
-    <div class="form-group"><label>鉴权密钥</label><input type="password" id="editPwd" class="form-control glass" placeholder="输入核心凭证"></div>
     <div class="form-group"><label>所属分类</label><input type="text" id="editCat" class="form-control glass"></div>
     <div class="form-group"><label>网站标题 (留空则根据URL自动解析)</label><input type="text" id="editTitle" class="form-control glass" placeholder="选填，不填自动抓取"></div>
     <div class="form-group"><label>目标 URL</label><input type="text" id="editUrl" class="form-control glass"></div>
     <div class="form-group"><label>备注说明</label><input type="text" id="editDesc" class="form-control glass"></div>
-    
     <button id="editSubmitBtn" class="btn-submit" onclick="submitEditBookmark()">💾 保存修改</button>
     <button class="btn-submit" style="background:transparent;color:var(--text-muted);border:1px solid var(--glass-border);box-shadow:none;" onclick="closeEditModal()">取消</button>
   </div>
@@ -126,19 +144,39 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
 
 <script>
 const API_URL = "https://api.shucao.cc.cd"; 
-
 let store = { nav: [], posts: [] };
 let activeCategory = 'all';
-let isAdmin = false;
+
+// 全局权限管家
+function getPwd() { return sessionStorage.getItem('adminKey'); }
+function checkAuth() { if (getPwd()) { document.body.classList.add('admin-mode'); } else { document.body.classList.remove('admin-mode'); } }
+function logout() { sessionStorage.removeItem('adminKey'); checkAuth(); renderNav(); }
 
 const fetchWithTimeout = async (resource, options = {}) => {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), 8000);
   const response = await fetch(resource, { ...options, signal: controller.signal });
-  clearTimeout(id); return response;
+  clearTimeout(id); 
+  // 全局拦截 401 权限失效
+  if (response.status === 401) { logout(); alert("⛔ 身份验证已过期，请重新登录"); throw new Error("Auth failed"); }
+  return response;
 };
 
-function toggleAdmin() { isAdmin = !isAdmin; renderNav(); }
+// 后台静默验证机制 (利用纯密码发起一次无损握手)
+async function verifyLogin() {
+  const pwd = document.getElementById('loginPwd').value.trim();
+  if(!pwd) return;
+  const btn = document.getElementById('loginBtn');
+  btn.innerText = "⏳ 验证中...";
+  try {
+    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd }) });
+    if (res.ok) {
+      sessionStorage.setItem('adminKey', pwd);
+      checkAuth(); closeLoginModal(); renderNav();
+    } else { alert("⛔ 密钥错误"); }
+  } catch(e) { if(e.message !== "Auth failed") alert("⚠️ 网络超时"); }
+  btn.innerText = "🔑 登入终端";
+}
 
 async function fetchData() {
   const container = document.getElementById('navContainer');
@@ -148,9 +186,7 @@ async function fetchData() {
     store = await res.json();
     if (!store.nav) store.nav = [];
     renderFilters(); renderNav();
-  } catch(e) {
-    container.innerHTML = `<div class="glass" style="padding: 20px; border-color: var(--danger);"><p style="color:var(--danger); font-weight: bold;">❌ 节点连接断开。</p></div>`;
-  }
+  } catch(e) { container.innerHTML = `<div class="glass" style="padding: 20px; border-color: var(--danger);"><p style="color:var(--danger); font-weight: bold;">❌ 节点连接断开。</p></div>`; }
 }
 
 function renderFilters() {
@@ -167,27 +203,25 @@ function renderNav() {
   const query = document.getElementById('searchInput').value.toLowerCase().trim();
   const container = document.getElementById('navContainer');
   let html = '';
-  if (!store.nav || store.nav.length === 0) return container.innerHTML = '<p style="color:var(--text-muted);">数据库为空，请添加站点。</p>';
+  if (!store.nav || store.nav.length === 0) return container.innerHTML = '<p style="color:var(--text-muted);">数据库为空，请登录后添加站点。</p>';
 
   store.nav.forEach((cat, catIdx) => {
     if (activeCategory !== 'all' && activeCategory !== cat.category) return;
     const filteredItems = cat.items.filter(item => item.title.toLowerCase().includes(query) || item.desc.toLowerCase().includes(query));
     
-    if (filteredItems.length > 0 || (isAdmin && query === '')) {
+    if (filteredItems.length > 0 || (getPwd() && query === '')) {
       html += `<div class="category-header">
                  <div class="category-title">${cat.category}</div>
-                 ${isAdmin ? `<button class="btn-del-cat" onclick="deleteCategory(${catIdx})">✕ 销毁此分类模块</button>` : ''}
+                 <button class="btn-del-cat admin-only" onclick="deleteCategory(${catIdx})">✕ 销毁分类</button>
                </div><div class="grid">`;
                
       filteredItems.forEach((item, itemIdx) => {
-        const iconHtml = item.icon && item.icon.startsWith('http') 
-          ? `<img src="${item.icon}" loading="lazy" onerror="this.outerHTML='🌐'">` : (item.icon || '🌐');
-          
+        const iconHtml = item.icon && item.icon.startsWith('http') ? `<img src="${item.icon}" loading="lazy" onerror="this.outerHTML='🌐'">` : (item.icon || '🌐');
         html += `
-          <div class="card glass ${isAdmin ? 'admin-mode' : ''}">
-            <div class="admin-actions">
-              <button class="btn-action btn-edit" onclick="openEditBookmark(${catIdx}, ${itemIdx})">改</button>
-              <button class="btn-action btn-del" onclick="deleteBookmark(${catIdx}, ${itemIdx})">删</button>
+          <div class="card glass">
+            <div class="glass-btn-group admin-only">
+              <button class="btn-3d btn-3d-edit" onclick="openEditBookmark(${catIdx}, ${itemIdx})">改</button>
+              <button class="btn-3d btn-3d-del" onclick="deleteBookmark(${catIdx}, ${itemIdx})">删</button>
             </div>
             <a href="${item.url}" target="_blank" rel="noopener" style="display:flex;flex-direction:column;height:100%;">
               <div class="card-header"><span class="card-icon">${iconHtml}</span><span>${item.title}</span></div>
@@ -201,145 +235,101 @@ function renderNav() {
   container.innerHTML = html || '<p style="color:var(--text-muted);margin-top:20px;">未找到匹配记录</p>';
 }
 
+function openLoginModal() { document.getElementById('loginModal').classList.add('active'); document.getElementById('loginPwd').focus(); }
+function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); document.getElementById('loginPwd').value = ''; }
 function openAdminModal() { document.getElementById('adminModal').classList.add('active'); }
-function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); document.getElementById('adminPwd').value = ''; }
+function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); }
 
 function openEditBookmark(catIdx, itemIdx) {
   const item = store.nav[catIdx].items[itemIdx];
   const cat = store.nav[catIdx].category;
-  document.getElementById('editCatIdx').value = catIdx;
-  document.getElementById('editItemIdx').value = itemIdx;
-  document.getElementById('editCat').value = cat;
-  document.getElementById('editTitle').value = item.title;
-  document.getElementById('editUrl').value = item.url;
-  document.getElementById('editDesc').value = item.desc || '';
+  document.getElementById('editCatIdx').value = catIdx; document.getElementById('editItemIdx').value = itemIdx;
+  document.getElementById('editCat').value = cat; document.getElementById('editTitle').value = item.title;
+  document.getElementById('editUrl').value = item.url; document.getElementById('editDesc').value = item.desc || '';
   document.getElementById('editModal').classList.add('active');
 }
-function closeEditModal() { document.getElementById('editModal').classList.remove('active'); document.getElementById('editPwd').value = ''; }
+function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
 
 async function submitNewBookmark() {
-  const pwd = document.getElementById('adminPwd').value.trim();
   const catName = document.getElementById('newCat').value.trim();
   const targetUrl = document.getElementById('newUrl').value.trim();
   const desc = document.getElementById('newDesc').value.trim();
-
-  if (!pwd) return alert("凭证不能为空！");
   if (!catName || !targetUrl) return alert("分类和 URL 必须填写！");
 
-  const btn = document.getElementById('submitBtn');
-  btn.innerText = "⏳ 解析突破中..."; btn.disabled = true;
+  const btn = document.getElementById('submitBtn'); btn.innerText = "⏳ 解析中..."; btn.disabled = true;
 
   try {
-    const parseRes = await fetchWithTimeout(`${API_URL}/api/parse_url`, {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ targetUrl })
-    });
+    const parseRes = await fetchWithTimeout(`${API_URL}/api/parse_url`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ targetUrl }) });
     const { title, icon } = await parseRes.json();
-
     let tempNav = JSON.parse(JSON.stringify(store.nav)); 
     let targetCat = tempNav.find(c => c.category === catName);
     if (!targetCat) { targetCat = { category: catName, items: [] }; tempNav.push(targetCat); }
     targetCat.items.push({ title: title, url: targetUrl, icon: icon, desc: desc });
 
-    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, nav: tempNav }) });
-    const result = await res.json();
-    
-    if (result.success) {
-      store.nav = tempNav; closeAdminModal();
-      document.getElementById('newUrl').value = ''; document.getElementById('newDesc').value = '';
-      renderFilters(); renderNav();
-    } else { alert("⛔ " + (result.error || "鉴权失败")); }
-  } catch(e) { alert("⚠️ 网络超时"); } finally { btn.innerText = "🚀 部署至云端"; btn.disabled = false; }
+    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), nav: tempNav }) });
+    store.nav = tempNav; closeAdminModal(); document.getElementById('newUrl').value = ''; document.getElementById('newDesc').value = '';
+    renderFilters(); renderNav();
+  } catch(e) {} finally { btn.innerText = "🚀 部署至云端"; btn.disabled = false; }
 }
 
 async function submitEditBookmark() {
-  const pwd = document.getElementById('editPwd').value.trim();
   const catIdx = parseInt(document.getElementById('editCatIdx').value);
   const itemIdx = parseInt(document.getElementById('editItemIdx').value);
   const newCat = document.getElementById('editCat').value.trim();
   let newTitle = document.getElementById('editTitle').value.trim();
   const newUrl = document.getElementById('editUrl').value.trim();
   const newDesc = document.getElementById('editDesc').value.trim();
-
-  if (!pwd) return alert("凭证不能为空！");
   if (!newCat || !newUrl) return alert("分类和 URL 不可为空！");
 
-  const btn = document.getElementById('editSubmitBtn');
-  btn.innerText = "⏳ 保存中..."; btn.disabled = true;
+  const btn = document.getElementById('editSubmitBtn'); btn.innerText = "⏳ 保存中..."; btn.disabled = true;
 
   try {
     let tempNav = JSON.parse(JSON.stringify(store.nav));
     const oldItem = tempNav[catIdx].items[itemIdx];
-    
     let icon = oldItem.icon;
-    // 如果标题为空，或者 URL 改变了，自动通过后端接口重新解析
     if (!newTitle || newUrl !== oldItem.url) {
       try {
-        const parseRes = await fetchWithTimeout(`${API_URL}/api/parse_url`, {
-          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ targetUrl: newUrl })
-        });
+        const parseRes = await fetchWithTimeout(`${API_URL}/api/parse_url`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ targetUrl: newUrl }) });
         const parsed = await parseRes.json();
-        if (!newTitle && parsed.title) {
-          newTitle = parsed.title;
-        }
-        if (newUrl !== oldItem.url && parsed.icon) {
-          icon = parsed.icon;
-        }
+        if (!newTitle && parsed.title) newTitle = parsed.title;
+        if (newUrl !== oldItem.url && parsed.icon) icon = parsed.icon;
       } catch(e) {}
     }
+    if (!newTitle) { try { newTitle = new URL(newUrl).hostname; } catch(e) { newTitle = "未知网站"; } }
 
-    // 兜底：如果解析后标题依然为空，用域名代替
-    if (!newTitle) {
-      try {
-        newTitle = new URL(newUrl).hostname;
-      } catch(e) {
-        newTitle = "未知网站";
-      }
-    }
-
-    // 从原分类移除
     tempNav[catIdx].items.splice(itemIdx, 1);
     if (tempNav[catIdx].items.length === 0) tempNav.splice(catIdx, 1);
-
-    // 放入新分类（或原分类）
     let targetCat = tempNav.find(c => c.category === newCat);
     if (!targetCat) { targetCat = { category: newCat, items: [] }; tempNav.push(targetCat); }
     targetCat.items.push({ title: newTitle, url: newUrl, icon: icon, desc: newDesc });
 
-    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, nav: tempNav }) });
-    const result = await res.json();
-
-    if (result.success) {
-      store.nav = tempNav; closeEditModal();
-      renderFilters(); renderNav();
-    } else { alert("⛔ " + (result.error || "鉴权失败")); }
-  } catch(e) { alert("⚠️ 传输超时"); } finally { btn.innerText = "💾 保存修改"; btn.disabled = false; }
+    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), nav: tempNav }) });
+    store.nav = tempNav; closeEditModal(); renderFilters(); renderNav();
+  } catch(e) {} finally { btn.innerText = "💾 保存修改"; btn.disabled = false; }
 }
 
 async function deleteBookmark(catIdx, itemIdx) {
-  const pwd = prompt("极客指令：输入密钥永久抹除该节点：");
-  if (!pwd) return;
+  if (!confirm("确定要永久销毁此节点吗？")) return;
   let tempNav = JSON.parse(JSON.stringify(store.nav)); tempNav[catIdx].items.splice(itemIdx, 1);
   if (tempNav[catIdx].items.length === 0) tempNav.splice(catIdx, 1);
   try {
-    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, nav: tempNav }) });
-    if (res.ok) { store.nav = tempNav; renderFilters(); renderNav(); } else alert("⛔ 鉴权失败");
-  } catch(e) { alert("⚠️ 网络超时"); }
+    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), nav: tempNav }) });
+    store.nav = tempNav; renderFilters(); renderNav();
+  } catch(e) {}
 }
 
 async function deleteCategory(catIdx) {
   const catName = store.nav[catIdx].category;
-  const pwd = prompt(`警告：此操作将抹除【${catName}】模块及其中所有站点！\n请输入核心密钥：`);
-  if (!pwd) return;
-  let tempNav = JSON.parse(JSON.stringify(store.nav)); 
-  tempNav.splice(catIdx, 1);
+  if (!confirm(`警告：此操作将彻底销毁【${catName}】及其中所有站点，无法恢复！是否继续？`)) return;
+  let tempNav = JSON.parse(JSON.stringify(store.nav)); tempNav.splice(catIdx, 1);
   try {
-    const res = await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd, nav: tempNav }) });
-    if (res.ok) { store.nav = tempNav; activeCategory = 'all'; renderFilters(); renderNav(); } else alert("⛔ 鉴权失败");
-  } catch(e) { alert("⚠️ 网络超时"); }
+    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), nav: tempNav }) });
+    store.nav = tempNav; activeCategory = 'all'; renderFilters(); renderNav();
+  } catch(e) {}
 }
 
 document.getElementById('searchInput').addEventListener('input', renderNav);
-document.addEventListener('DOMContentLoaded', fetchData);
+document.addEventListener('DOMContentLoaded', () => { checkAuth(); fetchData(); });
 </script>
 </body>
 </html>
