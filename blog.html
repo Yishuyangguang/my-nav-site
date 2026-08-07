@@ -60,15 +60,12 @@ body.admin-mode .guest-only { display: none !important; }
 
 .module-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; align-items: center; border-bottom: 1px dashed rgba(245, 158, 11, 0.25); }
 .module-tabs::-webkit-scrollbar { display: none; }
-
-/* 🌟 主题化标签样式 */
 .tab { padding: 8px 18px; border-radius: 20px; font-size: 13.5px; font-weight: 600; color: #78716c; cursor: pointer; transition: 0.25s cubic-bezier(0.25, 1, 0.5, 1); background: var(--tab-bg, rgba(255, 255, 255, 0.6)); border: 1px solid var(--tab-border, rgba(245, 158, 11, 0.2)); box-shadow: 0 2px 6px rgba(0,0,0,0.04), inset 0 1px 1px rgba(255,255,255,1); transform: translateZ(0); white-space: nowrap;}
 .tab.active, .tab:hover { color: var(--tab-accent, #b45309); border-color: var(--tab-accent, #f59e0b); background: var(--tab-active-bg, rgba(245, 158, 11, 0.12)); font-weight: 700; transform: translateY(-1px) translateZ(0); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255,255,255,1); }
 
 #content { transition: opacity 0.25s ease, transform 0.25s ease; transform: translateZ(0); }
 .fade-out { opacity: 0; transform: translateY(5px) translateZ(0); }
 
-/* 主题化版块头部 */
 .category-header { display: flex; justify-content: space-between; align-items: center; margin: 35px 0 18px; padding: 10px 16px; border-radius: 14px; background: var(--header-bg); border: 1px solid var(--header-border); border-bottom: 2px solid var(--theme-accent); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03), inset 0 2px 2px rgba(255,255,255,0.9); transition: background 0.2s; transform: translateZ(0); }
 body.admin-mode .category-header { cursor: grab; }
 body.admin-mode .category-header:active { cursor: grabbing; }
@@ -105,23 +102,39 @@ body.article-fullscreen .reading-top-bar { background: rgba(255,255,255,0.85); b
 .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 14px; margin: 25px 0; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
 .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 999; opacity: 0; transition: opacity 0.25s ease; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 999; opacity: 0; transition: opacity 0.25s ease; padding: 16px; }
 .modal-overlay.active { display: flex; opacity: 1; }
 
-.fs-note-content { width: 100%; max-width: 850px; display: flex; flex-direction: column; height: 90vh; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(30px); border-radius: 24px; border: 1px solid rgba(245, 158, 11, 0.4); box-shadow: 0 25px 60px rgba(0,0,0,0.3); padding: 24px; position: relative; transform: translateY(20px); transition: transform 0.25s cubic-bezier(0.25,1,0.5,1); }
+/* 🌟 核心放大：宽幅、舒适的工作台式编辑器弹窗 */
+.fs-note-content { 
+  width: 94vw; max-width: 980px; height: 92vh; max-height: 92vh;
+  display: flex; flex-direction: column; 
+  background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(30px); 
+  border-radius: 24px; border: 1px solid rgba(245, 158, 11, 0.4); 
+  box-shadow: 0 25px 60px rgba(0,0,0,0.3); padding: 28px; 
+  position: relative; transform: translateY(15px); 
+  transition: transform 0.25s cubic-bezier(0.25,1,0.5,1); 
+}
 .modal-overlay.active .fs-note-content { transform: translateY(0); }
 
-.fs-note-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px dashed rgba(245, 158, 11, 0.3); flex-wrap: wrap; gap: 10px; }
+.fs-note-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px dashed rgba(245, 158, 11, 0.3); flex-wrap: wrap; gap: 10px; flex-shrink: 0; }
 
 .editor-tools-bar { display: flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.12); padding: 6px 12px; border-radius: 12px; border: 1px solid rgba(245,158,11,0.25); flex-wrap: wrap; }
 .editor-select { border: none; background: transparent; outline: none; font-size: 12px; font-weight: 700; color: #b45309; cursor: pointer; }
 
-.rich-edit-area { flex: 1; margin-top: 16px; font-family: SimSun, "宋体", serif; font-size: 14pt; color: #1c1917; line-height: 1.6; border: none; background: transparent; outline: none; width: 100%; overflow-y: auto; white-space: pre-wrap; word-break: break-word; padding: 10px; }
+/* 🌟 宽敞舒适的富文本输入区：自动撑满剩余空间 */
+.rich-edit-area { 
+  flex: 1; margin-top: 16px; font-family: SimSun, "宋体", serif; font-size: 14pt; color: #1c1917; line-height: 1.6; 
+  border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 16px; background: rgba(255, 255, 255, 0.8); 
+  outline: none; width: 100%; overflow-y: auto; white-space: pre-wrap; word-break: break-word; padding: 18px; 
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+}
+.rich-edit-area:focus { background: #fff; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15), inset 0 2px 4px rgba(0,0,0,0.03); }
 .rich-edit-area[contenteditable="true"]:empty:before { content: attr(placeholder); color: #a8a29e; pointer-events: none; display: block; }
 
 .form-group { margin-bottom: 14px; width: 100%; display: flex; gap:10px; align-items:center; }
-.form-control { flex:1; padding: 10px 14px; color: var(--text-main); outline: none; font-size: 14px; background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; font-weight:700; transition: 0.2s;}
-.form-control:focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); }
+.form-control { flex:1; padding: 12px 16px; color: var(--text-main); outline: none; font-size: 14px; background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 14px; font-weight:700; transition: 0.2s;}
+.form-control:focus { border-color: #f59e0b; background: #fff; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); }
 
 .btn-submit { padding: 10px 24px; border-radius: 14px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 700; border: none; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35), inset 0 2px 2px rgba(255,255,255,0.5); transition: 0.2s; transform: translateZ(0); cursor: pointer;}
 .btn-submit:hover { filter: brightness(1.08); transform: translateY(-2px) translateZ(0); }
@@ -210,17 +223,16 @@ const API_URL = "https://api.shucao.cc.cd";
 let store = { nav: [], posts: [] };
 let activeModule = 'all';
 
-// 🌟 严格索引循环色系库 (按索引循环，彻底杜绝相邻模块重复)
 function getCategoryTheme(index) {
   const themes = [
-    { bg: 'rgba(255, 250, 235, 0.85)', border: 'rgba(245, 158, 11, 0.35)', accent: '#d97706', headerBg: 'rgba(254, 243, 199, 0.7)' }, // 0: 琥珀金
-    { bg: 'rgba(236, 253, 245, 0.85)', border: 'rgba(16, 185, 129, 0.35)', accent: '#059669', headerBg: 'rgba(209, 250, 229, 0.7)' }, // 1: 翡翠绿
-    { bg: 'rgba(239, 246, 255, 0.85)', border: 'rgba(59, 130, 246, 0.35)', accent: '#2563eb', headerBg: 'rgba(219, 234, 254, 0.7)' }, // 2: 科技蓝
-    { bg: 'rgba(243, 232, 255, 0.85)', border: 'rgba(147, 51, 234, 0.35)', accent: '#7c3aed', headerBg: 'rgba(233, 213, 255, 0.7)' }, // 3: 优雅紫
-    { bg: 'rgba(255, 241, 242, 0.85)', border: 'rgba(244, 63, 94, 0.35)', accent: '#e11d48', headerBg: 'rgba(255, 228, 230, 0.7)' }, // 4: 珊瑚红
-    { bg: 'rgba(240, 253, 250, 0.85)', border: 'rgba(20, 184, 166, 0.35)', accent: '#0d9488', headerBg: 'rgba(204, 251, 241, 0.7)' }, // 5: 青碧色
-    { bg: 'rgba(254, 242, 242, 0.85)', border: 'rgba(239, 68, 68, 0.35)', accent: '#dc2626', headerBg: 'rgba(254, 226, 226, 0.7)' }, // 6: 烈火红
-    { bg: 'rgba(238, 242, 255, 0.85)', border: 'rgba(99, 102, 241, 0.35)', accent: '#4f46e5', headerBg: 'rgba(224, 231, 255, 0.7)' }  // 7: 靛青色
+    { bg: 'rgba(255, 250, 235, 0.85)', border: 'rgba(245, 158, 11, 0.35)', accent: '#d97706', headerBg: 'rgba(254, 243, 199, 0.7)' },
+    { bg: 'rgba(236, 253, 245, 0.85)', border: 'rgba(16, 185, 129, 0.35)', accent: '#059669', headerBg: 'rgba(209, 250, 229, 0.7)' },
+    { bg: 'rgba(239, 246, 255, 0.85)', border: 'rgba(59, 130, 246, 0.35)', accent: '#2563eb', headerBg: 'rgba(219, 234, 254, 0.7)' },
+    { bg: 'rgba(243, 232, 255, 0.85)', border: 'rgba(147, 51, 234, 0.35)', accent: '#7c3aed', headerBg: 'rgba(233, 213, 255, 0.7)' },
+    { bg: 'rgba(255, 241, 242, 0.85)', border: 'rgba(244, 63, 94, 0.35)', accent: '#e11d48', headerBg: 'rgba(255, 228, 230, 0.7)' },
+    { bg: 'rgba(240, 253, 250, 0.85)', border: 'rgba(20, 184, 166, 0.35)', accent: '#0d9488', headerBg: 'rgba(204, 251, 241, 0.7)' },
+    { bg: 'rgba(254, 242, 242, 0.85)', border: 'rgba(239, 68, 68, 0.35)', accent: '#dc2626', headerBg: 'rgba(254, 226, 226, 0.7)' },
+    { bg: 'rgba(238, 242, 255, 0.85)', border: 'rgba(99, 102, 241, 0.35)', accent: '#4f46e5', headerBg: 'rgba(224, 231, 255, 0.7)' }
   ];
   return themes[index % themes.length];
 }
@@ -334,7 +346,6 @@ editArea.addEventListener('paste', async (e) => {
   }
 });
 
-// 🌟 渲染顶部过滤标签，并结合索引赋予独立的主题配色
 function renderModules() {
   const tabs = document.getElementById('moduleTabs');
   if (!store.posts || store.posts.length === 0) return tabs.innerHTML = '';
@@ -367,7 +378,6 @@ function renderList() {
 
     if (filteredItems.length > 0 || (getPwd() && query === '')) {
       foundPosts = true;
-      // 🌟 根据绝对索引获取配色，确保相邻标签与版块绝不重复
       const theme = getCategoryTheme(catIdx);
       
       html += `<div style="margin-bottom: 25px;">
@@ -447,6 +457,8 @@ function openLoginModal() { document.getElementById('loginModal').classList.add(
 function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); document.getElementById('loginPwd').value = ''; }
 
 function openEditor(catName, catIdx = -1, postIdx = -1) {
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  
   document.getElementById('postCat').value = catName;
   document.getElementById('editCatIdx').value = catIdx;
   document.getElementById('editPostIdx').value = postIdx;
@@ -507,7 +519,7 @@ async function deletePost(catIdx, postIdx) {
 
 async function deleteModule(catIdx) {
   const catName = store.posts[catIdx].category;
-  if (!confirm(`警告: 确定要删除版块【${catName}】及其中所有文章吗？`)) return;
+  if (!confirm(`警告：确定要删除版块【${catName}】及其中所有文章吗？`)) return;
   let tempPosts = JSON.parse(JSON.stringify(store.posts)); tempPosts.splice(catIdx, 1);
   try {
     await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
