@@ -9,10 +9,6 @@
 <style>
 :root {
   --bg-ambient: #fffbeb;
-  --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(245, 158, 11, 0.3);
-  --glass-hover: rgba(255, 255, 255, 0.95);
-  --amber: #f59e0b;
   --text-main: #1c1917;
   --text-muted: #78716c;
   --danger: #ef4444;
@@ -33,16 +29,17 @@ a { color: #b45309; text-decoration: none; }
 button { font: inherit; cursor: pointer; border: none; background: none; }
 
 .glass {
-  background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.1), inset 0 2px 2px rgba(255, 255, 255, 0.9);
+  background: var(--card-bg, rgba(255, 255, 255, 0.7)); 
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border, rgba(245, 158, 11, 0.3));
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04), inset 0 2px 2px rgba(255, 255, 255, 0.9);
   border-radius: 18px; transform: translateZ(0);
 }
 
 body:not(.admin-mode) .admin-only { display: none !important; }
 body.admin-mode .guest-only { display: none !important; }
 
-.container { max-width: 800px; margin: 0 auto; transition: max-width 0.3s ease; }
+.container { max-width: 800px; margin: 0 auto; }
 .header { padding: 20px 0 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(245, 158, 11, 0.3); margin-bottom: 25px; }
 .logo-area { display: flex; align-items: center; gap: 12px; }
 
@@ -54,28 +51,32 @@ body.admin-mode .guest-only { display: none !important; }
 
 .header-actions { display: flex; gap: 10px; }
 .nav-link { padding: 8px 16px; border-radius: 20px; color: #b45309; font-size: 13px; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.35); background: rgba(255, 255, 255, 0.8); transition: all 0.2s; transform: translateZ(0); box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1), inset 0 1px 1px rgba(255,255,255,1); }
-.nav-link:hover { background: var(--amber); color: #fff; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); }
+.nav-link:hover { background: #f59e0b; color: #fff; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); }
 
 .search-section { display: flex; flex-direction: column; gap: 16px; margin-bottom: 30px; width: 100%; }
 .search-box { width: 100%; }
 .search-box input { width: 100%; padding: 14px 22px; color: var(--text-main); outline: none; font-size: 14.5px; font-weight: 500; border-radius: 24px; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.08), inset 0 2px 2px rgba(255,255,255,1); transition: 0.2s ease;}
-.search-box input:focus { box-shadow: 0 12px 25px rgba(245, 158, 11, 0.15), inset 0 2px 2px rgba(255,255,255,1); border-color: var(--amber); }
+.search-box input:focus { box-shadow: 0 12px 25px rgba(245, 158, 11, 0.15), inset 0 2px 2px rgba(255,255,255,1); border-color: #f59e0b; }
 
 .module-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; align-items: center; border-bottom: 1px dashed rgba(245, 158, 11, 0.25); }
 .module-tabs::-webkit-scrollbar { display: none; }
-.tab { padding: 8px 18px; border-radius: 20px; font-size: 13.5px; font-weight: 600; color: #78716c; cursor: pointer; transition: 0.25s cubic-bezier(0.25, 1, 0.5, 1); background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(245, 158, 11, 0.2); box-shadow: 0 2px 6px rgba(0,0,0,0.04), inset 0 1px 1px rgba(255,255,255,1); transform: translateZ(0);}
-.tab.active, .tab:hover { color: #b45309; border-color: var(--amber); background: rgba(245, 158, 11, 0.12); font-weight: 700; transform: translateY(-1px) translateZ(0); box-shadow: 0 6px 15px rgba(245, 158, 11, 0.15), inset 0 1px 1px rgba(255,255,255,1); }
+
+/* 🌟 主题化标签样式 */
+.tab { padding: 8px 18px; border-radius: 20px; font-size: 13.5px; font-weight: 600; color: #78716c; cursor: pointer; transition: 0.25s cubic-bezier(0.25, 1, 0.5, 1); background: var(--tab-bg, rgba(255, 255, 255, 0.6)); border: 1px solid var(--tab-border, rgba(245, 158, 11, 0.2)); box-shadow: 0 2px 6px rgba(0,0,0,0.04), inset 0 1px 1px rgba(255,255,255,1); transform: translateZ(0); white-space: nowrap;}
+.tab.active, .tab:hover { color: var(--tab-accent, #b45309); border-color: var(--tab-accent, #f59e0b); background: var(--tab-active-bg, rgba(245, 158, 11, 0.12)); font-weight: 700; transform: translateY(-1px) translateZ(0); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255,255,255,1); }
 
 #content { transition: opacity 0.25s ease, transform 0.25s ease; transform: translateZ(0); }
 .fade-out { opacity: 0; transform: translateY(5px) translateZ(0); }
 
-.category-header { display: flex; justify-content: space-between; align-items: center; margin: 35px 0 18px; padding: 10px 16px; border-radius: 14px; background: rgba(255, 255, 255, 0.65); border: 1px solid rgba(255,255,255,0.9); border-bottom: 1px solid rgba(245, 158, 11, 0.2); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.06), inset 0 2px 2px rgba(255,255,255,1); transition: background 0.2s; transform: translateZ(0); }
+/* 主题化版块头部 */
+.category-header { display: flex; justify-content: space-between; align-items: center; margin: 35px 0 18px; padding: 10px 16px; border-radius: 14px; background: var(--header-bg); border: 1px solid var(--header-border); border-bottom: 2px solid var(--theme-accent); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03), inset 0 2px 2px rgba(255,255,255,0.9); transition: background 0.2s; transform: translateZ(0); }
 body.admin-mode .category-header { cursor: grab; }
-body.admin-mode .category-header:active { cursor: grabbing; background: rgba(245, 158, 11, 0.1); }
+body.admin-mode .category-header:active { cursor: grabbing; }
 .category-title { font-size: 17px; font-weight: 800; color: #1c1917; display: flex; align-items: center; gap: 8px; }
+.category-title::before { content: ''; display: inline-block; width: 4px; height: 16px; background: var(--theme-accent); border-radius: 4px; }
 
-.post-card { padding: 18px; margin-bottom: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; transform: translateZ(0); box-shadow: 0 8px 24px rgba(245, 158, 11, 0.08), inset 0 2px 2px rgba(255,255,255,1); }
-.post-card:hover { border-color: var(--amber); transform: translateY(-3px) translateZ(0); box-shadow: 0 15px 35px rgba(245, 158, 11, 0.18), inset 0 2px 2px rgba(255,255,255,1); background: var(--glass-hover);}
+.post-card { padding: 18px; margin-bottom: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; transform: translateZ(0); }
+.post-card:hover { border-color: var(--theme-accent); transform: translateY(-3px) translateZ(0); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08), inset 0 2px 2px rgba(255,255,255,1); background: #fff;}
 .post-title { font-size: 17px; font-weight: 800; color: #1c1917; margin-bottom: 6px; padding-right: 70px;}
 .post-date { font-size: 12.5px; color: var(--text-muted); font-weight: 500;}
 
@@ -85,13 +86,11 @@ body.admin-mode .category-header:active { cursor: grabbing; background: rgba(245
 .btn-icon-edit:hover { background: rgba(37, 99, 235, 0.25); transform: scale(1.1); }
 .btn-icon-del { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
 .btn-icon-del:hover { background: rgba(239, 68, 68, 0.25); transform: scale(1.1); }
-.btn-icon-add { height: 28px; padding: 0 12px; border-radius: 14px; font-size: 12.5px; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(255,255,255,0.9); display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12), inset 0 2px 2px rgba(255,255,255,1); transition: 0.15s; }
-.btn-icon-add:hover { background: rgba(245, 158, 11, 0.25); transform: translateY(-1px); }
+.btn-icon-add { height: 28px; padding: 0 12px; border-radius: 14px; font-size: 12.5px; font-weight: 700; background: rgba(255, 255, 255, 0.8); color: var(--theme-accent); border: 1px solid var(--theme-accent); display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), inset 0 2px 2px rgba(255,255,255,1); transition: 0.15s; }
+.btn-icon-add:hover { background: var(--theme-accent); color: #fff; transform: translateY(-1px); }
 
-/* 阅读视图中的纯净全屏控制条 */
 .reading-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 
-/* 全屏阅读纯净模式修饰 */
 body.article-fullscreen .header { display: none !important; }
 body.article-fullscreen .container { max-width: 100% !important; padding: 0 !important; }
 body.article-fullscreen .markdown-body { border-radius: 0 !important; border: none !important; min-height: 100vh; padding: 30px 20px !important; box-shadow: none !important; }
@@ -122,7 +121,7 @@ body.article-fullscreen .reading-top-bar { background: rgba(255,255,255,0.85); b
 
 .form-group { margin-bottom: 14px; width: 100%; display: flex; gap:10px; align-items:center; }
 .form-control { flex:1; padding: 10px 14px; color: var(--text-main); outline: none; font-size: 14px; background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; font-weight:700; transition: 0.2s;}
-.form-control:focus { border-color: var(--amber); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); }
+.form-control:focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); }
 
 .btn-submit { padding: 10px 24px; border-radius: 14px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 700; border: none; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35), inset 0 2px 2px rgba(255,255,255,0.5); transition: 0.2s; transform: translateZ(0); cursor: pointer;}
 .btn-submit:hover { filter: brightness(1.08); transform: translateY(-2px) translateZ(0); }
@@ -140,7 +139,7 @@ body.article-fullscreen .reading-top-bar { background: rgba(255,255,255,0.85); b
       <button class="nav-link glass guest-only" onclick="openLoginModal()" style="font-size:14px;">👤 登录</button>
       <button class="nav-link glass admin-only" onclick="logout()" style="color:var(--danger); border-color:rgba(239,68,68,0.3);">🔓 退出</button>
       <button class="nav-link glass admin-only" onclick="quickCreateModule()">＋ 新建版块</button>
-      <a href="index.html" class="nav-link glass" style="background:var(--amber); color:#fff; box-shadow: 0 6px 15px rgba(245,158,11,0.4), inset 0 1px 1px rgba(255,255,255,0.6);">← 返回总控</a>
+      <a href="index.html" class="nav-link glass" style="background:#f59e0b; color:#fff; box-shadow: 0 6px 15px rgba(245,158,11,0.4), inset 0 1px 1px rgba(255,255,255,0.6);">← 返回总控</a>
     </div>
   </header>
   
@@ -164,7 +163,6 @@ body.article-fullscreen .reading-top-bar { background: rgba(255,255,255,0.85); b
   </div>
 </div>
 
-<!-- 🌟 纯净标准的富文本编辑弹窗（已去除不合理的纯净全屏，操作始终清晰） -->
 <div id="fsEditorModal" class="modal-overlay">
   <div class="fs-note-content">
     <div class="fs-note-header">
@@ -211,6 +209,21 @@ body.article-fullscreen .reading-top-bar { background: rgba(255,255,255,0.85); b
 const API_URL = "https://api.shucao.cc.cd"; 
 let store = { nav: [], posts: [] };
 let activeModule = 'all';
+
+// 🌟 严格索引循环色系库 (按索引循环，彻底杜绝相邻模块重复)
+function getCategoryTheme(index) {
+  const themes = [
+    { bg: 'rgba(255, 250, 235, 0.85)', border: 'rgba(245, 158, 11, 0.35)', accent: '#d97706', headerBg: 'rgba(254, 243, 199, 0.7)' }, // 0: 琥珀金
+    { bg: 'rgba(236, 253, 245, 0.85)', border: 'rgba(16, 185, 129, 0.35)', accent: '#059669', headerBg: 'rgba(209, 250, 229, 0.7)' }, // 1: 翡翠绿
+    { bg: 'rgba(239, 246, 255, 0.85)', border: 'rgba(59, 130, 246, 0.35)', accent: '#2563eb', headerBg: 'rgba(219, 234, 254, 0.7)' }, // 2: 科技蓝
+    { bg: 'rgba(243, 232, 255, 0.85)', border: 'rgba(147, 51, 234, 0.35)', accent: '#7c3aed', headerBg: 'rgba(233, 213, 255, 0.7)' }, // 3: 优雅紫
+    { bg: 'rgba(255, 241, 242, 0.85)', border: 'rgba(244, 63, 94, 0.35)', accent: '#e11d48', headerBg: 'rgba(255, 228, 230, 0.7)' }, // 4: 珊瑚红
+    { bg: 'rgba(240, 253, 250, 0.85)', border: 'rgba(20, 184, 166, 0.35)', accent: '#0d9488', headerBg: 'rgba(204, 251, 241, 0.7)' }, // 5: 青碧色
+    { bg: 'rgba(254, 242, 242, 0.85)', border: 'rgba(239, 68, 68, 0.35)', accent: '#dc2626', headerBg: 'rgba(254, 226, 226, 0.7)' }, // 6: 烈火红
+    { bg: 'rgba(238, 242, 255, 0.85)', border: 'rgba(99, 102, 241, 0.35)', accent: '#4f46e5', headerBg: 'rgba(224, 231, 255, 0.7)' }  // 7: 靛青色
+  ];
+  return themes[index % themes.length];
+}
 
 function getPwd() { return sessionStorage.getItem('adminKey'); }
 function checkAuth() { if (getPwd()) { document.body.classList.add('admin-mode'); } else { document.body.classList.remove('admin-mode'); } }
@@ -283,7 +296,6 @@ function formatDoc(cmd, value) { document.execCommand('styleWithCSS', false, tru
 function scrollToTextTop() { document.getElementById('richEditContent').scrollTop = 0; }
 function scrollToTextBottom() { const e = document.getElementById('richEditContent'); e.scrollTop = e.scrollHeight; }
 
-// 🌟 精准保留：仅在文章阅读详情页享受纯净全屏
 function toggleArticleFullscreen() {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen().catch(err => {});
@@ -322,12 +334,17 @@ editArea.addEventListener('paste', async (e) => {
   }
 });
 
+// 🌟 渲染顶部过滤标签，并结合索引赋予独立的主题配色
 function renderModules() {
   const tabs = document.getElementById('moduleTabs');
   if (!store.posts || store.posts.length === 0) return tabs.innerHTML = '';
+  
   let html = `<button class="tab glass ${activeModule === 'all' ? 'active' : ''}" onclick="setModule('all')">全部记录</button>`;
-  store.posts.forEach((cat) => {
-    html += `<button class="tab glass ${activeModule === cat.category ? 'active' : ''}" onclick="setModule('${cat.category}')">${cat.category}</button>`;
+  
+  store.posts.forEach((cat, idx) => {
+    const theme = getCategoryTheme(idx);
+    const isActive = activeModule === cat.category;
+    html += `<button class="tab glass ${isActive ? 'active' : ''}" onclick="setModule('${cat.category}')" style="--tab-bg: ${theme.headerBg}; --tab-border: ${theme.border}; --tab-accent: ${theme.accent}; --tab-active-bg: ${theme.bg};">${cat.category}</button>`;
   });
   tabs.innerHTML = html;
 }
@@ -350,14 +367,17 @@ function renderList() {
 
     if (filteredItems.length > 0 || (getPwd() && query === '')) {
       foundPosts = true;
+      // 🌟 根据绝对索引获取配色，确保相邻标签与版块绝不重复
+      const theme = getCategoryTheme(catIdx);
+      
       html += `<div style="margin-bottom: 25px;">
-                 <div class="category-header" draggable="true" ondragstart="handleModuleDragStart(event, ${catIdx})" ondragover="handleModuleDragOver(event)" ondrop="handleModuleDrop(event, ${catIdx})" title="按住可上下拖拽排序">
+                 <div class="category-header" draggable="true" ondragstart="handleModuleDragStart(event, ${catIdx})" ondragover="handleModuleDragOver(event)" ondrop="handleModuleDrop(event, ${catIdx})" style="--header-bg: ${theme.headerBg}; --header-border: ${theme.border}; --theme-accent: ${theme.accent};" title="按住可上下拖拽排序">
                    <div class="category-title">
                      <span>📁 ${cat.category}</span>
-                     <button class="btn-icon-add admin-only" style="font-size:11px; padding:2px 8px; height:24px; box-shadow:none;" onclick="renameModule(${catIdx})" title="修改版块名称">✏️ 改名</button>
+                     <button class="btn-icon-add admin-only" style="font-size:11px; padding:2px 8px; height:24px; box-shadow:none; --theme-accent: ${theme.accent};" onclick="renameModule(${catIdx})" title="修改版块名称">✏️ 改名</button>
                    </div>
                    <div class="admin-only" style="display:flex; gap:8px; align-items:center;">
-                     <button class="btn-icon-add" onclick="openEditor('${cat.category}')">＋ 添加</button>
+                     <button class="btn-icon-add" style="--theme-accent: ${theme.accent};" onclick="openEditor('${cat.category}')">＋ 添加</button>
                      <button class="btn-icon-add" style="color:var(--danger); background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.25); box-shadow:none;" onclick="deleteModule(${catIdx})">✕ 删版块</button>
                    </div>
                  </div>`;
@@ -367,7 +387,7 @@ function renderList() {
         filteredItems.forEach((p) => {
           const realPostIdx = cat.items.findIndex(item => item.id === p.id);
           html += `
-            <div class="post-card glass" onclick="window.location.href='blog.html?cat=${catIdx}&id=${p.id}'">
+            <div class="post-card glass" onclick="window.location.href='blog.html?cat=${catIdx}&id=${p.id}'" style="--card-bg: ${theme.bg}; --card-border: ${theme.border}; --theme-accent: ${theme.accent};">
               <div class="glass-icon-btn-group admin-only">
                 <button class="btn-icon-3d btn-icon-edit" onclick="event.stopPropagation(); openEditor('${cat.category}', ${catIdx}, ${realPostIdx})" title="修改">✏️</button>
                 <button class="btn-icon-3d btn-icon-del" onclick="event.stopPropagation(); deletePost(${catIdx}, ${realPostIdx})" title="删除">🗑️</button>
@@ -409,7 +429,7 @@ async function router() {
             <div class="markdown-body glass">
               <div class="reading-top-bar">
                 <a href="blog.html" class="nav-link glass" style="padding:6px 14px; font-size:12px;">← 返回列表</a>
-                <button class="nav-link glass" onclick="toggleArticleFullscreen()" style="background:var(--amber); color:#fff; padding:6px 14px; font-size:12px;">👁️ 纯净全屏</button>
+                <button class="nav-link glass" onclick="toggleArticleFullscreen()" style="background:#f59e0b; color:#fff; padding:6px 14px; font-size:12px;">👁️ 纯净全屏</button>
               </div>
               <h1 style="margin-top:0">${post.title}</h1>
               <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px; border-bottom:1px dashed rgba(245,158,11,0.2); padding-bottom:10px;">
@@ -487,7 +507,7 @@ async function deletePost(catIdx, postIdx) {
 
 async function deleteModule(catIdx) {
   const catName = store.posts[catIdx].category;
-  if (!confirm(`警告：确定要删除版块【${catName}】及其中所有文章吗？`)) return;
+  if (!confirm(`警告: 确定要删除版块【${catName}】及其中所有文章吗？`)) return;
   let tempPosts = JSON.parse(JSON.stringify(store.posts)); tempPosts.splice(catIdx, 1);
   try {
     await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
