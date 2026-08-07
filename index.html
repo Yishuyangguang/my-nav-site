@@ -70,7 +70,7 @@ body.admin-mode .category-header:active { cursor: grabbing; }
 .category-title { font-size: 17px; font-weight: 800; color: #1c1917; display: flex; align-items: center; gap: 8px; }
 .category-title::before { content: ''; display: inline-block; width: 4px; height: 16px; background: var(--theme-accent); border-radius: 4px; }
 
-.inline-add-form {
+.inline-form {
   margin-bottom: 16px; padding: 18px; border-radius: 16px;
   background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px);
   border: 1px solid var(--theme-accent);
@@ -84,6 +84,8 @@ body.admin-mode .category-header:active { cursor: grabbing; }
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
 .card { padding: 16px; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s; position: relative; overflow: hidden; transform: translateZ(0); }
+body.admin-mode .card { cursor: grab; }
+body.admin-mode .card:active { cursor: grabbing; }
 .card:hover { transform: translateY(-4px) translateZ(0); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08), inset 0 2px 2px rgba(255,255,255,1); border-color: var(--theme-accent); background: #fff; }
 .card-header { display: flex; align-items: center; gap: 10px; font-weight: 700; color: #1c1917; margin-bottom: 6px; padding-right: 70px; }
 .card-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 18px; border-radius: 8px; flex-shrink: 0; background: rgba(0, 0, 0, 0.04); box-shadow: inset 0 1px 1px rgba(255,255,255,0.8);}
@@ -99,16 +101,14 @@ body.admin-mode .category-header:active { cursor: grabbing; }
 .btn-icon-add { height: 28px; padding: 0 12px; border-radius: 14px; font-size: 12.5px; font-weight: 700; background: rgba(255, 255, 255, 0.8); color: var(--theme-accent); border: 1px solid var(--theme-accent); display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), inset 0 2px 2px rgba(255,255,255,1); transition: 0.15s; }
 .btn-icon-add:hover { background: var(--theme-accent); color: #fff; transform: translateY(-1px) translateZ(0); }
 
-/* 🌟 资深工程优化：将弹窗定位改为 absolute 绝对随动定位，并且点击时自动滚动锁定至当前视口最佳可见位置 */
 .modal-overlay { 
-  position: absolute; inset: 0; background: rgba(0, 0, 0, 0.45); 
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); 
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
-  display: none; justify-content: center; align-items: flex-start; 
-  padding-top: 50px; z-index: 999; opacity: 0; transition: opacity 0.25s ease; 
-  min-height: 100vh;
+  display: none; justify-content: center; align-items: center; 
+  z-index: 999; opacity: 0; transition: opacity 0.25s ease; padding: 16px;
 }
 .modal-overlay.active { display: flex; opacity: 1; }
-.modal-card { width: 90%; max-width: 440px; padding: 28px; margin-bottom: 50px; }
+.modal-card { width: 90%; max-width: 440px; max-height: 85vh; overflow-y: auto; padding: 28px; }
 
 .form-group { margin-bottom: 12px; }
 .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
@@ -154,25 +154,12 @@ body.admin-mode .category-header:active { cursor: grabbing; }
   </div>
 </div>
 
-<div id="editModal" class="modal-overlay">
-  <div class="modal-card glass">
-    <div style="font-size: 18px; font-weight: 800; color: #1c1917; margin-bottom: 18px;">✏️ 修改资源节点</div>
-    <input type="hidden" id="editCatIdx">
-    <input type="hidden" id="editItemIdx">
-    <div class="form-group"><label>所属分类</label><input type="text" id="editCat" class="form-control"></div>
-    <div class="form-group"><label>网站标题 (留空则按 URL 自动识别)</label><input type="text" id="editTitle" class="form-control"></div>
-    <div class="form-group"><label>目标 URL</label><input type="text" id="editUrl" class="form-control"></div>
-    <div class="form-group"><label>备注说明</label><input type="text" id="editDesc" class="form-control"></div>
-    <button id="editSubmitBtn" class="btn-submit" onclick="submitEditBookmark()">💾 保存修改</button>
-    <button class="btn-submit" style="background:transparent; color:var(--text-muted); border:1px solid rgba(245,158,11,0.3); box-shadow:none; margin-top:8px;" onclick="closeEditModal()">取消</button>
-  </div>
-</div>
-
 <script>
 const API_URL = "https://api.shucao.cc.cd"; 
 let store = { nav: [], posts: [] };
 let activeCategory = 'all';
 let activeAddCat = null;
+let activeEditCard = null; // 🌟 追踪当前正在原地行内修改的卡片 {catIdx, itemIdx}
 
 function getCategoryTheme(index) {
   const themes = [
@@ -262,9 +249,9 @@ async function renameCategory(catIdx) {
 }
 
 let draggedCatIdx = null;
-function handleDragStart(e, idx) { draggedCatIdx = idx; e.dataTransfer.effectAllowed = 'move'; }
-function handleDragOver(e) { e.preventDefault(); }
-async function handleDrop(e, targetIdx) {
+function handleCatDragStart(e, idx) { draggedCatIdx = idx; e.dataTransfer.effectAllowed = 'move'; }
+function handleCatDragOver(e) { e.preventDefault(); }
+async function handleCatDrop(e, targetIdx) {
   e.preventDefault();
   if (draggedCatIdx === null || draggedCatIdx === targetIdx) return;
   let tempNav = JSON.parse(JSON.stringify(store.nav));
@@ -279,8 +266,49 @@ async function handleDrop(e, targetIdx) {
   } catch(e) { alert("⚠️ 排序同步失败"); container.classList.remove('fade-out'); }
 }
 
+let draggedCardInfo = null;
+function handleCardDragStart(e, catIdx, itemIdx) {
+  draggedCardInfo = { catIdx, itemIdx };
+  e.dataTransfer.effectAllowed = 'move';
+  e.stopPropagation();
+}
+function handleCardDragOver(e) { e.preventDefault(); }
+async function handleCardDrop(e, targetCatIdx, targetItemIdx) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (!draggedCardInfo) return;
+  const { catIdx: srcCatIdx, itemIdx: srcItemIdx } = draggedCardInfo;
+  draggedCardInfo = null;
+
+  let tempNav = JSON.parse(JSON.stringify(store.nav));
+  if (srcCatIdx !== targetCatIdx || srcItemIdx === targetItemIdx) return;
+
+  const targetItems = tempNav[targetCatIdx].items;
+  const movedItem = targetItems.splice(srcItemIdx, 1)[0];
+  targetItems.splice(targetItemIdx, 0, movedItem);
+
+  const container = document.getElementById('navContainer'); container.classList.add('fade-out');
+  try {
+    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), nav: tempNav }) });
+    store.nav = tempNav;
+    setTimeout(() => { renderNav(); container.classList.remove('fade-out'); }, 200);
+  } catch(e) { alert("⚠️ 卡片排序同步失败"); container.classList.remove('fade-out'); }
+}
+
 function toggleInlineAdd(catName) {
   activeAddCat = (activeAddCat === catName) ? null : catName;
+  activeEditCard = null; // 关闭正在编辑的卡片
+  renderNav();
+}
+
+// 🌟 切换原地行内修改状态
+function toggleInlineEdit(catIdx, itemIdx) {
+  if (activeEditCard && activeEditCard.catIdx === catIdx && activeEditCard.itemIdx === itemIdx) {
+    activeEditCard = null;
+  } else {
+    activeEditCard = { catIdx, itemIdx };
+    activeAddCat = null; // 关闭正在添加的表单
+  }
   renderNav();
 }
 
@@ -297,7 +325,7 @@ function renderNav() {
     if (filteredItems.length > 0 || (getPwd() && query === '')) {
       const theme = getCategoryTheme(catIdx);
       
-      html += `<div class="category-header" draggable="true" ondragstart="handleDragStart(event, ${catIdx})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${catIdx})" style="--header-bg: ${theme.headerBg}; --header-border: ${theme.border}; --theme-accent: ${theme.accent};" title="按住可上下拖拽排序">
+      html += `<div class="category-header" draggable="true" ondragstart="handleCatDragStart(event, ${catIdx})" ondragover="handleCatDragOver(event)" ondrop="handleCatDrop(event, ${catIdx})" style="--header-bg: ${theme.headerBg}; --header-border: ${theme.border}; --theme-accent: ${theme.accent};" title="按住可上下拖拽排序分类">
                  <div class="category-title">
                    <span>📁 ${cat.category}</span>
                    <button class="btn-icon-add admin-only" style="font-size:11px; padding:2px 8px; height:24px; box-shadow:none; --theme-accent: ${theme.accent};" onclick="renameCategory(${catIdx})" title="修改分类名称">✏️ 改名</button>
@@ -310,7 +338,7 @@ function renderNav() {
 
       if (activeAddCat === cat.category) {
         html += `
-          <div class="inline-add-form" style="--theme-accent: ${theme.accent};">
+          <div class="inline-form" style="--theme-accent: ${theme.accent};">
             <div style="font-size: 13.5px; font-weight: 800; color: ${theme.accent}; margin-bottom: 12px;">➕ 在【${cat.category}】中添加新资源</div>
             <div class="form-group" style="margin-bottom:10px;">
               <label>目标 URL (必填)</label>
@@ -334,18 +362,48 @@ function renderNav() {
       html += `<div class="grid">`;
                
       filteredItems.forEach((item, itemIdx) => {
-        const iconHtml = item.icon && item.icon.startsWith('http') ? `<img src="${item.icon}" loading="lazy" onerror="this.outerHTML='🌐'">` : (item.icon || '🌐');
-        html += `
-          <div class="card glass" style="--card-bg: ${theme.bg}; --card-border: ${theme.border}; --theme-accent: ${theme.accent};">
-            <div class="glass-icon-btn-group admin-only">
-              <button class="btn-icon-3d btn-icon-edit" onclick="openEditBookmark(${catIdx}, ${itemIdx})" title="修改">✏️</button>
-              <button class="btn-icon-3d btn-icon-del" onclick="deleteBookmark(${catIdx}, ${itemIdx})" title="删除">🗑️</button>
-            </div>
-            <a href="${item.url}" target="_blank" rel="noopener" style="display:flex;flex-direction:column;height:100%;">
-              <div class="card-header"><span class="card-icon">${iconHtml}</span><span>${item.title}</span></div>
-              <div class="card-desc">${item.desc}</div>
-            </a>
-          </div>`;
+        // 🌟 如果当前卡片正处于原地行内修改状态，直接在卡片位置渲染编辑表单
+        const isEditing = activeEditCard && activeEditCard.catIdx === catIdx && activeEditCard.itemIdx === itemIdx;
+        
+        if (isEditing) {
+          html += `
+            <div class="card glass inline-form" style="grid-column: 1 / -1; --theme-accent: ${theme.accent};">
+              <div style="font-size: 13.5px; font-weight: 800; color: ${theme.accent}; margin-bottom: 12px;">✏️ 修改资源节点</div>
+              <div class="form-group" style="margin-bottom:8px;">
+                <label>所属分类</label>
+                <input type="text" id="editCat_${catIdx}_${itemIdx}" class="form-control" value="${cat.category}">
+              </div>
+              <div class="form-group" style="margin-bottom:8px;">
+                <label>网站标题 (留空自动抓取)</label>
+                <input type="text" id="editTitle_${catIdx}_${itemIdx}" class="form-control" value="${item.title}">
+              </div>
+              <div class="form-group" style="margin-bottom:8px;">
+                <label>目标 URL</label>
+                <input type="text" id="editUrl_${catIdx}_${itemIdx}" class="form-control" value="${item.url}">
+              </div>
+              <div class="form-group" style="margin-bottom:12px;">
+                <label>备注说明</label>
+                <input type="text" id="editDesc_${catIdx}_${itemIdx}" class="form-control" value="${item.desc || ''}">
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-submit" style="margin-top:0; flex:1;" onclick="submitInlineEdit(${catIdx}, ${itemIdx})">💾 保存修改</button>
+                <button class="btn-submit" style="margin-top:0; flex:0.4; background:transparent; color:var(--text-muted); border:1px solid ${theme.border}; box-shadow:none;" onclick="toggleInlineEdit(${catIdx}, ${itemIdx})">取消</button>
+              </div>
+            </div>`;
+        } else {
+          const iconHtml = item.icon && item.icon.startsWith('http') ? `<img src="${item.icon}" loading="lazy" onerror="this.outerHTML='🌐'">` : (item.icon || '🌐');
+          html += `
+            <div class="card glass" draggable="true" ondragstart="handleCardDragStart(event, ${catIdx}, ${itemIdx})" ondragover="handleCardDragOver(event)" ondrop="handleCardDrop(event, ${catIdx}, ${itemIdx})" style="--card-bg: ${theme.bg}; --card-border: ${theme.border}; --theme-accent: ${theme.accent};" title="按住可拖拽调整卡片顺序">
+              <div class="glass-icon-btn-group admin-only">
+                <button class="btn-icon-3d btn-icon-edit" onclick="toggleInlineEdit(${catIdx}, ${itemIdx})" title="修改">✏️</button>
+                <button class="btn-icon-3d btn-icon-del" onclick="deleteBookmark(${catIdx}, ${itemIdx})" title="删除">🗑️</button>
+              </div>
+              <a href="${item.url}" target="_blank" rel="noopener" style="display:flex;flex-direction:column;height:100%;">
+                <div class="card-header"><span class="card-icon">${iconHtml}</span><span>${item.title}</span></div>
+                <div class="card-desc">${item.desc}</div>
+              </a>
+            </div>`;
+        }
       });
       html += `</div>`;
     }
@@ -355,19 +413,6 @@ function renderNav() {
 
 function openLoginModal() { document.getElementById('loginModal').classList.add('active'); document.getElementById('loginPwd').focus(); }
 function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); document.getElementById('loginPwd').value = ''; }
-
-// 🌟 核心升级：打开修改弹窗时，动态计算当前滚动位置，并将绝对定位弹窗精准对齐到当前视口中心，点击瞬间丝滑定位
-function openEditBookmark(catIdx, itemIdx) {
-  const item = store.nav[catIdx].items[itemIdx];
-  document.getElementById('editCatIdx').value = catIdx; document.getElementById('editItemIdx').value = itemIdx;
-  document.getElementById('editCat').value = store.nav[catIdx].category; document.getElementById('editTitle').value = item.title;
-  document.getElementById('editUrl').value = item.url; document.getElementById('editDesc').value = item.desc || '';
-  
-  const modal = document.getElementById('editModal');
-  modal.style.top = (window.pageYOffset || document.documentElement.scrollTop) + 'px';
-  modal.classList.add('active');
-}
-function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
 
 async function submitInlineBookmark(catName, catIdx) {
   let customTitle = document.getElementById(`inlineTitle_${catIdx}`).value.trim();
@@ -395,16 +440,14 @@ async function submitInlineBookmark(catName, catIdx) {
   } catch(e) { alert("⚠️ 部署失败"); }
 }
 
-async function submitEditBookmark() {
-  const catIdx = parseInt(document.getElementById('editCatIdx').value);
-  const itemIdx = parseInt(document.getElementById('editItemIdx').value);
-  const newCat = document.getElementById('editCat').value.trim();
-  let newTitle = document.getElementById('editTitle').value.trim();
-  const newUrl = document.getElementById('editUrl').value.trim();
-  const newDesc = document.getElementById('editDesc').value.trim();
+// 🌟 提交行内修改
+async function submitInlineEdit(catIdx, itemIdx) {
+  const newCat = document.getElementById(`editCat_${catIdx}_${itemIdx}`).value.trim();
+  let newTitle = document.getElementById(`editTitle_${catIdx}_${itemIdx}`).value.trim();
+  const newUrl = document.getElementById(`editUrl_${catIdx}_${itemIdx}`).value.trim();
+  const newDesc = document.getElementById(`editDesc_${catIdx}_${itemIdx}`).value.trim();
   if (!newCat || !newUrl) return alert("分类和 URL 不可为空！");
 
-  const btn = document.getElementById('editSubmitBtn'); btn.innerText = "⏳ 保存中..."; btn.disabled = true;
   try {
     let tempNav = JSON.parse(JSON.stringify(store.nav));
     const oldItem = tempNav[catIdx].items[itemIdx];
@@ -426,8 +469,8 @@ async function submitEditBookmark() {
     targetCat.items.push({ title: newTitle, url: newUrl, icon: icon, desc: newDesc });
 
     await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), nav: tempNav }) });
-    store.nav = tempNav; closeEditModal(); renderFilters(); renderNav();
-  } catch(e) {} finally { btn.innerText = "💾 保存修改"; btn.disabled = false; }
+    store.nav = tempNav; activeEditCard = null; renderFilters(); renderNav();
+  } catch(e) { alert("⚠️ 保存失败"); }
 }
 
 async function deleteBookmark(catIdx, itemIdx) {

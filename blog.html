@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<!-- 🌟 核心：强制发送严格来源信息，解决 YouTube Error 153 -->
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>一束阳光 - 数据刻录机</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='18' fill='%23f59e0b'/%3E%3Cpath d='M32 4v8m0 40v8M4 32h8m40 0h8m-38-18l6 6m20 20l6 6m-26 0l6-6m20-20l6-6' stroke='%23f59e0b' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -29,9 +31,9 @@ a { color: #b45309; text-decoration: none; }
 button { font: inherit; cursor: pointer; border: none; background: none; }
 
 .glass {
-  background: var(--card-bg, rgba(255, 255, 255, 0.7)); 
+  background: rgba(255, 255, 255, 0.7); 
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--card-border, rgba(245, 158, 11, 0.3));
+  border: 1px solid rgba(245, 158, 11, 0.3);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04), inset 0 2px 2px rgba(255, 255, 255, 0.9);
   border-radius: 18px; transform: translateZ(0);
 }
@@ -39,7 +41,7 @@ button { font: inherit; cursor: pointer; border: none; background: none; }
 body:not(.admin-mode) .admin-only { display: none !important; }
 body.admin-mode .guest-only { display: none !important; }
 
-.container { max-width: 800px; margin: 0 auto; }
+.container { max-width: 1000px; margin: 0 auto; }
 .header { padding: 20px 0 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(245, 158, 11, 0.3); margin-bottom: 25px; }
 .logo-area { display: flex; align-items: center; gap: 12px; }
 
@@ -61,7 +63,7 @@ body.admin-mode .guest-only { display: none !important; }
 .module-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; align-items: center; border-bottom: 1px dashed rgba(245, 158, 11, 0.25); }
 .module-tabs::-webkit-scrollbar { display: none; }
 .tab { padding: 8px 18px; border-radius: 20px; font-size: 13.5px; font-weight: 600; color: #78716c; cursor: pointer; transition: 0.25s cubic-bezier(0.25, 1, 0.5, 1); background: var(--tab-bg, rgba(255, 255, 255, 0.6)); border: 1px solid var(--tab-border, rgba(245, 158, 11, 0.2)); box-shadow: 0 2px 6px rgba(0,0,0,0.04), inset 0 1px 1px rgba(255,255,255,1); transform: translateZ(0); white-space: nowrap;}
-.tab.active, .tab:hover { color: var(--tab-accent, #b45309); border-color: var(--tab-accent, #f59e0b); background: var(--tab-active-bg, rgba(245, 158, 11, 0.12)); font-weight: 700; transform: translateY(-1px) translateZ(0); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255,255,255,1); }
+.tab.active, .tab:hover { color: #b45309; border-color: #f59e0b; background: var(--tab-active-bg, rgba(245, 158, 11, 0.12)); font-weight: 700; transform: translateY(-1px) translateZ(0); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255,255,255,1); }
 
 #content { transition: opacity 0.25s ease, transform 0.25s ease; transform: translateZ(0); }
 .fade-out { opacity: 0; transform: translateY(5px) translateZ(0); }
@@ -73,6 +75,8 @@ body.admin-mode .category-header:active { cursor: grabbing; }
 .category-title::before { content: ''; display: inline-block; width: 4px; height: 16px; background: var(--theme-accent); border-radius: 4px; }
 
 .post-card { padding: 18px; margin-bottom: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; transform: translateZ(0); }
+body.admin-mode .post-card { cursor: grab; }
+body.admin-mode .post-card:active { cursor: grabbing; }
 .post-card:hover { border-color: var(--theme-accent); transform: translateY(-3px) translateZ(0); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08), inset 0 2px 2px rgba(255,255,255,1); background: #fff;}
 .post-title { font-size: 17px; font-weight: 800; color: #1c1917; margin-bottom: 6px; padding-right: 70px;}
 .post-date { font-size: 12.5px; color: var(--text-muted); font-weight: 500;}
@@ -90,28 +94,40 @@ body.admin-mode .category-header:active { cursor: grabbing; }
 
 body.article-fullscreen .header { display: none !important; }
 body.article-fullscreen .container { max-width: 100% !important; padding: 0 !important; }
-body.article-fullscreen .markdown-body { border-radius: 0 !important; border: none !important; min-height: 100vh; padding: 30px 20px !important; box-shadow: none !important; }
-body.article-fullscreen .reading-top-bar { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); padding: 10px 16px; position: sticky; top: 0; z-index: 100; margin: 0 0 20px 0; border-radius: 0 0 12px 12px; border-bottom: 1px solid rgba(245,158,11,0.2); }
+body.article-fullscreen .markdown-body { border-radius: 0 !important; border: none !important; min-height: 100vh; padding: 40px 30px !important; box-shadow: none !important; }
+body.article-fullscreen .reading-top-bar { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); padding: 10px 20px; position: sticky; top: 0; z-index: 100; margin: 0 0 20px 0; border-radius: 0 0 12px 12px; border-bottom: 1px dashed rgba(245,158,11,0.2); }
 
-.markdown-body { padding: 35px; margin-top: 10px; overflow-x: hidden; }
-.markdown-body img { max-width: 100%; border-radius: 12px; margin: 15px 0; display: block;}
+.markdown-body { padding: 45px; margin-top: 10px; overflow-x: hidden; }
+.markdown-body img { max-width: 100%; border-radius: 12px; margin: 20px 0; display: block;}
 .markdown-body h1, .markdown-body h2 { color: #1c1917; margin: 25px 0 15px; border-bottom: 1px dashed rgba(245, 158, 11, 0.3); padding-bottom: 5px;}
-.markdown-body p { margin-bottom: 16px; color: #44403c; font-family: SimSun, "宋体", serif; font-size: 13.5pt; line-height: 1.8;}
+.markdown-body p { margin-bottom: 18px; color: #44403c; font-family: SimSun, "宋体", serif; font-size: 14pt; line-height: 1.85;}
 .markdown-body pre { background: #1c1917; color: #fef3c7; padding: 15px; border-radius: 12px; overflow-x: auto; margin-bottom: 16px; }
 
-.video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 14px; margin: 25px 0; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-.video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+.tv-screen {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 25px 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.tv-screen iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 999; opacity: 0; transition: opacity 0.25s ease; padding: 16px; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 9999; opacity: 0; transition: opacity 0.25s ease; padding: 16px; }
 .modal-overlay.active { display: flex; opacity: 1; }
 
-/* 🌟 核心放大：宽幅、舒适的工作台式编辑器弹窗 */
 .fs-note-content { 
-  width: 94vw; max-width: 980px; height: 92vh; max-height: 92vh;
+  width: 94vw; max-width: 1050px; height: 92vh; max-height: 92vh;
   display: flex; flex-direction: column; 
   background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(30px); 
   border-radius: 24px; border: 1px solid rgba(245, 158, 11, 0.4); 
-  box-shadow: 0 25px 60px rgba(0,0,0,0.3); padding: 28px; 
+  box-shadow: 0 25px 60px rgba(0,0,0,0.3); padding: 30px; 
   position: relative; transform: translateY(15px); 
   transition: transform 0.25s cubic-bezier(0.25,1,0.5,1); 
 }
@@ -119,22 +135,17 @@ body.article-fullscreen .reading-top-bar { background: rgba(255,255,255,0.85); b
 
 .fs-note-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px dashed rgba(245, 158, 11, 0.3); flex-wrap: wrap; gap: 10px; flex-shrink: 0; }
 
-.editor-tools-bar { display: flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.12); padding: 6px 12px; border-radius: 12px; border: 1px solid rgba(245,158,11,0.25); flex-wrap: wrap; }
-.editor-select { border: none; background: transparent; outline: none; font-size: 12px; font-weight: 700; color: #b45309; cursor: pointer; }
-
-/* 🌟 宽敞舒适的富文本输入区：自动撑满剩余空间 */
 .rich-edit-area { 
   flex: 1; margin-top: 16px; font-family: SimSun, "宋体", serif; font-size: 14pt; color: #1c1917; line-height: 1.6; 
   border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 16px; background: rgba(255, 255, 255, 0.8); 
-  outline: none; width: 100%; overflow-y: auto; white-space: pre-wrap; word-break: break-word; padding: 18px; 
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+  outline: none; width: 100%; overflow-y: auto; padding: 20px; 
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.03); resize: none;
 }
 .rich-edit-area:focus { background: #fff; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15), inset 0 2px 4px rgba(0,0,0,0.03); }
-.rich-edit-area[contenteditable="true"]:empty:before { content: attr(placeholder); color: #a8a29e; pointer-events: none; display: block; }
 
 .form-group { margin-bottom: 14px; width: 100%; display: flex; gap:10px; align-items:center; }
-.form-control { flex:1; padding: 12px 16px; color: var(--text-main); outline: none; font-size: 14px; background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 14px; font-weight:700; transition: 0.2s;}
-.form-control:focus { border-color: #f59e0b; background: #fff; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); }
+.form-control { flex:1; padding: 12px 16px; color: var(--text-main); outline: none; font-size: 14px; background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; font-weight:700; transition: 0.2s;}
+.form-control:focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); }
 
 .btn-submit { padding: 10px 24px; border-radius: 14px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 700; border: none; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35), inset 0 2px 2px rgba(255,255,255,0.5); transition: 0.2s; transform: translateZ(0); cursor: pointer;}
 .btn-submit:hover { filter: brightness(1.08); transform: translateY(-2px) translateZ(0); }
@@ -180,32 +191,8 @@ body.article-fullscreen .reading-top-bar { background: rgba(255,255,255,0.85); b
   <div class="fs-note-content">
     <div class="fs-note-header">
       <button class="btn-submit" onclick="closeEditor()" style="background: rgba(245, 158, 11, 0.15); color: #d97706; box-shadow: none; border: 1px solid rgba(245,158,11,0.3); padding:8px 16px;">◀ 放弃</button>
-      
-      <div class="editor-tools-bar">
-        <button class="btn-submit" onclick="scrollToTextTop()" title="置顶" style="padding:4px 8px; margin:0; box-shadow:none; background:transparent;">🔝</button>
-        <button class="btn-submit" onclick="scrollToTextBottom()" title="置底" style="padding:4px 8px; margin:0; box-shadow:none; background:transparent;">⬇️</button>
-        <span style="opacity: 0.3;">|</span>
-        <button class="btn-submit" onclick="formatDoc('bold')" style="padding: 4px 10px; margin:0; font-size: 12px; font-weight: 800; background: rgba(245,158,11,0.25); color: #b45309; box-shadow: none;"><b>B</b> 加粗</button>
-        <span style="opacity: 0.3;">|</span>
-        <select class="editor-select" onchange="formatDoc('fontSize', this.value); this.selectedIndex=0;">
-          <option value="" disabled selected>字号</option>
-          <option value="3">12pt 小</option>
-          <option value="4">14pt 正</option>
-          <option value="5">16pt 标题</option>
-          <option value="7">20pt 大</option>
-        </select>
-        <span style="opacity: 0.3;">|</span>
-        <select class="editor-select" onchange="formatDoc('foreColor', this.value); this.selectedIndex=0;">
-          <option value="" disabled selected>颜色</option>
-          <option value="#1c1917">⚫ 黑</option>
-          <option value="#dc2626">🔴 红</option>
-          <option value="#1e40af">🔵 蓝</option>
-        </select>
-      </div>
-
-      <div>
-        <button id="fsSaveBtn" class="btn-submit" onclick="submitRichPost()" style="padding:8px 24px; margin:0;">💾 保存部署</button>
-      </div>
+      <div style="font-size: 15px; font-weight: 800; color: #1c1917;">✏️ 内容编辑器 (极客 Markdown)</div>
+      <button id="fsSaveBtn" class="btn-submit" onclick="submitRichPost()" style="padding:8px 24px; margin:0;">💾 保存部署</button>
     </div>
 
     <div style="margin-top:15px; display:flex; gap:10px;">
@@ -214,7 +201,7 @@ body.article-fullscreen .reading-top-bar { background: rgba(255,255,255,0.85); b
       <input type="text" id="postTitle" class="form-control" placeholder="文章标题 (必填)" style="flex:0.7;">
     </div>
 
-    <div id="richEditContent" class="rich-edit-area" contenteditable="true" spellcheck="false" placeholder="在此点击输入长文...（支持直接粘贴图片秒传）"></div>
+    <textarea id="postContent" class="rich-edit-area" placeholder="在此编写长文（支持 Markdown）...&#10;&#10;📺 视频嵌入：直接另起一行粘贴 YouTube 或 B站 网址&#10;🖼️ 图片秒传：直接 Ctrl+V 粘贴截图，自动上传"></textarea>
   </div>
 </div>
 
@@ -304,9 +291,51 @@ async function handleModuleDrop(e, targetIdx) {
   } catch(e) { alert("⚠️ 排序同步失败"); container.classList.remove('fade-out'); }
 }
 
-function formatDoc(cmd, value) { document.execCommand('styleWithCSS', false, true); document.execCommand(cmd, false, value || null); }
-function scrollToTextTop() { document.getElementById('richEditContent').scrollTop = 0; }
-function scrollToTextBottom() { const e = document.getElementById('richEditContent'); e.scrollTop = e.scrollHeight; }
+let draggedPostInfo = null;
+function handlePostDragStart(e, catIdx, postIdx) {
+  draggedPostInfo = { catIdx, postIdx };
+  e.dataTransfer.effectAllowed = 'move';
+  e.stopPropagation();
+}
+function handlePostDragOver(e) { e.preventDefault(); }
+async function handlePostDrop(e, targetCatIdx, targetPostIdx) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (!draggedPostInfo) return;
+  const { catIdx: srcCatIdx, postIdx: srcPostIdx } = draggedPostInfo;
+  draggedPostInfo = null;
+
+  let tempPosts = JSON.parse(JSON.stringify(store.posts));
+  if (srcCatIdx !== targetCatIdx || srcPostIdx === targetPostIdx) return;
+
+  const targetItems = tempPosts[targetCatIdx].items;
+  const movedPost = targetItems.splice(srcPostIdx, 1)[0];
+  targetItems.splice(targetPostIdx, 0, movedPost);
+
+  const container = document.getElementById('content'); container.classList.add('fade-out');
+  try {
+    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
+    store.posts = tempPosts;
+    setTimeout(() => { renderList(); container.classList.remove('fade-out'); }, 200);
+  } catch(e) { alert("⚠️ 文章排序同步失败"); container.classList.remove('fade-out'); }
+}
+
+// 🌟 修复关键：传入带有 origin 与 strict-origin-when-cross-origin 的官方标准架构
+function parseVideos(text) {
+  var currentOrigin = encodeURIComponent(window.location.origin || '');
+  
+  // 匹配单独占一行的 YouTube 网址
+  text = text.replace(/(?:<p>)?\s*(?:<a[^>]*>)?(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[^\s<]*)(?:<\/a>)?\s*(?:<\/p>)?/g, function(match, id) {
+    return '<div class="tv-screen"><iframe src="https://www.youtube-nocookie.com/embed/' + id + '?enablejsapi=1&origin=' + currentOrigin + '" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>';
+  });
+
+  // 匹配 Bilibili 网址
+  text = text.replace(/(?:<p>)?\s*(?:<a[^>]*>)?(?:https?:\/\/)?(?:www\.)?bilibili\.com\/video\/(BV[a-zA-Z0-9]+)(?:[^\s<]*)(?:<\/a>)?\s*(?:<\/p>)?/g, function(match, bv) {
+    return '<div class="tv-screen"><iframe src="//player.bilibili.com/player.html?bvid=' + bv + '&high_quality=1&danmaku=0" scrolling="no" border="0" frameborder="0" framespacing="0" allowfullscreen></iframe></div>';
+  });
+
+  return text;
+}
 
 function toggleArticleFullscreen() {
   if (!document.fullscreenElement) {
@@ -324,24 +353,24 @@ document.addEventListener('fullscreenchange', () => {
   }
 });
 
-const editArea = document.getElementById('richEditContent');
+const editArea = document.getElementById('postContent');
 editArea.addEventListener('paste', async (e) => {
   const items = e.clipboardData.items;
   for (let item of items) { 
     if (item.type.indexOf('image') !== -1) { 
       e.preventDefault(); 
-      const tempId = 'img-loading-' + Date.now();
-      document.execCommand('insertHTML', false, `<span id="${tempId}" style="color:var(--amber);">⏳ [图片上传中...]</span>`);
+      const start = editArea.selectionStart;
+      const placeholder = '⏳ [图片正在上传中...]\n';
+      editArea.value = editArea.value.substring(0, start) + placeholder + editArea.value.substring(editArea.selectionEnd);
       
       const formData = new FormData(); formData.append('file', item.getAsFile());
       try {
         const res = await fetch('https://telegra.ph/upload', { method: 'POST', body: formData });
         const data = await res.json();
-        const placeholder = document.getElementById(tempId);
-        if (data && data[0] && data[0].src && placeholder) {
-          placeholder.outerHTML = `<img src="https://telegra.ph${data[0].src}" style="max-width:100%; border-radius:12px; margin:10px 0;">`;
-        } else if(placeholder) { placeholder.innerText = '❌ [上传失败]'; }
-      } catch(err) { const p = document.getElementById(tempId); if(p) p.innerText = '❌ [网络中断]'; }
+        if (data && data[0] && data[0].src) {
+          editArea.value = editArea.value.replace(placeholder, `![图片](https://telegra.ph${data[0].src})\n`);
+        } else { editArea.value = editArea.value.replace(placeholder, '❌ [上传失败]\n'); }
+      } catch(err) { editArea.value = editArea.value.replace(placeholder, '❌ [网络中断]\n'); }
     } 
   }
 });
@@ -381,7 +410,7 @@ function renderList() {
       const theme = getCategoryTheme(catIdx);
       
       html += `<div style="margin-bottom: 25px;">
-                 <div class="category-header" draggable="true" ondragstart="handleModuleDragStart(event, ${catIdx})" ondragover="handleModuleDragOver(event)" ondrop="handleModuleDrop(event, ${catIdx})" style="--header-bg: ${theme.headerBg}; --header-border: ${theme.border}; --theme-accent: ${theme.accent};" title="按住可上下拖拽排序">
+                 <div class="category-header" draggable="true" ondragstart="handleModuleDragStart(event, ${catIdx})" ondragover="handleModuleDragOver(event)" ondrop="handleModuleDrop(event, ${catIdx})" style="--header-bg: ${theme.headerBg}; --header-border: ${theme.border}; --theme-accent: ${theme.accent};" title="按住可上下拖拽排序版块">
                    <div class="category-title">
                      <span>📁 ${cat.category}</span>
                      <button class="btn-icon-add admin-only" style="font-size:11px; padding:2px 8px; height:24px; box-shadow:none; --theme-accent: ${theme.accent};" onclick="renameModule(${catIdx})" title="修改版块名称">✏️ 改名</button>
@@ -397,7 +426,7 @@ function renderList() {
         filteredItems.forEach((p) => {
           const realPostIdx = cat.items.findIndex(item => item.id === p.id);
           html += `
-            <div class="post-card glass" onclick="window.location.href='blog.html?cat=${catIdx}&id=${p.id}'" style="--card-bg: ${theme.bg}; --card-border: ${theme.border}; --theme-accent: ${theme.accent};">
+            <div class="post-card glass" draggable="true" ondragstart="handlePostDragStart(event, ${catIdx}, ${realPostIdx})" ondragover="handlePostDragOver(event)" ondrop="handlePostDrop(event, ${catIdx}, ${realPostIdx})" onclick="window.location.href='blog.html?cat=${catIdx}&id=${p.id}'" style="--card-bg: ${theme.bg}; --card-border: ${theme.border}; --theme-accent: ${theme.accent};">
               <div class="glass-icon-btn-group admin-only">
                 <button class="btn-icon-3d btn-icon-edit" onclick="event.stopPropagation(); openEditor('${cat.category}', ${catIdx}, ${realPostIdx})" title="修改">✏️</button>
                 <button class="btn-icon-3d btn-icon-del" onclick="event.stopPropagation(); deletePost(${catIdx}, ${realPostIdx})" title="删除">🗑️</button>
@@ -428,24 +457,28 @@ async function router() {
 
     if (postId && catId !== null) {
       document.querySelector('.search-section').style.display = 'none';
-      const cat = store.posts[catId];
+      const cIdx = parseInt(catId);
+      const cat = store.posts[cIdx];
       if (cat) {
-        const post = cat.items.find(p => p.id === postId);
+        const postIdx = cat.items.findIndex(p => p.id === postId);
+        const post = cat.items[postIdx];
         if (post) {
-          let finalHTML = post.content;
-          if(!post.content.includes('<') && !post.content.includes('>')) finalHTML = marked.parse(post.content);
+          const processedContent = parseVideos(post.content);
           
           container.innerHTML = `
             <div class="markdown-body glass">
               <div class="reading-top-bar">
                 <a href="blog.html" class="nav-link glass" style="padding:6px 14px; font-size:12px;">← 返回列表</a>
-                <button class="nav-link glass" onclick="toggleArticleFullscreen()" style="background:#f59e0b; color:#fff; padding:6px 14px; font-size:12px;">👁️ 纯净全屏</button>
+                <div style="display:flex; gap:10px;">
+                  <button class="nav-link glass admin-only" onclick="openEditor('${cat.category}', ${cIdx}, ${postIdx})" style="color:var(--info); border-color:rgba(37,99,235,0.3); padding:6px 14px; font-size:12px;">✏️ 修改本文</button>
+                  <button class="nav-link glass" onclick="toggleArticleFullscreen()" style="background:#f59e0b; color:#fff; padding:6px 14px; font-size:12px;">👁️ 纯净全屏</button>
+                </div>
               </div>
               <h1 style="margin-top:0">${post.title}</h1>
               <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px; border-bottom:1px dashed rgba(245,158,11,0.2); padding-bottom:10px;">
                 归属版块：${cat.category} | 时间戳：${post.date}
               </div>
-              ${finalHTML}
+              ${marked.parse(processedContent)}
             </div>`;
         } else { container.innerHTML = '<p style="color:var(--text-muted)">数据已不存在。</p>'; }
       }
@@ -466,10 +499,10 @@ function openEditor(catName, catIdx = -1, postIdx = -1) {
   if (catIdx !== -1 && postIdx !== -1) {
     const post = store.posts[catIdx].items[postIdx];
     document.getElementById('postTitle').value = post.title;
-    document.getElementById('richEditContent').innerHTML = post.content;
+    document.getElementById('postContent').value = post.content;
   } else {
     document.getElementById('postTitle').value = '';
-    document.getElementById('richEditContent').innerHTML = '';
+    document.getElementById('postContent').value = '';
   }
   document.getElementById('fsEditorModal').classList.add('active');
 }
@@ -480,10 +513,10 @@ async function submitRichPost() {
   const postIdx = parseInt(document.getElementById('editPostIdx').value);
   let catName = document.getElementById('postCat').value.trim() || "默认版块";
   let title = document.getElementById('postTitle').value.trim();
-  const content = document.getElementById('richEditContent').innerHTML.trim();
+  const content = document.getElementById('postContent').value.trim();
   
   if (!title) return alert("文章标题必填！");
-  if (!content || content === "<br>") return alert("文章内容不可为空！");
+  if (!content) return alert("文章内容不可为空！");
 
   const btn = document.getElementById('fsSaveBtn'); btn.innerText = "⏳ 保存中..."; btn.disabled = true;
   try {
@@ -503,7 +536,13 @@ async function submitRichPost() {
     targetCat.items.unshift({ id: originId, title: title, date: originDate, content: content });
 
     await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
-    store.posts = tempPosts; closeEditor(); activeModule = catName; renderModules(); renderList();
+    store.posts = tempPosts; closeEditor(); activeModule = catName;
+    
+    if (new URLSearchParams(window.location.search).get('id')) {
+        window.location.reload();
+    } else {
+        renderModules(); renderList();
+    }
   } catch(e) {} finally { btn.innerText = "💾 保存部署"; btn.disabled = false; }
 }
 
