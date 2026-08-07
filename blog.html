@@ -5,12 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>一束阳光 - 数据刻录机</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='18' fill='%23f59e0b'/%3E%3Cpath d='M32 4v8m0 40v8M4 32h8m40 0h8m-38-18l6 6m20 20l6 6m-26 0l6-6m20-20l6-6' stroke='%23f59e0b' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 :root {
   --bg-ambient: #fffbeb;
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(245, 158, 11, 0.25);
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(245, 158, 11, 0.3);
   --glass-hover: rgba(255, 255, 255, 0.95);
   --amber: #f59e0b;
   --text-main: #1c1917;
@@ -22,127 +21,113 @@
 body {
   background-color: var(--bg-ambient);
   background-image: radial-gradient(circle at 10% 10%, #fef08a 0%, transparent 40%), radial-gradient(circle at 90% 90%, #fde68a 0%, transparent 40%);
-  background-attachment: fixed;
-  color: var(--text-main);
+  background-attachment: fixed; color: var(--text-main);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  line-height: 1.8;
-  min-height: 100vh;
-  padding: 30px 16px 60px;
+  line-height: 1.8; min-height: 100vh; padding: 30px 16px 60px;
+  animation: pageEntry 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
+@keyframes pageEntry { 0% { opacity: 0; transform: translateY(12px) translateZ(0); } 100% { opacity: 1; transform: translateY(0) translateZ(0); } }
+
 a { color: #b45309; text-decoration: none; }
 button { font: inherit; cursor: pointer; border: none; background: none; }
 
 .glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
-  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  border-radius: 18px;
-  transform: translateZ(0);
+  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.1), inset 0 2px 2px rgba(255, 255, 255, 0.9);
+  border-radius: 18px; transform: translateZ(0);
 }
 
 body:not(.admin-mode) .admin-only { display: none !important; }
 body.admin-mode .guest-only { display: none !important; }
 
 .container { max-width: 800px; margin: 0 auto; }
-.header {
-  padding: 20px 0 30px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
-  margin-bottom: 25px;
-}
+.header { padding: 20px 0 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(245, 158, 11, 0.3); margin-bottom: 25px; }
 .logo-area { display: flex; align-items: center; gap: 12px; }
 
 @keyframes sunRotate { 0% { transform: rotate(0deg) translateZ(0); } 100% { transform: rotate(360deg) translateZ(0); } }
 @keyframes sunPulse { 0% { transform: scale(1) translateZ(0); box-shadow: 0 0 10px rgba(245,158,11,0.4); } 50% { transform: scale(1.06) translateZ(0); box-shadow: 0 0 25px rgba(245,158,11,0.8); } 100% { transform: scale(1) translateZ(0); box-shadow: 0 0 10px rgba(245,158,11,0.4); } }
-.logo-icon {
-  width: 42px; height: 42px;
-  background: linear-gradient(135deg, #fef08a, #f59e0b);
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-  animation: sunPulse 3.5s infinite ease-in-out;
-  transform: translateZ(0);
-}
+.logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, #fef08a, #f59e0b); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; animation: sunPulse 3.5s infinite ease-in-out; transform: translateZ(0); }
 .logo-icon span { display: inline-block; animation: sunRotate 12s infinite linear; }
 .logo-text { font-size: 22px; font-weight: 800; color: #1c1917; letter-spacing: -0.5px; }
 
 .header-actions { display: flex; gap: 10px; }
-.nav-link {
-  padding: 8px 16px; border-radius: 20px; color: #b45309; font-size: 13px; font-weight: 600;
-  border: 1px solid rgba(245, 158, 11, 0.35); background: rgba(255, 255, 255, 0.6);
-  transition: all 0.2s; transform: translateZ(0);
-}
+.nav-link { padding: 8px 16px; border-radius: 20px; color: #b45309; font-size: 13px; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.35); background: rgba(255, 255, 255, 0.8); transition: all 0.2s; transform: translateZ(0); box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1), inset 0 1px 1px rgba(255,255,255,1); }
 .nav-link:hover { background: var(--amber); color: #fff; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); }
 
-/* 数据刻录机的全局搜索与标签分行区 */
-.search-section { margin-bottom: 20px; width: 100%; }
-.search-box { width: 100%; margin-bottom: 16px; }
-.search-box input {
-  width: 100%; padding: 13px 20px; color: var(--text-main); outline: none; font-size: 14px; font-weight: 500; border-radius: 14px;
-}
-.module-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; align-items: center; border-bottom: 1px dashed rgba(245, 158, 11, 0.25); }
+/* 独立全局搜索与标签分行 */
+.search-section { display: flex; flex-direction: column; gap: 16px; margin-bottom: 30px; width: 100%; }
+.search-box { width: 100%; }
+.search-box input { width: 100%; padding: 14px 22px; color: var(--text-main); outline: none; font-size: 14.5px; font-weight: 500; border-radius: 24px; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.08), inset 0 2px 2px rgba(255,255,255,1); transition: 0.2s ease;}
+.search-box input:focus { box-shadow: 0 12px 25px rgba(245, 158, 11, 0.15), inset 0 2px 2px rgba(255,255,255,1); border-color: var(--amber); }
+
+.module-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; align-items: center; border-bottom: 1px dashed rgba(245, 158, 11, 0.25); }
 .module-tabs::-webkit-scrollbar { display: none; }
-.tab {
-  padding: 8px 16px; border-radius: 16px; font-size: 13.5px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; white-space: nowrap;
-  background: rgba(255,255,255,0.5); border: 1px solid rgba(245, 158, 11, 0.2);
-}
-.tab.active, .tab:hover { color: #b45309; background: rgba(245, 158, 11, 0.15); border-color: var(--amber); }
+.tab { padding: 8px 18px; border-radius: 20px; font-size: 13.5px; font-weight: 600; color: #78716c; cursor: pointer; transition: 0.25s cubic-bezier(0.25, 1, 0.5, 1); background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(245, 158, 11, 0.2); box-shadow: 0 2px 6px rgba(0,0,0,0.04), inset 0 1px 1px rgba(255,255,255,1); transform: translateZ(0);}
+.tab.active, .tab:hover { color: #b45309; border-color: var(--amber); background: rgba(245, 158, 11, 0.12); font-weight: 700; transform: translateY(-1px) translateZ(0); box-shadow: 0 6px 15px rgba(245, 158, 11, 0.15), inset 0 1px 1px rgba(255,255,255,1); }
 
-.category-header { display: flex; justify-content: space-between; align-items: center; margin: 35px 0 15px; border-bottom: 1px solid rgba(245, 158, 11, 0.2); padding: 6px 10px; border-radius: 10px; transition: background 0.2s; }
+/* 3D 丝滑过渡容器 */
+#content { transition: opacity 0.25s ease, transform 0.25s ease; transform: translateZ(0); }
+.fade-out { opacity: 0; transform: translateY(5px) translateZ(0); }
+
+/* 3D 版块头 */
+.category-header { display: flex; justify-content: space-between; align-items: center; margin: 35px 0 18px; padding: 10px 16px; border-radius: 14px; background: rgba(255, 255, 255, 0.65); border: 1px solid rgba(255,255,255,0.9); border-bottom: 1px solid rgba(245, 158, 11, 0.2); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.06), inset 0 2px 2px rgba(255,255,255,1); transition: background 0.2s; transform: translateZ(0); }
 body.admin-mode .category-header { cursor: grab; }
-body.admin-mode .category-header:active { cursor: grabbing; background: rgba(245, 158, 11, 0.08); }
-.category-title { font-size: 17px; font-weight: 700; color: #1c1917; display: flex; align-items: center; gap: 8px; }
+body.admin-mode .category-header:active { cursor: grabbing; background: rgba(245, 158, 11, 0.1); }
+.category-title { font-size: 17px; font-weight: 800; color: #1c1917; display: flex; align-items: center; gap: 8px; }
 
-.post-card { padding: 18px; margin-bottom: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; transform: translateZ(0);}
-.post-card:hover { border-color: var(--amber); transform: translateY(-2px) translateZ(0); box-shadow: 0 10px 30px rgba(245, 158, 11, 0.15); background: var(--glass-hover);}
-.post-title { font-size: 17px; font-weight: 700; color: #1c1917; margin-bottom: 4px; padding-right: 70px;}
-.post-date { font-size: 12px; color: var(--text-muted); }
+/* 3D 卡片 */
+.post-card { padding: 18px; margin-bottom: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; transform: translateZ(0); box-shadow: 0 8px 24px rgba(245, 158, 11, 0.08), inset 0 2px 2px rgba(255,255,255,1); }
+.post-card:hover { border-color: var(--amber); transform: translateY(-3px) translateZ(0); box-shadow: 0 15px 35px rgba(245, 158, 11, 0.18), inset 0 2px 2px rgba(255,255,255,1); background: var(--glass-hover);}
+.post-title { font-size: 17px; font-weight: 800; color: #1c1917; margin-bottom: 6px; padding-right: 70px;}
+.post-date { font-size: 12.5px; color: var(--text-muted); font-weight: 500;}
 
-/* 高性能 3D 毛玻璃图标按钮 */
+/* 3D 图标按钮 */
 .glass-icon-btn-group { position: absolute; top: 16px; right: 18px; display: flex; gap: 6px; z-index: 10; }
-.btn-icon-3d {
-  width: 28px; height: 28px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer;
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08), inset 0 1px 1px rgba(255,255,255,0.9);
-  transition: transform 0.15s ease, background 0.15s ease; transform: translateZ(0);
-}
-.btn-icon-edit { background: rgba(37, 99, 235, 0.12); color: var(--info); border-color: rgba(37, 99, 235, 0.3); }
+.btn-icon-3d { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 4px 10px rgba(0,0,0,0.08), inset 0 2px 2px rgba(255,255,255,1); transition: 0.15s ease; transform: translateZ(0); }
+.btn-icon-edit { background: rgba(37, 99, 235, 0.12); color: var(--info); }
 .btn-icon-edit:hover { background: rgba(37, 99, 235, 0.25); transform: scale(1.1); }
-.btn-icon-del { background: rgba(239, 68, 68, 0.12); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+.btn-icon-del { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
 .btn-icon-del:hover { background: rgba(239, 68, 68, 0.25); transform: scale(1.1); }
-.btn-icon-add {
-  height: 28px; padding: 0 12px; border-radius: 14px; font-size: 12px; font-weight: 700;
-  background: rgba(245, 158, 11, 0.15); color: #b45309; border-color: rgba(245, 158, 11, 0.4);
-  display: flex; align-items: center; gap: 4px;
-  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.15); transition: 0.15s;
-}
-.btn-icon-add:hover { background: rgba(245, 158, 11, 0.3); transform: translateY(-1px); }
+.btn-icon-add { height: 28px; padding: 0 12px; border-radius: 14px; font-size: 12.5px; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(255,255,255,0.9); display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12), inset 0 2px 2px rgba(255,255,255,1); transition: 0.15s; }
+.btn-icon-add:hover { background: rgba(245, 158, 11, 0.25); transform: translateY(-1px); }
 
-.markdown-body { padding: 30px; margin-top: 20px; overflow: hidden; }
+/* 富文本沉浸展示 */
+.markdown-body { padding: 35px; margin-top: 20px; overflow-x: hidden; }
 .markdown-body img { max-width: 100%; border-radius: 12px; margin: 15px 0; display: block;}
-.markdown-body h1, .markdown-body h2 { color: #1c1917; margin: 25px 0 15px; border-bottom: 1px solid rgba(245, 158, 11, 0.2); padding-bottom: 5px;}
-.markdown-body p { margin-bottom: 16px; color: #44403c; }
+.markdown-body h1, .markdown-body h2 { color: #1c1917; margin: 25px 0 15px; border-bottom: 1px dashed rgba(245, 158, 11, 0.3); padding-bottom: 5px;}
+.markdown-body p { margin-bottom: 16px; color: #44403c; font-family: SimSun, "宋体", serif; font-size: 13pt; line-height: 1.8;}
 .markdown-body pre { background: #1c1917; color: #fef3c7; padding: 15px; border-radius: 12px; overflow-x: auto; margin-bottom: 16px; }
 
 .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 14px; margin: 25px 0; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
 .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 999; }
-.modal-overlay.active { display: flex; }
-.modal-card { width: 90%; max-width: 650px; max-height: 90vh; overflow-y: auto; padding: 28px; }
-.form-group { margin-bottom: 14px; }
-.form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
-.form-control { width: 100%; padding: 11px 14px; color: var(--text-main); outline: none; font-size: 14px; background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; transition: 0.2s;}
-.form-control:focus { border-color: var(--amber); background: rgba(255, 255, 255, 0.95); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); }
-.btn-submit { width: 100%; padding: 13px; border-radius: 14px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 700; margin-top: 12px; border: none; transition: 0.2s; transform: translateZ(0);}
-.btn-submit:hover { filter: brightness(1.05); transform: translateY(-1px) translateZ(0); }
-.login-avatar { width: 64px; height: 64px; background: linear-gradient(135deg, #fef08a, #f59e0b); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 999; opacity: 0; transition: opacity 0.25s ease; }
+.modal-overlay.active { display: flex; opacity: 1; }
+
+/* 🌟 全新沉浸式排版与编辑大弹窗 */
+.fs-note-content { width: 100%; max-width: 850px; display: flex; flex-direction: column; height: 90vh; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(30px); border-radius: 24px; border: 1px solid rgba(245, 158, 11, 0.4); box-shadow: 0 25px 60px rgba(0,0,0,0.3); padding: 24px; position: relative; transform: translateY(20px); transition: transform 0.25s cubic-bezier(0.25,1,0.5,1); }
+.modal-overlay.active .fs-note-content { transform: translateY(0); }
+
+.fs-note-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px dashed rgba(245, 158, 11, 0.3); flex-wrap: wrap; gap: 10px; transition: 0.25s ease; }
+.fs-note-header.disturb-free { opacity: 0; pointer-events: none; transform: translateY(-15px); height: 0; padding: 0; border: none; overflow: hidden; margin:0;}
+
+.editor-tools-bar { display: flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.12); padding: 6px 12px; border-radius: 12px; border: 1px solid rgba(245,158,11,0.25); flex-wrap: wrap; }
+.editor-select { border: none; background: transparent; outline: none; font-size: 12px; font-weight: 700; color: #b45309; cursor: pointer; }
+
+/* 富文本编辑核心区 */
+.rich-edit-area { flex: 1; margin-top: 16px; font-family: SimSun, "宋体", serif; font-size: 14pt; color: #1c1917; line-height: 1.6; border: none; background: transparent; outline: none; width: 100%; overflow-y: auto; white-space: pre-wrap; word-break: break-word; padding: 10px; }
+.rich-edit-area[contenteditable="true"]:empty:before { content: attr(placeholder); color: #a8a29e; pointer-events: none; display: block; }
+
+.form-group { margin-bottom: 14px; width: 100%; display: flex; gap:10px; align-items:center; }
+.form-control { flex:1; padding: 10px 14px; color: var(--text-main); outline: none; font-size: 14px; background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; font-weight:700; transition: 0.2s;}
+.form-control:focus { border-color: var(--amber); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); }
+
+.btn-submit { padding: 10px 24px; border-radius: 14px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 700; border: none; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35), inset 0 2px 2px rgba(255,255,255,0.5); transition: 0.2s; transform: translateZ(0); cursor: pointer;}
+.btn-submit:hover { filter: brightness(1.08); transform: translateY(-2px) translateZ(0); }
+
+/* 悬浮全屏退出按键 */
+#exit-pure-read-btn { display:none; position:absolute; top:12px; right:16px; z-index:3500; padding:8px 18px; background:rgba(245,158,11,0.85); color:#fff; border-radius:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2); border:none; font-weight:700; cursor:pointer;}
 </style>
 </head>
 <body>
@@ -154,14 +139,13 @@ body.admin-mode .category-header:active { cursor: grabbing; background: rgba(245
       <div class="logo-text">一束阳光</div>
     </div>
     <div class="header-actions">
-      <button class="nav-link glass guest-only" onclick="openLoginModal()">👤 登录</button>
+      <button class="nav-link glass guest-only" onclick="openLoginModal()" style="font-size:14px;">👤 登录</button>
       <button class="nav-link glass admin-only" onclick="logout()" style="color:var(--danger); border-color:rgba(239,68,68,0.3);">🔓 退出</button>
       <button class="nav-link glass admin-only" onclick="quickCreateModule()">＋ 新建版块</button>
-      <a href="index.html" class="nav-link glass" style="background:var(--amber); color:#fff;">← 返回总控</a>
+      <a href="index.html" class="nav-link glass" style="background:var(--amber); color:#fff; box-shadow: 0 6px 15px rgba(245,158,11,0.4), inset 0 1px 1px rgba(255,255,255,0.6);">← 返回总控</a>
     </div>
   </header>
   
-  <!-- 全局搜索与版块标签独立分行 -->
   <div class="search-section">
     <div class="search-box">
       <input type="text" id="searchInput" class="glass" placeholder="🔍 搜索文章标题或内容关键字..." autocomplete="off">
@@ -174,44 +158,59 @@ body.admin-mode .category-header:active { cursor: grabbing; background: rgba(245
 
 <!-- 登录弹窗 -->
 <div id="loginModal" class="modal-overlay">
-  <div class="modal-card glass" style="max-width: 420px; text-align: center;">
-    <div class="login-avatar"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-    <div style="font-size: 18px; font-weight: 700; color: #1c1917; margin-bottom: 20px;">管理员身份验证</div>
-    <div class="form-group"><input type="password" id="loginPwd" class="form-control" placeholder="输入密钥" onkeypress="if(event.key === 'Enter') verifyLogin()" style="text-align: center; letter-spacing: 3px;"></div>
-    <button id="loginBtn" class="btn-submit" onclick="verifyLogin()">验证登入</button>
-    <button class="btn-submit" style="background:transparent; color:var(--text-muted); border:1px solid rgba(245,158,11,0.3); box-shadow:none; margin-top:8px;" onclick="closeLoginModal()">取消</button>
+  <div class="modal-card glass" style="max-width: 420px; text-align: center; border-radius:24px; padding:35px;">
+    <div style="font-size: 40px; margin-bottom: 10px; filter: drop-shadow(0 4px 10px rgba(245,158,11,0.4));">👤</div>
+    <div style="font-size: 18px; font-weight: 800; color: #1c1917; margin-bottom: 20px;">管理员身份验证</div>
+    <div class="form-group" style="display:block;"><input type="password" id="loginPwd" class="form-control" placeholder="输入密钥" onkeypress="if(event.key === 'Enter') verifyLogin()" style="text-align: center; letter-spacing: 3px; width:100%;"></div>
+    <button id="loginBtn" class="btn-submit" style="width:100%;" onclick="verifyLogin()">验证登入</button>
+    <button class="btn-submit" style="width:100%; background:transparent; color:var(--text-muted); border:1px solid rgba(245,158,11,0.3); box-shadow:none; margin-top:8px;" onclick="closeLoginModal()">取消</button>
   </div>
 </div>
 
-<!-- 添加文章弹窗 -->
-<div id="blogModal" class="modal-overlay">
-  <div class="modal-card glass">
-    <div style="font-size: 18px; font-weight: 700; color: #1c1917; margin-bottom: 18px;">✍️ 写入新文章区块</div>
-    <input type="hidden" id="currentContextCat">
-    <div class="form-group"><label>文章标题 (选填：不填则自动识别)</label><input type="text" id="postTitle" class="form-control" placeholder="留空则自动生成标题"></div>
-    <div class="form-group">
-      <label>数据载荷 (Markdown)</label>
-      <textarea id="postContent" class="form-control" rows="10" placeholder="在此编写长文（支持粘贴图片、视频网址自动转换）..."></textarea>
-    </div>
-    <button id="pubBtn" class="btn-submit" onclick="submitPost()">🚀 发射数据</button>
-    <button class="btn-submit" style="background:transparent; color:var(--text-muted); border:1px solid rgba(245,158,11,0.3); box-shadow:none; margin-top:8px;" onclick="closeBlogModal()">取消</button>
-  </div>
-</div>
+<!-- 🌟 升级版全屏沉浸编辑弹窗 (ADD / EDIT 合并重构) -->
+<div id="fsEditorModal" class="modal-overlay">
+  <div class="fs-note-content">
+    <div class="fs-note-header" id="fs-editor-header">
+      <button class="btn-submit" onclick="closeEditor()" style="background: rgba(245, 158, 11, 0.15); color: #d97706; box-shadow: none; border: 1px solid rgba(245,158,11,0.3); padding:8px 16px;">◀ 放弃</button>
+      
+      <div class="editor-tools-bar">
+        <button class="btn-submit" onclick="scrollToTextTop()" title="置顶" style="padding:4px 8px; margin:0; box-shadow:none; background:transparent;">🔝</button>
+        <button class="btn-submit" onclick="scrollToTextBottom()" title="置底" style="padding:4px 8px; margin:0; box-shadow:none; background:transparent;">⬇️</button>
+        <span style="opacity: 0.3;">|</span>
+        <button class="btn-submit" onclick="formatDoc('bold')" style="padding: 4px 10px; margin:0; font-size: 12px; font-weight: 800; background: rgba(245,158,11,0.25); color: #b45309; box-shadow: none;"><b>B</b> 加粗</button>
+        <span style="opacity: 0.3;">|</span>
+        <select class="editor-select" onchange="formatDoc('fontSize', this.value); this.selectedIndex=0;">
+          <option value="" disabled selected>字号</option>
+          <option value="3">12pt 小</option>
+          <option value="4">14pt 正</option>
+          <option value="5">16pt 标题</option>
+          <option value="7">20pt 大</option>
+        </select>
+        <span style="opacity: 0.3;">|</span>
+        <select class="editor-select" onchange="formatDoc('foreColor', this.value); this.selectedIndex=0;">
+          <option value="" disabled selected>颜色</option>
+          <option value="#1c1917">⚫ 黑</option>
+          <option value="#dc2626">🔴 红</option>
+          <option value="#1e40af">🔵 蓝</option>
+        </select>
+      </div>
 
-<!-- 编辑文章弹窗 -->
-<div id="editBlogModal" class="modal-overlay">
-  <div class="modal-card glass">
-    <div style="font-size: 18px; font-weight: 700; color: #1c1917; margin-bottom: 18px;">✏️ 修改数据区块</div>
-    <input type="hidden" id="editCatIdx">
-    <input type="hidden" id="editPostIdx">
-    <div class="form-group"><label>所属版块</label><input type="text" id="editPostCat" class="form-control"></div>
-    <div class="form-group"><label>文章标题</label><input type="text" id="editPostTitle" class="form-control"></div>
-    <div class="form-group">
-      <label>数据载荷 (Markdown)</label>
-      <textarea id="editPostContent" class="form-control" rows="10"></textarea>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-submit" onclick="togglePureReadMode()" style="background: rgba(245, 158, 11, 0.2); color: #b45309; box-shadow: none; border: 1px solid rgba(245,158,11,0.3); padding:8px 16px;">👁️ 纯净</button>
+        <button id="fsSaveBtn" class="btn-submit" onclick="submitRichPost()" style="padding:8px 24px; margin:0;">💾 保存部署</button>
+      </div>
     </div>
-    <button id="editPubBtn" class="btn-submit" onclick="submitEditPost()">💾 保存修改</button>
-    <button class="btn-submit" style="background:transparent; color:var(--text-muted); border:1px solid rgba(245,158,11,0.3); box-shadow:none; margin-top:8px;" onclick="closeEditBlogModal()">取消</button>
+    
+    <button id="exit-pure-read-btn" onclick="togglePureReadMode()">⚙️ 恢复工具栏</button>
+
+    <div style="margin-top:15px; display:flex; gap:10px;">
+      <input type="hidden" id="editCatIdx"><input type="hidden" id="editPostIdx">
+      <input type="text" id="postCat" class="form-control" placeholder="所属版块" style="flex:0.3;">
+      <input type="text" id="postTitle" class="form-control" placeholder="文章标题 (必填)" style="flex:0.7;">
+    </div>
+
+    <!-- 🌟 原版精髓：富文本编辑区 -->
+    <div id="richEditContent" class="rich-edit-area" contenteditable="true" spellcheck="false" placeholder="在此点击输入长文...（支持直接粘贴图片秒传，全选文字使用上方工具栏调整格式）"></div>
   </div>
 </div>
 
@@ -219,6 +218,7 @@ body.admin-mode .category-header:active { cursor: grabbing; background: rgba(245
 const API_URL = "https://api.shucao.cc.cd"; 
 let store = { nav: [], posts: [] };
 let activeModule = 'all';
+let isPureReadMode = false;
 
 function getPwd() { return sessionStorage.getItem('adminKey'); }
 function checkAuth() { if (getPwd()) { document.body.classList.add('admin-mode'); } else { document.body.classList.remove('admin-mode'); } }
@@ -256,7 +256,6 @@ async function quickCreateModule() {
   } catch(e) { alert("⚠️ 创建失败"); }
 }
 
-// 支持手动修改版块名称
 async function renameModule(catIdx) {
   const oldName = store.posts[catIdx].category;
   const newName = prompt(`修改版块【${oldName}】的名称：`, oldName);
@@ -280,72 +279,70 @@ async function handleModuleDrop(e, targetIdx) {
   const moved = tempPosts.splice(draggedModuleIdx, 1)[0];
   tempPosts.splice(targetIdx, 0, moved);
   draggedModuleIdx = null;
+  const container = document.getElementById('content'); container.classList.add('fade-out');
   try {
     await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
-    store.posts = tempPosts; renderModules(); renderList();
-  } catch(e) { alert("⚠️ 排序同步失败"); }
+    store.posts = tempPosts; 
+    setTimeout(() => { renderModules(); renderList(); container.classList.remove('fade-out'); }, 200);
+  } catch(e) { alert("⚠️ 排序同步失败"); container.classList.remove('fade-out'); }
 }
 
-function parseVideos(text) {
-  text = text.replace(/^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S+)?$/gm, 
-    '<div class="video-container"><iframe src="https://www.youtube.com/embed/$1" allowfullscreen></iframe></div>');
-  text = text.replace(/^(?:https?:\/\/)?(?:www\.)?bilibili\.com\/video\/(BV[a-zA-Z0-9]+)(?:\S+)?$/gm, 
-    '<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=$1&high_quality=1&danmaku=0" allowfullscreen></iframe></div>');
-  return text;
+// 富文本相关注入
+function formatDoc(cmd, value) { document.execCommand('styleWithCSS', false, true); document.execCommand(cmd, false, value || null); }
+function scrollToTextTop() { document.getElementById('richEditContent').scrollTop = 0; }
+function scrollToTextBottom() { const e = document.getElementById('richEditContent'); e.scrollTop = e.scrollHeight; }
+function togglePureReadMode() {
+  isPureReadMode = !isPureReadMode;
+  document.getElementById('fs-editor-header').classList.toggle('disturb-free', isPureReadMode);
+  document.getElementById('exit-pure-read-btn').style.display = isPureReadMode ? 'block' : 'none';
 }
 
-const textarea = document.getElementById('postContent');
-const editTextarea = document.getElementById('editPostContent');
-[textarea, editTextarea].forEach(el => {
-  el.addEventListener('paste', async (e) => {
-    const items = e.clipboardData.items;
-    for (let item of items) { 
-      if (item.type.indexOf('image') !== -1) { 
-        e.preventDefault(); 
-        await uploadImage(item.getAsFile(), el); 
-      } 
-    }
-  });
+const editArea = document.getElementById('richEditContent');
+editArea.addEventListener('paste', async (e) => {
+  const items = e.clipboardData.items;
+  for (let item of items) { 
+    if (item.type.indexOf('image') !== -1) { 
+      e.preventDefault(); 
+      const tempId = 'img-loading-' + Date.now();
+      document.execCommand('insertHTML', false, `<span id="${tempId}" style="color:var(--amber);">⏳ [图片上传中...]</span>`);
+      
+      const formData = new FormData(); formData.append('file', item.getAsFile());
+      try {
+        const res = await fetch('https://telegra.ph/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+        const placeholder = document.getElementById(tempId);
+        if (data && data[0] && data[0].src && placeholder) {
+          placeholder.outerHTML = `<img src="https://telegra.ph${data[0].src}" style="max-width:100%; border-radius:12px; margin:10px 0;">`;
+        } else if(placeholder) { placeholder.innerText = '❌ [上传失败]'; }
+      } catch(err) { const p = document.getElementById(tempId); if(p) p.innerText = '❌ [网络中断]'; }
+    } 
+  }
 });
-
-async function uploadImage(file, targetEl) {
-  const start = targetEl.selectionStart;
-  const placeholder = '⏳ [图像正在云端同步...]\n';
-  targetEl.value = targetEl.value.substring(0, start) + placeholder + targetEl.value.substring(targetEl.selectionEnd);
-  
-  const formData = new FormData(); formData.append('file', file);
-  try {
-    const res = await fetch('https://telegra.ph/upload', { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data && data[0] && data[0].src) {
-      targetEl.value = targetEl.value.replace(placeholder, `![图片](https://telegra.ph${data[0].src})\n`);
-    } else { targetEl.value = targetEl.value.replace(placeholder, '❌ [上传失败]\n'); }
-  } catch(e) { targetEl.value = targetEl.value.replace(placeholder, '❌ [网络超时]\n'); }
-}
 
 function renderModules() {
   const tabs = document.getElementById('moduleTabs');
   if (!store.posts || store.posts.length === 0) return tabs.innerHTML = '';
-  
-  let html = `<div class="tab glass ${activeModule === 'all' ? 'active' : ''}" onclick="setModule('all')">全部记录</div>`;
+  let html = `<button class="tab glass ${activeModule === 'all' ? 'active' : ''}" onclick="setModule('all')">全部记录</button>`;
   store.posts.forEach((cat) => {
-    html += `<div class="tab glass ${activeModule === cat.category ? 'active' : ''}" onclick="setModule('${cat.category}')">${cat.category}</div>`;
+    html += `<button class="tab glass ${activeModule === cat.category ? 'active' : ''}" onclick="setModule('${cat.category}')">${cat.category}</button>`;
   });
   tabs.innerHTML = html;
 }
 
-function setModule(mod) { activeModule = mod; renderList(); renderModules(); }
+function setModule(mod) { 
+  activeModule = mod; renderModules(); 
+  const container = document.getElementById('content');
+  container.classList.add('fade-out');
+  setTimeout(() => { renderList(); container.classList.remove('fade-out'); }, 200);
+}
 
 function renderList() {
   const query = document.getElementById('searchInput').value.toLowerCase().trim();
   const container = document.getElementById('content');
   let html = '';
-
   let foundPosts = false;
   store.posts.forEach((cat, catIdx) => {
     if (activeModule !== 'all' && activeModule !== cat.category) return;
-    
-    // 过滤版块内的文章
     const filteredItems = cat.items.filter(p => p.title.toLowerCase().includes(query) || p.content.toLowerCase().includes(query));
 
     if (filteredItems.length > 0 || (getPwd() && query === '')) {
@@ -353,24 +350,23 @@ function renderList() {
       html += `<div style="margin-bottom: 25px;">
                  <div class="category-header" draggable="true" ondragstart="handleModuleDragStart(event, ${catIdx})" ondragover="handleModuleDragOver(event)" ondrop="handleModuleDrop(event, ${catIdx})" title="按住可上下拖拽排序">
                    <div class="category-title">
-                     <span>📂 ${cat.category}</span>
-                     <button class="btn-icon-add admin-only" style="font-size:10px; padding:2px 6px; height:20px;" onclick="renameModule(${catIdx})" title="修改版块名称">✏️ 改名</button>
+                     <span>📁 ${cat.category}</span>
+                     <button class="btn-icon-add admin-only" style="font-size:11px; padding:2px 8px; height:24px; box-shadow:none;" onclick="renameModule(${catIdx})" title="修改版块名称">✏️ 改名</button>
                    </div>
                    <div class="admin-only" style="display:flex; gap:8px; align-items:center;">
-                     <button class="btn-icon-add" onclick="openBlogModal('${cat.category}')">＋ 添加</button>
-                     <button class="btn-icon-add" style="color:var(--danger); background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.25);" onclick="deleteModule(${catIdx})">✕ 删版块</button>
+                     <button class="btn-icon-add" onclick="openEditor('${cat.category}')">＋ 添加</button>
+                     <button class="btn-icon-add" style="color:var(--danger); background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.25); box-shadow:none;" onclick="deleteModule(${catIdx})">✕ 删版块</button>
                    </div>
                  </div>`;
       if (filteredItems.length === 0) {
         html += `<p style="color:var(--text-muted); font-size:12.5px; padding: 10px;">该版块暂无匹配内容。</p>`;
       } else {
         filteredItems.forEach((p) => {
-          // 在原数组中精准定位真实索引
           const realPostIdx = cat.items.findIndex(item => item.id === p.id);
           html += `
             <div class="post-card glass" onclick="window.location.href='blog.html?cat=${catIdx}&id=${p.id}'">
               <div class="glass-icon-btn-group admin-only">
-                <button class="btn-icon-3d btn-icon-edit" onclick="event.stopPropagation(); openEditPost(${catIdx}, ${realPostIdx})" title="修改">✏️</button>
+                <button class="btn-icon-3d btn-icon-edit" onclick="event.stopPropagation(); openEditor('${cat.category}', ${catIdx}, ${realPostIdx})" title="修改">✏️</button>
                 <button class="btn-icon-3d btn-icon-del" onclick="event.stopPropagation(); deletePost(${catIdx}, ${realPostIdx})" title="删除">🗑️</button>
               </div>
               <div class="post-title">${p.title}</div>
@@ -382,10 +378,7 @@ function renderList() {
     }
   });
 
-  if (!foundPosts) {
-    html = '<p style="color:var(--text-muted); margin-top:20px;">未找到匹配记录。</p>';
-  }
-  
+  if (!foundPosts) html = '<p style="color:var(--text-muted); margin-top:20px;">未找到匹配记录。</p>';
   container.innerHTML = html;
 }
 
@@ -398,100 +391,87 @@ async function router() {
   try {
     const res = await fetchWithTimeout(`${API_URL}/api/data?_t=` + Date.now());
     store = await res.json();
-    
-    if (store.posts && store.posts.length > 0 && store.posts[0].title && !store.posts[0].items) {
-      store.posts = [{ category: "默认版块", items: store.posts }];
-    } else if (!store.posts) { store.posts = []; }
+    if (store.posts && store.posts.length > 0 && store.posts[0].title && !store.posts[0].items) { store.posts = [{ category: "默认版块", items: store.posts }]; } else if (!store.posts) { store.posts = []; }
 
     if (postId && catId !== null) {
-      document.getElementById('moduleTabs').style.display = 'none';
-      document.querySelector('.search-box').style.display = 'none';
+      document.querySelector('.search-section').style.display = 'none';
       const cat = store.posts[catId];
       if (cat) {
         const post = cat.items.find(p => p.id === postId);
         if (post) {
-          const processedContent = parseVideos(post.content);
+          // 由于已启用富文本，直接注入 content，若之前是 MD 兼容 parse 即可
+          let finalHTML = post.content;
+          if(!post.content.includes('<') && !post.content.includes('>')) finalHTML = marked.parse(post.content);
+          
           container.innerHTML = `
             <div class="markdown-body glass">
               <h1 style="margin-top:0">${post.title}</h1>
               <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px; border-bottom:1px dashed rgba(245,158,11,0.2); padding-bottom:10px;">
                 归属版块：${cat.category} | 时间戳：${post.date}
               </div>
-              ${marked.parse(processedContent)}
+              ${finalHTML}
             </div>`;
         } else { container.innerHTML = '<p style="color:var(--text-muted)">数据已不存在。</p>'; }
       }
-    } else {
-      renderModules(); renderList();
-    }
+    } else { renderModules(); renderList(); }
   } catch(e) { container.innerHTML = `<div class="glass" style="padding:20px;border-color:var(--danger);color:var(--danger);">❌ 数据连接断开</div>`; }
 }
 
 function openLoginModal() { document.getElementById('loginModal').classList.add('active'); document.getElementById('loginPwd').focus(); }
 function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); document.getElementById('loginPwd').value = ''; }
 
-function openBlogModal(contextCat = '') { 
-  document.getElementById('currentContextCat').value = contextCat;
-  document.getElementById('postTitle').value = '';
-  document.getElementById('postContent').value = '';
-  document.getElementById('blogModal').classList.add('active'); 
-}
-function closeBlogModal() { document.getElementById('blogModal').classList.remove('active'); }
-
-function openEditPost(catIdx, postIdx) {
-  const cat = store.posts[catIdx];
-  const post = cat.items[postIdx];
-  document.getElementById('editCatIdx').value = catIdx; document.getElementById('editPostIdx').value = postIdx;
-  document.getElementById('editPostCat').value = cat.category; document.getElementById('editPostTitle').value = post.title;
-  document.getElementById('editPostContent').value = post.content;
-  document.getElementById('editBlogModal').classList.add('active');
-}
-function closeEditBlogModal() { document.getElementById('editBlogModal').classList.remove('active'); }
-
-async function submitPost() {
-  const catName = document.getElementById('currentContextCat').value;
-  let title = document.getElementById('postTitle').value.trim();
-  const content = document.getElementById('postContent').value.trim();
+// 统一的富文本编辑器开闭逻辑
+function openEditor(catName, catIdx = -1, postIdx = -1) {
+  document.getElementById('postCat').value = catName;
+  document.getElementById('editCatIdx').value = catIdx;
+  document.getElementById('editPostIdx').value = postIdx;
   
-  if (!content) return alert("文章内容不可为空！");
-  if (!title) title = "日志_" + new Date().toISOString().split('T')[0];
-
-  document.getElementById('pubBtn').innerText = "⏳ 正在同步...";
-  let tempPosts = JSON.parse(JSON.stringify(store.posts));
-  let targetCat = tempPosts.find(c => c.category === catName);
-  if (!targetCat) { targetCat = { category: catName, items: [] }; tempPosts.push(targetCat); }
-  targetCat.items.unshift({ id: 'post_' + Date.now(), title, date: new Date().toISOString().split('T')[0], content });
-
-  try {
-    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
-    store.posts = tempPosts; closeBlogModal();
-    activeModule = catName; window.location.href = 'blog.html';
-  } catch(e) {} finally { document.getElementById('pubBtn').innerText = "🚀 发射数据"; }
+  if (catIdx !== -1 && postIdx !== -1) {
+    const post = store.posts[catIdx].items[postIdx];
+    document.getElementById('postTitle').value = post.title;
+    document.getElementById('richEditContent').innerHTML = post.content;
+  } else {
+    document.getElementById('postTitle').value = '';
+    document.getElementById('richEditContent').innerHTML = '';
+  }
+  document.getElementById('fsEditorModal').classList.add('active');
+}
+function closeEditor() { 
+  document.getElementById('fsEditorModal').classList.remove('active'); 
+  if(isPureReadMode) togglePureReadMode();
 }
 
-async function submitEditPost() {
+async function submitRichPost() {
   const catIdx = parseInt(document.getElementById('editCatIdx').value);
   const postIdx = parseInt(document.getElementById('editPostIdx').value);
-  const newCat = document.getElementById('editPostCat').value.trim();
-  let newTitle = document.getElementById('editPostTitle').value.trim();
-  const newContent = document.getElementById('editPostContent').value.trim();
-  if (!newCat || !newContent) return alert("模块与内容不可为空！");
-  if (!newTitle) newTitle = "无题";
+  let catName = document.getElementById('postCat').value.trim() || "默认版块";
+  let title = document.getElementById('postTitle').value.trim();
+  const content = document.getElementById('richEditContent').innerHTML.trim();
+  
+  if (!title) return alert("文章标题必填！");
+  if (!content || content === "<br>") return alert("文章内容不可为空！");
 
-  const btn = document.getElementById('editPubBtn'); btn.innerText = "⏳ 保存中..."; btn.disabled = true;
+  const btn = document.getElementById('fsSaveBtn'); btn.innerText = "⏳ 保存中..."; btn.disabled = true;
   try {
     let tempPosts = JSON.parse(JSON.stringify(store.posts));
-    const oldPost = tempPosts[catIdx].items[postIdx];
-    tempPosts[catIdx].items.splice(postIdx, 1);
-    if (tempPosts[catIdx].items.length === 0) tempPosts.splice(catIdx, 1);
     
-    let targetCat = tempPosts.find(c => c.category === newCat);
-    if (!targetCat) { targetCat = { category: newCat, items: [] }; tempPosts.push(targetCat); }
-    targetCat.items.unshift({ id: oldPost.id, title: newTitle, date: oldPost.date, content: newContent });
+    // 如果是编辑模式，先删掉旧的
+    let originDate = new Date().toISOString().split('T')[0];
+    let originId = 'post_' + Date.now();
+    if (catIdx !== -1 && postIdx !== -1) {
+      originDate = tempPosts[catIdx].items[postIdx].date;
+      originId = tempPosts[catIdx].items[postIdx].id;
+      tempPosts[catIdx].items.splice(postIdx, 1);
+      if (tempPosts[catIdx].items.length === 0) tempPosts.splice(catIdx, 1);
+    }
+    
+    let targetCat = tempPosts.find(c => c.category === catName);
+    if (!targetCat) { targetCat = { category: catName, items: [] }; tempPosts.push(targetCat); }
+    targetCat.items.unshift({ id: originId, title: title, date: originDate, content: content });
 
     await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
-    store.posts = tempPosts; closeEditBlogModal(); renderModules(); renderList();
-  } catch(e) {} finally { btn.innerText = "💾 保存修改"; btn.disabled = false; }
+    store.posts = tempPosts; closeEditor(); activeModule = catName; renderModules(); renderList();
+  } catch(e) {} finally { btn.innerText = "💾 保存部署"; btn.disabled = false; }
 }
 
 async function deletePost(catIdx, postIdx) {
@@ -514,7 +494,12 @@ async function deleteModule(catIdx) {
   } catch(e) {}
 }
 
-document.getElementById('searchInput').addEventListener('input', renderList);
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { renderList(); }, 200);
+});
+
 document.addEventListener('DOMContentLoaded', () => { checkAuth(); router(); });
 </script>
 </body>
