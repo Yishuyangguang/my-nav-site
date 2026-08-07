@@ -52,7 +52,7 @@ body.admin-mode .guest-only { display: none !important; }
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid rgba(245, 158, 11, 0.2);
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 .logo-area { display: flex; align-items: center; gap: 12px; }
 
@@ -78,7 +78,13 @@ body.admin-mode .guest-only { display: none !important; }
 }
 .nav-link:hover { background: var(--amber); color: #fff; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); }
 
-.module-tabs { display: flex; gap: 8px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; align-items: center; }
+/* 数据刻录机的全局搜索与标签分行区 */
+.search-section { margin-bottom: 20px; width: 100%; }
+.search-box { width: 100%; margin-bottom: 16px; }
+.search-box input {
+  width: 100%; padding: 13px 20px; color: var(--text-main); outline: none; font-size: 14px; font-weight: 500; border-radius: 14px;
+}
+.module-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; align-items: center; border-bottom: 1px dashed rgba(245, 158, 11, 0.25); }
 .module-tabs::-webkit-scrollbar { display: none; }
 .tab {
   padding: 8px 16px; border-radius: 16px; font-size: 13.5px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; white-space: nowrap;
@@ -89,7 +95,7 @@ body.admin-mode .guest-only { display: none !important; }
 .category-header { display: flex; justify-content: space-between; align-items: center; margin: 35px 0 15px; border-bottom: 1px solid rgba(245, 158, 11, 0.2); padding: 6px 10px; border-radius: 10px; transition: background 0.2s; }
 body.admin-mode .category-header { cursor: grab; }
 body.admin-mode .category-header:active { cursor: grabbing; background: rgba(245, 158, 11, 0.08); }
-.category-title { font-size: 17px; font-weight: 700; color: #1c1917; }
+.category-title { font-size: 17px; font-weight: 700; color: #1c1917; display: flex; align-items: center; gap: 8px; }
 
 .post-card { padding: 18px; margin-bottom: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; transform: translateZ(0);}
 .post-card:hover { border-color: var(--amber); transform: translateY(-2px) translateZ(0); box-shadow: 0 10px 30px rgba(245, 158, 11, 0.15); background: var(--glass-hover);}
@@ -148,14 +154,21 @@ body.admin-mode .category-header:active { cursor: grabbing; background: rgba(245
       <div class="logo-text">一束阳光</div>
     </div>
     <div class="header-actions">
-      <button class="nav-link glass guest-only" onclick="openLoginModal()">🔒 登录</button>
+      <button class="nav-link glass guest-only" onclick="openLoginModal()">👤 登录</button>
       <button class="nav-link glass admin-only" onclick="logout()" style="color:var(--danger); border-color:rgba(239,68,68,0.3);">🔓 退出</button>
       <button class="nav-link glass admin-only" onclick="quickCreateModule()">＋ 新建版块</button>
       <a href="index.html" class="nav-link glass" style="background:var(--amber); color:#fff;">← 返回总控</a>
     </div>
   </header>
   
-  <div id="moduleTabs" class="module-tabs"></div>
+  <!-- 全局搜索与版块标签独立分行 -->
+  <div class="search-section">
+    <div class="search-box">
+      <input type="text" id="searchInput" class="glass" placeholder="🔍 搜索文章标题或内容关键字..." autocomplete="off">
+    </div>
+    <div id="moduleTabs" class="module-tabs"></div>
+  </div>
+
   <div id="content"><p style="color:var(--text-muted)">🔄 正在加载阳光数据...</p></div>
 </div>
 
@@ -191,7 +204,7 @@ body.admin-mode .category-header:active { cursor: grabbing; background: rgba(245
     <div style="font-size: 18px; font-weight: 700; color: #1c1917; margin-bottom: 18px;">✏️ 修改数据区块</div>
     <input type="hidden" id="editCatIdx">
     <input type="hidden" id="editPostIdx">
-    <div class="form-group"><label>所属模块</label><input type="text" id="editPostCat" class="form-control"></div>
+    <div class="form-group"><label>所属版块</label><input type="text" id="editPostCat" class="form-control"></div>
     <div class="form-group"><label>文章标题</label><input type="text" id="editPostTitle" class="form-control"></div>
     <div class="form-group">
       <label>数据载荷 (Markdown)</label>
@@ -231,7 +244,6 @@ async function verifyLogin() {
   btn.innerText = "验证登入";
 }
 
-// 极简直接新建版块
 async function quickCreateModule() {
   const name = prompt("请输入新版块名称：");
   if (!name || !name.trim()) return;
@@ -244,7 +256,20 @@ async function quickCreateModule() {
   } catch(e) { alert("⚠️ 创建失败"); }
 }
 
-// 拖拽排序逻辑 (原生高性能)
+// 支持手动修改版块名称
+async function renameModule(catIdx) {
+  const oldName = store.posts[catIdx].category;
+  const newName = prompt(`修改版块【${oldName}】的名称：`, oldName);
+  if (!newName || !newName.trim() || newName.trim() === oldName) return;
+  let tempPosts = JSON.parse(JSON.stringify(store.posts));
+  if (tempPosts.find(c => c.category === newName.trim())) return alert("该版块名称已存在！");
+  tempPosts[catIdx].category = newName.trim();
+  try {
+    await fetchWithTimeout(`${API_URL}/api/save`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pwd: getPwd(), posts: tempPosts }) });
+    store.posts = tempPosts; activeModule = 'all'; renderModules(); renderList();
+  } catch(e) { alert("⚠️ 修改失败"); }
+}
+
 let draggedModuleIdx = null;
 function handleModuleDragStart(e, idx) { draggedModuleIdx = idx; e.dataTransfer.effectAllowed = 'move'; }
 function handleModuleDragOver(e) { e.preventDefault(); }
@@ -312,31 +337,41 @@ function renderModules() {
 function setModule(mod) { activeModule = mod; renderList(); renderModules(); }
 
 function renderList() {
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
   const container = document.getElementById('content');
   let html = '';
 
   let foundPosts = false;
   store.posts.forEach((cat, catIdx) => {
     if (activeModule !== 'all' && activeModule !== cat.category) return;
-    if (cat.items && cat.items.length >= 0) {
+    
+    // 过滤版块内的文章
+    const filteredItems = cat.items.filter(p => p.title.toLowerCase().includes(query) || p.content.toLowerCase().includes(query));
+
+    if (filteredItems.length > 0 || (getPwd() && query === '')) {
       foundPosts = true;
       html += `<div style="margin-bottom: 25px;">
                  <div class="category-header" draggable="true" ondragstart="handleModuleDragStart(event, ${catIdx})" ondragover="handleModuleDragOver(event)" ondrop="handleModuleDrop(event, ${catIdx})" title="按住可上下拖拽排序">
-                   <div class="category-title">📂 ${cat.category}</div>
+                   <div class="category-title">
+                     <span>📂 ${cat.category}</span>
+                     <button class="btn-icon-add admin-only" style="font-size:10px; padding:2px 6px; height:20px;" onclick="renameModule(${catIdx})" title="修改版块名称">✏️ 改名</button>
+                   </div>
                    <div class="admin-only" style="display:flex; gap:8px; align-items:center;">
                      <button class="btn-icon-add" onclick="openBlogModal('${cat.category}')">＋ 添加</button>
                      <button class="btn-icon-add" style="color:var(--danger); background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.25);" onclick="deleteModule(${catIdx})">✕ 删版块</button>
                    </div>
                  </div>`;
-      if (cat.items.length === 0) {
-        html += `<p style="color:var(--text-muted); font-size:12.5px; padding: 10px;">该版块暂无内容，点击上方“＋ 添加”写入文章。</p>`;
+      if (filteredItems.length === 0) {
+        html += `<p style="color:var(--text-muted); font-size:12.5px; padding: 10px;">该版块暂无匹配内容。</p>`;
       } else {
-        cat.items.forEach((p, postIdx) => {
+        filteredItems.forEach((p) => {
+          // 在原数组中精准定位真实索引
+          const realPostIdx = cat.items.findIndex(item => item.id === p.id);
           html += `
             <div class="post-card glass" onclick="window.location.href='blog.html?cat=${catIdx}&id=${p.id}'">
               <div class="glass-icon-btn-group admin-only">
-                <button class="btn-icon-3d btn-icon-edit" onclick="event.stopPropagation(); openEditPost(${catIdx}, ${postIdx})" title="修改">✏️</button>
-                <button class="btn-icon-3d btn-icon-del" onclick="event.stopPropagation(); deletePost(${catIdx}, ${postIdx})" title="删除">🗑️</button>
+                <button class="btn-icon-3d btn-icon-edit" onclick="event.stopPropagation(); openEditPost(${catIdx}, ${realPostIdx})" title="修改">✏️</button>
+                <button class="btn-icon-3d btn-icon-del" onclick="event.stopPropagation(); deletePost(${catIdx}, ${realPostIdx})" title="删除">🗑️</button>
               </div>
               <div class="post-title">${p.title}</div>
               <div class="post-date">时间戳: ${p.date}</div>
@@ -348,7 +383,7 @@ function renderList() {
   });
 
   if (!foundPosts) {
-    html = '<p style="color:var(--text-muted)">暂无文章记录，请点击上方“新建版块”。</p>';
+    html = '<p style="color:var(--text-muted); margin-top:20px;">未找到匹配记录。</p>';
   }
   
   container.innerHTML = html;
@@ -370,6 +405,7 @@ async function router() {
 
     if (postId && catId !== null) {
       document.getElementById('moduleTabs').style.display = 'none';
+      document.querySelector('.search-box').style.display = 'none';
       const cat = store.posts[catId];
       if (cat) {
         const post = cat.items.find(p => p.id === postId);
@@ -478,6 +514,7 @@ async function deleteModule(catIdx) {
   } catch(e) {}
 }
 
+document.getElementById('searchInput').addEventListener('input', renderList);
 document.addEventListener('DOMContentLoaded', () => { checkAuth(); router(); });
 </script>
 </body>
