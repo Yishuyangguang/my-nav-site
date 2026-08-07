@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="referrer" content="no-referrer">
+<title>一束阳光 - 安卓应用快捷下载站</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='18' fill='%23f59e0b'/%3E%3Cpath d='M32 4v8m0 40v8M4 32h8m40 0h8m-38-18l6 6m20 20l6 6m-26 0l6-6m20-20l6-6' stroke='%23f59e0b' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root {
+  --bg-ambient: #fffbeb;
+  --text-main: #1c1917;
+  --text-muted: #78716c;
+  --accent: #f59e0b;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--bg-ambient);
+  background-image: radial-gradient(circle at 10% 10%, #fef08a 0%, transparent 40%), radial-gradient(circle at 90% 90%, #fde68a 0%, transparent 40%);
+  background-attachment: fixed; color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif;
+  line-height: 1.6; min-height: 100vh; padding: 30px 16px 60px;
+  animation: pageEntry 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes pageEntry {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+a { text-decoration: none; color: inherit; }
+.container { max-width: 1000px; margin: 0 auto; }
+
+.header {
+  padding: 20px 0 25px; display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px dashed rgba(245, 158, 11, 0.35); margin-bottom: 30px;
+}
+.logo-area { display: flex; align-items: center; gap: 12px; }
+
+@keyframes sunPulse {
+  0% { transform: scale(1); box-shadow: 0 0 10px rgba(245,158,11,0.4); }
+  50% { transform: scale(1.06); box-shadow: 0 0 22px rgba(245,158,11,0.7); }
+  100% { transform: scale(1); box-shadow: 0 0 10px rgba(245,158,11,0.4); } }
+@keyframes sunRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.logo-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, #fef08a, #f59e0b);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  animation: sunPulse 3.5s infinite ease-in-out;
+}
+.logo-icon span { display: inline-block; animation: sunRotate 12s infinite linear; }
+
+.logo-text { font-size: 22px; font-weight: 800; color: #1c1917; letter-spacing: -0.5px; }
+.logo-sub { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+.nav-link {
+  padding: 8px 18px; border-radius: 20px; color: #b45309; font-size: 13.5px; font-weight: 700;
+  border: 1px solid rgba(245, 158, 11, 0.35); background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1), inset 0 1px 1px #fff; transition: all 0.2s;
+}
+.nav-link:hover { background: #f59e0b; color: #fff; transform: translateY(-1px); }
+
+.search-section { margin-bottom: 30px; }
+.search-box input {
+  width: 100%; padding: 14px 22px; color: var(--text-main); outline: none; font-size: 14.5px; font-weight: 500;
+  border-radius: 24px; background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.08), inset 0 2px 2px #fff; transition: 0.2s ease;
+}
+.search-box input:focus { border-color: #f59e0b; box-shadow: 0 12px 25px rgba(245, 158, 11, 0.18), inset 0 2px 2px #fff; background: #fff; }
+
+.app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; }
+
+.app-card {
+  background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(16px);
+  border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 20px; padding: 22px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04), inset 0 2px 2px rgba(255, 255, 255, 0.9);
+  display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease;
+}
+.app-card:hover {
+  transform: translateY(-4px); border-color: #f59e0b;
+  box-shadow: 0 16px 35px rgba(245, 158, 11, 0.15), inset 0 2px 2px #fff; background: rgba(255, 255, 255, 0.95);
+}
+
+.app-header { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.app-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: rgba(254, 243, 199, 0.8); border: 1px solid rgba(245, 158, 11, 0.25);
+  display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0;
+}
+.app-title { font-size: 17.5px; font-weight: 800; color: #1c1917; margin-bottom: 2px; }
+.app-tag {
+  display: inline-block; padding: 2px 8px; border-radius: 8px;
+  font-size: 11px; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: #b45309;
+}
+.app-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; min-height: 38px; }
+
+.btn-download {
+  width: 100%; padding: 11px 16px; border-radius: 14px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff; font-size: 13.5px; font-weight: 700; text-align: center; border: none;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35), inset 0 1px 1px rgba(255,255,255,0.6);
+  transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
+}
+.btn-download:hover { filter: brightness(1.08); transform: translateY(-2px); box-shadow: 0 8px 22px rgba(245, 158, 11, 0.45); }
+
+.tip-banner {
+  margin-top: 35px; padding: 18px 22px; border-radius: 16px;
+  background: rgba(254, 243, 199, 0.6); border: 1px dashed rgba(245, 158, 11, 0.4);
+  color: #78716c; font-size: 13px; line-height: 1.7;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header class="header">
+    <div class="logo-area">
+      <div class="logo-icon"><span>☀️</span></div>
+      <div>
+        <div class="logo-text">一束阳光</div>
+        <div class="logo-sub">安卓应用快捷下载站</div>
+      </div>
+    </div>
+    <a href="index.html" class="nav-link">← 返回资源导航</a>
+  </header>
+
+  <div class="search-section">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="🔍 搜索应用名称或描述..." autocomplete="off">
+    </div>
+  </div>
+
+  <div class="app-grid" id="appGrid"></div>
+
+  <div class="tip-banner">
+    💡 <b>温馨提示</b>：点击按钮将跳转至各应用的官方在线服务或客户端直下载页。如在微信内部打不开，请点击右上角选择“在浏览器中打开”。
+  </div>
+</div>
+
+<script>
+// 🌟 已更新为仓库记录中的 6 个真实可用链接
+const APP_DATA = [
+  {
+    title: "精读圣经",
+    icon: "📖",
+    tag: "研读工具",
+    desc: "经典研读客户端，支持多译本对照、原文字典与词典注解。",
+    url: "https://appsky.icu/#/bible"
+  },
+  {
+    title: "诗歌本",
+    icon: "🎵",
+    tag: "赞美诗歌",
+    desc: "收录多本诗歌集、简谱与伴奏音乐，支持离线播放。",
+    url: "https://appsky.icu/#/hymn"
+  },
+  {
+    title: "微读圣经",
+    icon: "📘",
+    tag: "阅读必备",
+    desc: "排版清爽优雅，支持灵修计划、语音朗读与多端同步。",
+    url: "https://wd.bible/app"
+  },
+  {
+    title: "小鸽子",
+    icon: "🕊️",
+    tag: "即时通讯",
+    desc: "安全私密的即时通讯客户端，提供快速稳定的消息传输。",
+    url: "https://www.idigest.app/#/appDownload"
+  },
+  {
+    title: "福音TV",
+    icon: "📺",
+    tag: "视频播放",
+    desc: "高质量视听学习客户端，提供高清视频与音频内容。",
+    url: "https://www.fuyin.tv/"
+  },
+  {
+    title: "Zoom 会议",
+    icon: "👥",
+    tag: "视频会议",
+    desc: "全球通用的高清视频会议与协同工作平台（官方下载）。",
+    url: "https://zoom.us/download"
+  }
+];
+
+function renderApps(list) {
+  const grid = document.getElementById('appGrid');
+  if (!list || list.length === 0) {
+    grid.innerHTML = '<p style="color:var(--text-muted); grid-column:1/-1; text-align:center; padding:30px;">未找到相关应用。</p>';
+    return;
+  }
+
+  let html = '';
+  list.forEach(app => {
+    html += `
+      <div class="app-card">
+        <div>
+          <div class="app-header">
+            <div class="app-icon">${app.icon}</div>
+            <div>
+              <div class="app-title">${app.title}</div>
+              <span class="app-tag">${app.tag}</span>
+            </div>
+          </div>
+          <div class="app-desc">${app.desc}</div>
+        </div>
+        <a href="${app.url}" target="_blank" rel="noreferrer" class="btn-download">
+          🚀 前往获取 / 下载
+        </a>
+      </div>`;
+  });
+  grid.innerHTML = html;
+}
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase().trim();
+  const filtered = APP_DATA.filter(a => 
+    a.title.toLowerCase().includes(query) || 
+    a.desc.toLowerCase().includes(query) ||
+    a.tag.toLowerCase().includes(query)
+  );
+  renderApps(filtered);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderApps(APP_DATA);
+});
+</script>
+</body>
+</html>
