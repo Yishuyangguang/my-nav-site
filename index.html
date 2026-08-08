@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>一束阳光 - 资源导航</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='18' fill='%23f59e0b'/%3E%3Cpath d='M32 4v8m0 40v8M4 32h8m40 0h8m-38-18l6 6m20 20l6 6m-26 0l6-6m20-20l6-6' stroke='%23f59e0b' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
@@ -48,7 +49,7 @@ body.admin-mode .guest-only { display: none !important; }
 .logo-icon span { display: inline-block; animation: sunRotate 12s infinite linear; }
 .logo-text { font-size: 22px; font-weight: 800; color: #1c1917; letter-spacing: -0.5px; }
 
-.header-actions { display: flex; gap: 10px; }
+.header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .nav-link { padding: 8px 16px; border-radius: 20px; color: #b45309; font-size: 13px; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.35); background: rgba(255, 255, 255, 0.8); transition: all 0.2s ease; transform: translateZ(0); box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1), inset 0 1px 1px rgba(255,255,255,1); }
 .nav-link:hover { background: #f59e0b; color: #fff; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); transform: translateY(-1px) translateZ(0); }
 
@@ -130,6 +131,10 @@ body.admin-mode .card:active { cursor: grabbing; }
       <button class="nav-link glass guest-only" onclick="openLoginModal()" style="font-size:14px;">👤 登录</button>
       <button class="nav-link glass admin-only" onclick="logout()" style="color:var(--danger); border-color:rgba(239,68,68,0.3);">🔓 退出</button>
       <button class="nav-link glass admin-only" onclick="quickCreateCategory()">＋ 新建分类</button>
+      
+      <!-- 📱 安卓应用跳转按钮 -->
+      <a href="apps.html" class="nav-link glass">📱 安卓应用</a>
+
       <a href="blog.html" class="nav-link glass" style="background:#f59e0b; color:#fff; box-shadow: 0 6px 15px rgba(245,158,11,0.4), inset 0 1px 1px rgba(255,255,255,0.6);">📖 博客中枢 →</a>
     </div>
   </header>
@@ -159,7 +164,7 @@ const API_URL = "https://api.shucao.cc.cd";
 let store = { nav: [], posts: [] };
 let activeCategory = 'all';
 let activeAddCat = null;
-let activeEditCard = null; // 🌟 追踪当前正在原地行内修改的卡片 {catIdx, itemIdx}
+let activeEditCard = null;
 
 function getCategoryTheme(index) {
   const themes = [
@@ -297,17 +302,16 @@ async function handleCardDrop(e, targetCatIdx, targetItemIdx) {
 
 function toggleInlineAdd(catName) {
   activeAddCat = (activeAddCat === catName) ? null : catName;
-  activeEditCard = null; // 关闭正在编辑的卡片
+  activeEditCard = null;
   renderNav();
 }
 
-// 🌟 切换原地行内修改状态
 function toggleInlineEdit(catIdx, itemIdx) {
   if (activeEditCard && activeEditCard.catIdx === catIdx && activeEditCard.itemIdx === itemIdx) {
     activeEditCard = null;
   } else {
     activeEditCard = { catIdx, itemIdx };
-    activeAddCat = null; // 关闭正在添加的表单
+    activeAddCat = null;
   }
   renderNav();
 }
@@ -362,7 +366,6 @@ function renderNav() {
       html += `<div class="grid">`;
                
       filteredItems.forEach((item, itemIdx) => {
-        // 🌟 如果当前卡片正处于原地行内修改状态，直接在卡片位置渲染编辑表单
         const isEditing = activeEditCard && activeEditCard.catIdx === catIdx && activeEditCard.itemIdx === itemIdx;
         
         if (isEditing) {
@@ -440,7 +443,6 @@ async function submitInlineBookmark(catName, catIdx) {
   } catch(e) { alert("⚠️ 部署失败"); }
 }
 
-// 🌟 提交行内修改
 async function submitInlineEdit(catIdx, itemIdx) {
   const newCat = document.getElementById(`editCat_${catIdx}_${itemIdx}`).value.trim();
   let newTitle = document.getElementById(`editTitle_${catIdx}_${itemIdx}`).value.trim();
